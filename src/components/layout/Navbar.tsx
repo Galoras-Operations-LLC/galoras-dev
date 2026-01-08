@@ -40,7 +40,15 @@ const navItems = [
       { name: "Organizational Diagnostics", href: "/business/diagnostics", description: "Measure what matters" },
     ],
   },
-  { name: "Performance Labs", href: "/labs" },
+  {
+    name: "Leadership Lab",
+    href: "/labs",
+    children: [
+      { name: "All Courses", href: "/labs", description: "Browse all workshops and events" },
+      { name: "Performance Labs", href: "/labs#performance", description: "Intensive transformation programs" },
+      { name: "Upcoming Events", href: "/labs#events", description: "Workshops and live sessions" },
+    ],
+  },
   { name: "Compass", href: "/compass" },
 ];
 

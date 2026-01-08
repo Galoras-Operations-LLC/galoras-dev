@@ -3,7 +3,6 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -11,12 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CoachCard } from "@/components/coaching/CoachCard";
 import { 
   Search, 
   Filter, 
-  Star, 
-  MapPin, 
-  Clock, 
   ArrowRight,
   Sparkles,
   Users,
@@ -40,13 +37,13 @@ const categoryIcons: Record<string, typeof Target> = {
 };
 
 const categories = [
-  { id: "all", name: "All Categories", slug: "all" },
+  { id: "all", name: "Show All", slug: "all" },
+  { id: "coach", name: "Coach", slug: "coach" },
   { id: "leadership", name: "Leadership", slug: "leadership" },
   { id: "career", name: "Career", slug: "career" },
   { id: "performance", name: "Performance", slug: "performance" },
   { id: "mindset", name: "Mindset", slug: "mindset" },
   { id: "communication", name: "Communication", slug: "communication" },
-  { id: "transitions", name: "Transitions", slug: "transitions" },
 ];
 
 export default function CoachingDirectory() {
@@ -57,7 +54,6 @@ export default function CoachingDirectory() {
   const { data: coaches, isLoading } = useQuery({
     queryKey: ["coaches", selectedCategory],
     queryFn: async () => {
-      // First get coaches
       const { data: coachData, error: coachError } = await supabase
         .from("coaches")
         .select("*")
@@ -65,31 +61,7 @@ export default function CoachingDirectory() {
         .order("is_featured", { ascending: false });
       
       if (coachError) throw coachError;
-      
-      // Then get profiles for those coaches
-      const userIds = coachData?.map(c => c.user_id) || [];
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, avatar_url")
-        .in("user_id", userIds);
-      
-      // Merge the data
-      return coachData?.map(coach => ({
-        ...coach,
-        profile: profiles?.find(p => p.user_id === coach.user_id)
-      })) || [];
-    },
-  });
-
-  const { data: dbCategories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("*")
-        .order("display_order");
-      if (error) throw error;
-      return data;
+      return coachData || [];
     },
   });
 
@@ -104,7 +76,7 @@ export default function CoachingDirectory() {
 
   const filteredCoaches = coaches?.filter((coach) => {
     if (!searchQuery) return true;
-    const name = coach.profile?.full_name?.toLowerCase() || "";
+    const name = coach.display_name?.toLowerCase() || "";
     const headline = coach.headline?.toLowerCase() || "";
     const specialties = coach.specialties?.join(" ").toLowerCase() || "";
     const query = searchQuery.toLowerCase();
@@ -115,7 +87,6 @@ export default function CoachingDirectory() {
     <Layout>
       {/* Hero Section */}
       <section className="relative pt-32 pb-16 overflow-hidden">
-        {/* Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1920&auto=format&fit=crop')" }}
@@ -143,7 +114,7 @@ export default function CoachingDirectory() {
             </Link>
           </div>
 
-          {/* Search & Filter Bar */}
+          {/* Search Bar */}
           <div className="max-w-4xl mx-auto bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-4 md:p-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
@@ -177,20 +148,18 @@ export default function CoachingDirectory() {
       <section className="py-6 bg-muted/30 border-b border-border">
         <div className="container-wide">
           <div className="flex flex-wrap justify-center gap-2">
-            {categories.map((category) => {
-              const Icon = categoryIcons[category.slug] || Target;
+            {categories.slice(0, 2).map((category) => {
               const isActive = selectedCategory === category.slug;
               return (
                 <button
                   key={category.slug}
                   onClick={() => handleCategoryChange(category.slug)}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     isActive
                       ? "bg-primary text-primary-foreground"
                       : "bg-card border border-border hover:border-primary/50 text-foreground"
                   }`}
                 >
-                  {category.slug !== "all" && <Icon className="h-4 w-4" />}
                   {category.name}
                 </button>
               );
@@ -203,98 +172,30 @@ export default function CoachingDirectory() {
       <section className="section-padding bg-background">
         <div className="container-wide">
           {isLoading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-card rounded-2xl border border-border p-6 animate-pulse">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-full bg-muted" />
-                    <div className="flex-1">
-                      <div className="h-5 bg-muted rounded w-3/4 mb-2" />
-                      <div className="h-4 bg-muted rounded w-1/2" />
-                    </div>
-                  </div>
-                  <div className="h-16 bg-muted rounded mb-4" />
-                  <div className="flex gap-2">
-                    <div className="h-6 bg-muted rounded-full w-20" />
-                    <div className="h-6 bg-muted rounded-full w-16" />
-                  </div>
+                <div key={i} className="bg-card rounded-2xl border border-border p-6 animate-pulse text-center">
+                  <div className="w-32 h-32 mx-auto rounded-full bg-muted mb-4" />
+                  <div className="h-6 bg-muted rounded w-2/3 mx-auto mb-2" />
+                  <div className="h-6 bg-muted rounded w-1/3 mx-auto mb-3" />
+                  <div className="h-4 bg-muted rounded w-1/2 mx-auto mb-4" />
+                  <div className="h-10 bg-muted rounded-full w-2/3 mx-auto" />
                 </div>
               ))}
             </div>
           ) : filteredCoaches && filteredCoaches.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredCoaches.map((coach) => (
-                <Link
+                <CoachCard
                   key={coach.id}
-                  to={`/coaching/${coach.id}`}
-                  className="group bg-card rounded-2xl border border-border hover:border-primary/50 p-6 transition-all card-hover"
-                >
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="relative">
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center overflow-hidden">
-                        {coach.profile?.avatar_url ? (
-                          <img 
-                            src={coach.profile.avatar_url} 
-                            alt={coach.profile?.full_name || "Coach"} 
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-2xl font-bold text-primary">
-                            {coach.profile?.full_name?.charAt(0) || "C"}
-                          </span>
-                        )}
-                      </div>
-                      {coach.is_featured && (
-                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                          <Star className="h-3 w-3 text-primary-foreground fill-current" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-display font-semibold text-lg truncate group-hover:text-primary transition-colors">
-                        {coach.profile?.full_name || "Coach"}
-                      </h3>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {coach.headline || "Executive Coach"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                    {coach.bio || "Helping leaders and professionals achieve peak performance."}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {coach.specialties?.slice(0, 3).map((specialty, i) => (
-                      <Badge key={i} variant="secondary" className="text-xs">
-                        {specialty}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm text-muted-foreground pt-4 border-t border-border">
-                    <div className="flex items-center gap-4">
-                      {coach.location && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5" />
-                          {coach.location}
-                        </span>
-                      )}
-                      {coach.experience_years && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5" />
-                          {coach.experience_years}+ yrs
-                        </span>
-                      )}
-                    </div>
-                    {coach.rating && coach.rating > 0 && (
-                      <span className="flex items-center gap-1 text-primary">
-                        <Star className="h-3.5 w-3.5 fill-current" />
-                        {Number(coach.rating).toFixed(1)}
-                      </span>
-                    )}
-                  </div>
-                </Link>
+                  id={coach.id}
+                  displayName={coach.display_name}
+                  avatarUrl={coach.avatar_url}
+                  headline={coach.headline}
+                  specialties={coach.specialties}
+                  isFeatured={coach.is_featured}
+                  isEnterpriseReady={coach.is_enterprise_ready}
+                />
               ))}
             </div>
           ) : (
