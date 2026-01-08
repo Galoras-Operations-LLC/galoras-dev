@@ -26,12 +26,13 @@ export function FounderVideoModal() {
   }, []);
 
   // Auto-minimize to thumbnail when paused (only in small mode)
+  // Set isThumbnail to false immediately when playing
   useEffect(() => {
-    if (!isPlaying && !isExpanded && isOpen) {
+    if (isPlaying) {
+      setIsThumbnail(false);
+    } else if (!isExpanded && isOpen) {
       const timer = setTimeout(() => setIsThumbnail(true), 500);
       return () => clearTimeout(timer);
-    } else {
-      setIsThumbnail(false);
     }
   }, [isPlaying, isExpanded, isOpen]);
 
