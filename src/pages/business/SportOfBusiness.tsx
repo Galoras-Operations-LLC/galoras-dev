@@ -77,7 +77,7 @@ export default function SportOfBusiness() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <OptimizedImage
-            src="https://images.unsplash.com/photo-1461896836934- voices-db48f1d?w=1920&q=80"
+            src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1920&q=80"
             alt="Athletic performance and focus"
             className="w-full h-full"
             overlay
