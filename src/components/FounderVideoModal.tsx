@@ -10,6 +10,8 @@ const FOUNDER_VIDEO_URL = "https://commondatastorage.googleapis.com/gtv-videos-b
 export function FounderVideoModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isThumbnail, setIsThumbnail] = useState(false);
   const [hasSeenBefore, setHasSeenBefore] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -21,6 +23,16 @@ export function FounderVideoModal() {
       setIsOpen(true);
     }
   }, []);
+
+  // Auto-minimize to thumbnail when paused (only in small mode)
+  useEffect(() => {
+    if (!isPlaying && !isExpanded && isOpen) {
+      const timer = setTimeout(() => setIsThumbnail(true), 500);
+      return () => clearTimeout(timer);
+    } else {
+      setIsThumbnail(false);
+    }
+  }, [isPlaying, isExpanded, isOpen]);
 
   const handleVideoEnd = () => {
     localStorage.setItem(STORAGE_KEY, "true");
@@ -36,10 +48,28 @@ export function FounderVideoModal() {
 
   const handleWatchAgain = () => {
     setIsOpen(true);
+    setIsThumbnail(false);
   };
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
+    setIsThumbnail(false);
+  };
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+    setIsThumbnail(false);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+  };
+
+  const handleThumbnailClick = () => {
+    if (videoRef.current) {
+      videoRef.current.play();
+      setIsThumbnail(false);
+    }
   };
 
   if (!isOpen && !hasSeenBefore) return null;
@@ -76,40 +106,56 @@ export function FounderVideoModal() {
             className={`fixed z-50 bg-black rounded-lg shadow-2xl overflow-hidden transition-all duration-300 ease-in-out ${
               isExpanded 
                 ? "top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-3xl" 
-                : "top-4 right-4 w-64 sm:w-80"
+                : isThumbnail
+                  ? "top-4 right-4 w-16 h-16 cursor-pointer hover-scale"
+                  : "top-4 right-4 w-64 sm:w-80"
             }`}
+            onClick={isThumbnail ? handleThumbnailClick : undefined}
           >
-            {/* Control buttons */}
-            <div className="absolute top-2 right-2 z-10 flex gap-1">
-              <Button
-                onClick={toggleExpand}
-                size="icon"
-                variant="ghost"
-                className="h-7 w-7 bg-black/60 hover:bg-black/80 text-white rounded-full"
-              >
-                {isExpanded ? (
-                  <Minimize2 className="h-4 w-4" />
-                ) : (
-                  <Maximize2 className="h-4 w-4" />
-                )}
-              </Button>
-              <Button
-                onClick={handleClose}
-                size="icon"
-                variant="ghost"
-                className="h-7 w-7 bg-black/60 hover:bg-black/80 text-white rounded-full"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+            {/* Thumbnail Mode */}
+            {isThumbnail && !isExpanded && (
+              <div className="absolute inset-0 flex items-center justify-center bg-primary/90 rounded-lg">
+                <Play className="h-8 w-8 text-primary-foreground animate-pulse" />
+              </div>
+            )}
+
+            {/* Control buttons - hidden in thumbnail mode */}
+            {!isThumbnail && (
+              <div className="absolute top-2 right-2 z-10 flex gap-1">
+                <Button
+                  onClick={toggleExpand}
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7 bg-black/60 hover:bg-black/80 text-white rounded-full"
+                >
+                  {isExpanded ? (
+                    <Minimize2 className="h-4 w-4" />
+                  ) : (
+                    <Maximize2 className="h-4 w-4" />
+                  )}
+                </Button>
+                <Button
+                  onClick={handleClose}
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7 bg-black/60 hover:bg-black/80 text-white rounded-full"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
 
             <video
               ref={videoRef}
               src={FOUNDER_VIDEO_URL}
-              controls
+              controls={!isThumbnail}
               autoPlay
+              onPlay={handlePlay}
+              onPause={handlePause}
               onEnded={handleVideoEnd}
-              className="w-full aspect-video"
+              className={`w-full aspect-video transition-opacity duration-300 ${
+                isThumbnail ? "opacity-0" : "opacity-100"
+              }`}
               playsInline
             >
               Your browser does not support the video tag.
