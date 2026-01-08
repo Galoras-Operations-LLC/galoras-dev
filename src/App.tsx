@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import { CoachingDirectory, CoachProfile, CoachMatching, WhyCoaching } from "./pages/coaching";
 
 const queryClient = new QueryClient();
 
@@ -17,9 +18,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           {/* B2C Routes */}
-          <Route path="/coaching" element={<NotFound />} />
-          <Route path="/coaching/matching" element={<NotFound />} />
-          <Route path="/coaching/why" element={<NotFound />} />
+          <Route path="/coaching" element={<CoachingDirectory />} />
+          <Route path="/coaching/:coachId" element={<CoachProfile />} />
+          <Route path="/coaching/matching" element={<CoachMatching />} />
+          <Route path="/coaching/why" element={<WhyCoaching />} />
           {/* B2B Routes */}
           <Route path="/business" element={<NotFound />} />
           <Route path="/business/sport-of-business" element={<NotFound />} />
