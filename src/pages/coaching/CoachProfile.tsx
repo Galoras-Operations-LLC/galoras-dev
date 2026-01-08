@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { MessageCoachModal } from "@/components/coaching/MessageCoachModal";
 import { 
   ArrowLeft,
   Star, 
@@ -23,6 +25,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export default function CoachProfile() {
   const { coachId } = useParams<{ coachId: string }>();
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
 
   const { data: coach, isLoading } = useQuery({
     queryKey: ["coach", coachId],
@@ -301,7 +304,12 @@ export default function CoachProfile() {
                       <Calendar className="mr-2 h-4 w-4" />
                       Book a Session
                     </Button>
-                    <Button variant="outline" className="w-full" size="lg">
+                    <Button 
+                      variant="outline" 
+                      className="w-full" 
+                      size="lg"
+                      onClick={() => setIsMessageModalOpen(true)}
+                    >
                       <MessageCircle className="mr-2 h-4 w-4" />
                       Send Message
                     </Button>
@@ -396,6 +404,15 @@ export default function CoachProfile() {
           </div>
         </div>
       </div>
+
+      {/* Message Coach Modal */}
+      <MessageCoachModal
+        isOpen={isMessageModalOpen}
+        onClose={() => setIsMessageModalOpen(false)}
+        coachId={coachId || ""}
+        coachName={coach?.display_name || coach?.profile?.full_name || "Coach"}
+        coachUserId={coach?.user_id || ""}
+      />
     </Layout>
   );
 }

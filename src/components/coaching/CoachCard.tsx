@@ -39,22 +39,21 @@ export function CoachCard({
         </div>
       )}
 
-      {/* Circular Avatar */}
+      {/* Circular Avatar with Light Blue Background */}
       <div className="relative mx-auto w-32 h-32 mb-4">
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 via-amber-200/30 to-accent/20 p-1">
-          <div className="w-full h-full rounded-full bg-muted overflow-hidden flex items-center justify-center">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-4xl font-bold text-primary">
-                {name.charAt(0)}
-              </span>
-            )}
-          </div>
+        <div className="absolute inset-0 rounded-full bg-sky-100 dark:bg-sky-900/30" />
+        <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center">
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-4xl font-bold text-primary">
+              {name.charAt(0)}
+            </span>
+          )}
         </div>
       </div>
 

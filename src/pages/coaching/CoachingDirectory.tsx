@@ -169,7 +169,7 @@ export default function CoachingDirectory() {
       </section>
 
       {/* Coaches Grid */}
-      <section className="section-padding bg-background">
+      <section className="section-padding bg-muted/50">
         <div className="container-wide">
           {isLoading ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
