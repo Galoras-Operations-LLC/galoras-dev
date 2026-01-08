@@ -6,6 +6,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { CoachingDirectory, CoachProfile, CoachMatching, WhyCoaching } from "./pages/coaching";
+import Compass from "./pages/Compass";
+import Labs from "./pages/Labs";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Apply from "./pages/Apply";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -29,13 +35,13 @@ const App = () => (
           <Route path="/business/workshops" element={<NotFound />} />
           <Route path="/business/diagnostics" element={<NotFound />} />
           {/* Other Routes */}
-          <Route path="/compass" element={<NotFound />} />
-          <Route path="/labs" element={<NotFound />} />
-          <Route path="/apply" element={<NotFound />} />
-          <Route path="/about" element={<NotFound />} />
-          <Route path="/contact" element={<NotFound />} />
-          <Route path="/login" element={<NotFound />} />
-          <Route path="/signup" element={<NotFound />} />
+          <Route path="/compass" element={<Compass />} />
+          <Route path="/labs" element={<Labs />} />
+          <Route path="/apply" element={<Apply />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Auth />} />
+          <Route path="/signup" element={<Auth />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
