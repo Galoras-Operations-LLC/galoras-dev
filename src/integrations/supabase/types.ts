@@ -217,9 +217,11 @@ export type Database = {
       }
       coaches: {
         Row: {
+          avatar_url: string | null
           bio: string | null
           coaching_style: string | null
           created_at: string
+          display_name: string | null
           experience_years: number | null
           headline: string | null
           hourly_rate: number | null
@@ -240,9 +242,11 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
+          avatar_url?: string | null
           bio?: string | null
           coaching_style?: string | null
           created_at?: string
+          display_name?: string | null
           experience_years?: number | null
           headline?: string | null
           hourly_rate?: number | null
@@ -263,9 +267,11 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
+          avatar_url?: string | null
           bio?: string | null
           coaching_style?: string | null
           created_at?: string
+          display_name?: string | null
           experience_years?: number | null
           headline?: string | null
           hourly_rate?: number | null
