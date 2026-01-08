@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 import { 
   ArrowRight, 
   Trophy, 
@@ -72,7 +73,18 @@ export default function SportOfBusiness() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 hero-gradient overflow-hidden">
+      <section className="relative pt-32 pb-20 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <OptimizedImage
+            src="https://images.unsplash.com/photo-1461896836934- voices-db48f1d?w=1920&q=80"
+            alt="Athletic performance and focus"
+            className="w-full h-full"
+            overlay
+          />
+          <div className="absolute inset-0 bg-background/75" />
+        </div>
+        
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.15),transparent_50%)]" />
         
         <div className="container-wide relative z-10">
@@ -192,9 +204,12 @@ export default function SportOfBusiness() {
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-video rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center">
-                <Trophy className="h-24 w-24 text-primary/30" />
-              </div>
+              <OptimizedImage
+                src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&q=80"
+                alt="Athletes celebrating victory"
+                aspectRatio="video"
+                className="rounded-2xl"
+              />
             </div>
           </div>
         </div>

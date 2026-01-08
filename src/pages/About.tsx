@@ -76,7 +76,18 @@ export default function About() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 hero-gradient overflow-hidden">
+      <section className="relative pt-32 pb-20 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1920&q=80"
+            alt="Team working together"
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-background/85" />
+        </div>
+        
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.15),transparent_50%)]" />
         
         <div className="container-wide relative z-10">
@@ -124,9 +135,12 @@ export default function About() {
                 </p>
               </div>
               <div className="relative">
-                <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center">
-                  <Award className="h-32 w-32 text-primary/30" />
-                </div>
+                <img
+                  src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&q=80"
+                  alt="Leadership and growth"
+                  className="aspect-square rounded-2xl object-cover"
+                  loading="lazy"
+                />
               </div>
             </div>
           </div>

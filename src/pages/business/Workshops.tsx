@@ -81,7 +81,18 @@ export default function Workshops() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 hero-gradient overflow-hidden">
+      <section className="relative pt-32 pb-20 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1920&q=80"
+            alt="Interactive workshop session"
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-background/80" />
+        </div>
+        
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.15),transparent_50%)]" />
         
         <div className="container-wide relative z-10">
@@ -218,9 +229,12 @@ export default function Workshops() {
                 </Link>
               </div>
               <div className="relative">
-                <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center">
-                  <Lightbulb className="h-32 w-32 text-primary/30" />
-                </div>
+                <img
+                  src="https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?w=600&q=80"
+                  alt="Custom workshop facilitation"
+                  className="aspect-square rounded-2xl object-cover"
+                  loading="lazy"
+                />
               </div>
             </div>
           </div>
