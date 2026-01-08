@@ -1,12 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Play } from "lucide-react";
+import { Play, X, Maximize2, Minimize2 } from "lucide-react";
 
 const STORAGE_KEY = "galoras_founder_video_seen";
 
@@ -15,6 +9,7 @@ const FOUNDER_VIDEO_URL = "https://commondatastorage.googleapis.com/gtv-videos-b
 
 export function FounderVideoModal() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [hasSeenBefore, setHasSeenBefore] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -33,21 +28,26 @@ export function FounderVideoModal() {
     setIsOpen(false);
   };
 
-  const handleClose = (open: boolean) => {
-    if (!open) {
-      localStorage.setItem(STORAGE_KEY, "true");
-      setHasSeenBefore(true);
-      setIsOpen(false);
-    }
+  const handleClose = () => {
+    localStorage.setItem(STORAGE_KEY, "true");
+    setHasSeenBefore(true);
+    setIsOpen(false);
   };
 
   const handleWatchAgain = () => {
     setIsOpen(true);
   };
 
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  if (!isOpen && !hasSeenBefore) return null;
+
   return (
     <>
-      {hasSeenBefore && (
+      {/* Watch Again Button - shown after video is closed */}
+      {hasSeenBefore && !isOpen && (
         <div className="fixed bottom-6 right-6 z-40">
           <Button
             onClick={handleWatchAgain}
@@ -60,24 +60,63 @@ export function FounderVideoModal() {
           </Button>
         </div>
       )}
-      
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden bg-black border-none">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Welcome to Galoras</DialogTitle>
-          </DialogHeader>
-          <video
-            ref={videoRef}
-            src={FOUNDER_VIDEO_URL}
-            controls
-            onEnded={handleVideoEnd}
-            className="w-full aspect-video"
-            playsInline
+
+      {/* Floating Video Player */}
+      {isOpen && (
+        <>
+          {/* Backdrop overlay when expanded */}
+          {isExpanded && (
+            <div 
+              className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
+              onClick={handleClose}
+            />
+          )}
+          
+          <div
+            className={`fixed z-50 bg-black rounded-lg shadow-2xl overflow-hidden transition-all duration-300 ease-in-out ${
+              isExpanded 
+                ? "top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-3xl" 
+                : "top-4 right-4 w-64 sm:w-80"
+            }`}
           >
-            Your browser does not support the video tag.
-          </video>
-        </DialogContent>
-      </Dialog>
+            {/* Control buttons */}
+            <div className="absolute top-2 right-2 z-10 flex gap-1">
+              <Button
+                onClick={toggleExpand}
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7 bg-black/60 hover:bg-black/80 text-white rounded-full"
+              >
+                {isExpanded ? (
+                  <Minimize2 className="h-4 w-4" />
+                ) : (
+                  <Maximize2 className="h-4 w-4" />
+                )}
+              </Button>
+              <Button
+                onClick={handleClose}
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7 bg-black/60 hover:bg-black/80 text-white rounded-full"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <video
+              ref={videoRef}
+              src={FOUNDER_VIDEO_URL}
+              controls
+              autoPlay
+              onEnded={handleVideoEnd}
+              className="w-full aspect-video"
+              playsInline
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </>
+      )}
     </>
   );
 }
