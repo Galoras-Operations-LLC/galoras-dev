@@ -68,6 +68,33 @@ export type Database = {
         }
         Relationships: []
       }
+      brand_images: {
+        Row: {
+          generated_at: string
+          id: string
+          page_name: string
+          prompt: string
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          generated_at?: string
+          id?: string
+          page_name: string
+          prompt: string
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          generated_at?: string
+          id?: string
+          page_name?: string
+          prompt?: string
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
