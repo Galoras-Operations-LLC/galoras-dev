@@ -121,8 +121,13 @@ export default function Apply() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 hero-gradient overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.15),transparent_50%)]" />
+      <section className="relative pt-32 pb-20 overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1920&auto=format&fit=crop')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/80 to-background" />
         
         <div className="container-wide relative z-10">
           <div className="max-w-3xl mx-auto text-center">

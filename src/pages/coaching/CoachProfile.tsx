@@ -118,7 +118,12 @@ export default function CoachProfile() {
             <div className="lg:col-span-2 space-y-8">
               {/* Profile Header */}
               <Card className="overflow-hidden">
-                <div className="h-32 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/10" />
+                <div 
+                  className="h-32 bg-cover bg-center relative"
+                  style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1920&auto=format&fit=crop')" }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/60 via-accent/40 to-primary/30" />
+                </div>
                 <CardContent className="relative pt-0 pb-6">
                   <div className="flex flex-col sm:flex-row gap-6 -mt-12">
                     <div className="relative shrink-0">

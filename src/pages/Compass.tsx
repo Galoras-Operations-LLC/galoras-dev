@@ -75,9 +75,13 @@ export default function Compass() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 hero-gradient overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.15),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,hsl(var(--accent)/0.1),transparent_50%)]" />
+      <section className="relative pt-32 pb-20 overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/80 to-background" />
         
         <div className="container-wide relative z-10">
           <div className="max-w-3xl mx-auto text-center">
@@ -204,8 +208,11 @@ export default function Compass() {
               </Link>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center">
-                <CompassIcon className="h-32 w-32 text-primary/30" />
+              <div 
+                className="aspect-square rounded-2xl bg-cover bg-center overflow-hidden"
+                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop')" }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/20" />
               </div>
             </div>
           </div>
