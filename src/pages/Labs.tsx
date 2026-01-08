@@ -101,26 +101,141 @@ const courses = [
   },
 ];
 
-const methodology = [
+// Performance Labs data
+const performanceLabs = [
   {
-    icon: BarChart3,
-    title: "Diagnostic Assessment",
-    description: "We start with comprehensive assessments to understand your current state and identify growth opportunities.",
+    id: "perf-1",
+    title: "Peak Performance Training",
+    category: "Performance",
+    imageUrl: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=800&auto=format&fit=crop",
+    date: new Date("2026-02-18"),
+    time: "9:00am - 5:00pm",
+    location: "Virtual",
+    lessonsCount: 12,
+    duration: "24h 00m",
+    studentsCount: 20,
+    coachName: "Coach Marcus",
+    coachAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80",
   },
   {
-    icon: Target,
-    title: "Goal Architecture",
-    description: "Design a clear roadmap with measurable milestones tailored to your unique objectives.",
+    id: "perf-2",
+    title: "Mental Resilience & Mindset Mastery",
+    category: "Performance",
+    imageUrl: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=800&auto=format&fit=crop",
+    date: new Date("2026-03-05"),
+    time: "10:00am - 4:00pm",
+    location: "Los Angeles",
+    lessonsCount: 8,
+    duration: "18h 00m",
+    studentsCount: 15,
+    coachName: "Coach Aisha",
+    coachAvatar: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100&q=80",
   },
   {
-    icon: Users,
-    title: "Expert Coaching",
-    description: "Work with elite coaches who specialize in high-performance development.",
+    id: "perf-3",
+    title: "Athletic Mindset for Business Leaders",
+    category: "Performance",
+    imageUrl: "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800&auto=format&fit=crop",
+    date: new Date("2026-03-12"),
+    time: "11:00am - 3:00pm",
+    location: "New York",
+    lessonsCount: 6,
+    duration: "12h 00m",
+    studentsCount: 25,
+    coachName: "Coach David",
+    coachAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80",
+  },
+];
+
+// Executive Labs data
+const executiveLabs = [
+  {
+    id: "exec-1",
+    title: "C-Suite Leadership Accelerator",
+    category: "Executive",
+    imageUrl: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=800&auto=format&fit=crop",
+    date: new Date("2026-02-25"),
+    time: "9:00am - 4:00pm",
+    location: "Virtual",
+    lessonsCount: 10,
+    duration: "20h 00m",
+    studentsCount: 12,
+    coachName: "Coach Elena",
+    coachAvatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80",
   },
   {
-    icon: Rocket,
-    title: "Sustained Transformation",
-    description: "Build lasting habits and systems that continue to drive growth long after the program ends.",
+    id: "exec-2",
+    title: "Strategic Decision Making Under Pressure",
+    category: "Executive",
+    imageUrl: "https://images.unsplash.com/photo-1553028826-f4804a6dba3b?q=80&w=800&auto=format&fit=crop",
+    date: new Date("2026-03-10"),
+    time: "10:00am - 2:00pm",
+    location: "Chicago",
+    lessonsCount: 8,
+    duration: "16h 00m",
+    studentsCount: 18,
+    coachName: "Coach James",
+    coachAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80",
+  },
+  {
+    id: "exec-3",
+    title: "Executive Presence & Communication",
+    category: "Executive",
+    imageUrl: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=800&auto=format&fit=crop",
+    date: new Date("2026-03-20"),
+    time: "1:00pm - 5:00pm",
+    location: "Virtual",
+    lessonsCount: 6,
+    duration: "12h 00m",
+    studentsCount: 20,
+    coachName: "Coach Sarah",
+    coachAvatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&q=80",
+  },
+];
+
+// Team Labs data
+const teamLabs = [
+  {
+    id: "team-1",
+    title: "High-Performance Team Dynamics",
+    category: "Team",
+    imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop",
+    date: new Date("2026-02-28"),
+    time: "9:00am - 3:00pm",
+    location: "Virtual",
+    lessonsCount: 8,
+    duration: "16h 00m",
+    studentsCount: 30,
+    coachName: "Coach Elena",
+    coachAvatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80",
+  },
+  {
+    id: "team-2",
+    title: "Conflict Resolution & Collaboration",
+    category: "Team",
+    imageUrl: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=800&auto=format&fit=crop",
+    date: new Date("2026-03-15"),
+    time: "10:00am - 4:00pm",
+    location: "New York",
+    lessonsCount: 6,
+    duration: "12h 00m",
+    studentsCount: 25,
+    coachName: "Coach Marcus",
+    coachAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80",
+  },
+  {
+    id: "team-3",
+    title: "Building Trust & Psychological Safety",
+    category: "Team",
+    imageUrl: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=800&auto=format&fit=crop",
+    date: new Date("2026-03-25"),
+    time: "11:00am - 3:00pm",
+    location: "Virtual",
+    lessonsCount: 5,
+    duration: "10h 00m",
+    studentsCount: 22,
+    coachName: "Coach Aisha",
+    coachAvatar: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100&q=80",
   },
 ];
 
@@ -196,27 +311,73 @@ export default function Labs() {
         </div>
       </section>
 
-      {/* Methodology */}
+      {/* Performance Labs */}
       <section id="performance" className="section-padding bg-muted/30">
         <div className="container-wide">
           <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-4">
+              <Target className="h-4 w-4" />
+              PERFORMANCE LABS
+            </div>
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              Our Methodology
+              Peak Performance Training
             </h2>
-            <p className="text-muted-foreground text-lg">
-              A proven framework for accelerated transformation.
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Unlock your full potential with programs designed to build mental resilience, focus, and sustainable high performance.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {methodology.map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                  <item.icon className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-lg font-display font-semibold mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
-              </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {performanceLabs.map((course) => (
+              <CourseCard key={course.id} {...course} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Executive Labs */}
+      <section id="executive" className="section-padding bg-background">
+        <div className="container-wide">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-4">
+              <BarChart3 className="h-4 w-4" />
+              EXECUTIVE LABS
+            </div>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+              Executive Leadership Programs
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Accelerate your leadership journey with programs tailored for senior executives and C-suite leaders.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {executiveLabs.map((course) => (
+              <CourseCard key={course.id} {...course} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Team Labs */}
+      <section id="team" className="section-padding bg-muted/30">
+        <div className="container-wide">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-4">
+              <Users className="h-4 w-4" />
+              TEAM LABS
+            </div>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+              Team Development Programs
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Build cohesive, high-performing teams with our collaborative workshops and team coaching programs.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {teamLabs.map((course) => (
+              <CourseCard key={course.id} {...course} />
             ))}
           </div>
         </div>
