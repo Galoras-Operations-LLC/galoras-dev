@@ -167,7 +167,11 @@ export function FeaturedCoaches() {
                     {/* Coach Cutout or Avatar */}
                     {coach.cutout_url ? (
                       <img
-                        src={coach.cutout_url}
+                        src={
+                          coach.cutout_url.startsWith("/")
+                            ? `${coach.cutout_url}?v=2`
+                            : coach.cutout_url
+                        }
                         alt={coach.display_name || "Coach"}
                         className="w-full h-full object-contain object-bottom transition-all duration-500 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] group-hover:scale-105"
                       />
