@@ -162,18 +162,18 @@ export function FeaturedCoaches() {
                 <TiltCard maxTilt={12} scale={1.05}>
                   <Link
                     to={`/coaching/${coach.id}`}
-                    className="group relative block transition-all duration-500 w-44 h-64 sm:w-52 sm:h-80 md:w-64 md:h-96 lg:w-72 lg:h-[420px] z-10"
+                    className="group relative flex items-end justify-center transition-all duration-500 w-44 h-64 sm:w-52 sm:h-80 md:w-64 md:h-96 lg:w-72 lg:h-[420px] z-10 overflow-hidden"
                   >
                     {/* Coach Cutout or Avatar */}
                     {coach.cutout_url ? (
                       <img
                         src={
                           coach.cutout_url.startsWith("/")
-                            ? `${coach.cutout_url}?v=2`
+                            ? `${coach.cutout_url}?v=3`
                             : coach.cutout_url
                         }
                         alt={coach.display_name || "Coach"}
-                        className="w-full h-full object-contain object-bottom transition-all duration-500 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] group-hover:scale-105"
+                        className="max-w-[90%] max-h-[95%] object-contain object-bottom transition-all duration-500 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] group-hover:scale-105"
                       />
                     ) : coach.avatar_url ? (
                       <div className="absolute inset-0 rounded-t-full overflow-hidden">
