@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { TiltCard } from "@/components/ui/tilt-card";
 import featuredCoachesPlaceholder from "@/assets/featured-coaches-placeholder.jpg";
 
 const containerVariants = {
@@ -160,53 +161,55 @@ export function FeaturedCoaches() {
             
             return (
               <motion.div key={coach.id} variants={itemVariants}>
-                <Link
-                  to={`/coaching/${coach.id}`}
-                  className={cn(
-                    "group relative block transition-all duration-500 hover:scale-105",
-                    isCenter 
-                      ? "w-36 h-56 sm:w-44 sm:h-72 md:w-52 md:h-80 z-20" 
-                      : isEdge
-                      ? "w-24 h-40 sm:w-32 sm:h-52 md:w-40 md:h-64 z-10"
-                      : "w-28 h-48 sm:w-36 sm:h-60 md:w-44 md:h-72 z-10"
-                  )}
-                >
-                  {/* Coach Cutout or Avatar */}
-                  {coach.cutout_url ? (
-                    <img
-                      src={coach.cutout_url}
-                      alt={coach.display_name || "Coach"}
-                      className={cn(
-                        "w-full h-full object-contain object-bottom transition-all duration-500 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]",
-                        !isCenter && "grayscale group-hover:grayscale-0"
-                      )}
-                    />
-                  ) : coach.avatar_url ? (
-                    <div className="absolute inset-0 rounded-t-full overflow-hidden">
+                <TiltCard maxTilt={12} scale={1.05}>
+                  <Link
+                    to={`/coaching/${coach.id}`}
+                    className={cn(
+                      "group relative block transition-all duration-500",
+                      isCenter 
+                        ? "w-36 h-56 sm:w-44 sm:h-72 md:w-52 md:h-80 z-20" 
+                        : isEdge
+                        ? "w-24 h-40 sm:w-32 sm:h-52 md:w-40 md:h-64 z-10"
+                        : "w-28 h-48 sm:w-36 sm:h-60 md:w-44 md:h-72 z-10"
+                    )}
+                  >
+                    {/* Coach Cutout or Avatar */}
+                    {coach.cutout_url ? (
                       <img
-                        src={coach.avatar_url}
+                        src={coach.cutout_url}
                         alt={coach.display_name || "Coach"}
                         className={cn(
-                          "w-full h-full object-cover object-top transition-all duration-500",
+                          "w-full h-full object-contain object-bottom transition-all duration-500 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]",
                           !isCenter && "grayscale group-hover:grayscale-0"
                         )}
                       />
-                    </div>
-                  ) : (
-                    <div className="absolute inset-0 rounded-t-full overflow-hidden bg-gradient-to-b from-muted/40 to-muted/20 flex items-center justify-center">
-                      <span className="text-4xl font-bold text-white/50">
-                        {coach.display_name?.charAt(0) || "C"}
+                    ) : coach.avatar_url ? (
+                      <div className="absolute inset-0 rounded-t-full overflow-hidden">
+                        <img
+                          src={coach.avatar_url}
+                          alt={coach.display_name || "Coach"}
+                          className={cn(
+                            "w-full h-full object-cover object-top transition-all duration-500",
+                            !isCenter && "grayscale group-hover:grayscale-0"
+                          )}
+                        />
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 rounded-t-full overflow-hidden bg-gradient-to-b from-muted/40 to-muted/20 flex items-center justify-center">
+                        <span className="text-4xl font-bold text-white/50">
+                          {coach.display_name?.charAt(0) || "C"}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Name tooltip on hover */}
+                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:bottom-4 transition-all duration-300 whitespace-nowrap">
+                      <span className="px-3 py-1.5 bg-white text-black text-xs font-medium rounded-full shadow-lg">
+                        {coach.display_name || "Coach"}
                       </span>
                     </div>
-                  )}
-
-                  {/* Name tooltip on hover */}
-                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:bottom-4 transition-all duration-300 whitespace-nowrap">
-                    <span className="px-3 py-1.5 bg-white text-black text-xs font-medium rounded-full shadow-lg">
-                      {coach.display_name || "Coach"}
-                    </span>
-                  </div>
-                </Link>
+                  </Link>
+                </TiltCard>
               </motion.div>
             );
           })}
