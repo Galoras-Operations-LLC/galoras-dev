@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { CoachingDirectory, CoachProfile, CoachMatching, WhyCoaching } from "./pages/coaching";
+import CoachDashboard from "./pages/coaching/CoachDashboard";
 import { Business, SportOfBusiness, LeadershipCircles, Workshops, Diagnostics } from "./pages/business";
 import Compass from "./pages/Compass";
 import Labs from "./pages/Labs";
@@ -13,6 +14,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Apply from "./pages/Apply";
 import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
 import ImageGenerator from "./pages/admin/ImageGenerator";
 
 const queryClient = new QueryClient();
@@ -44,6 +46,9 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/signup" element={<Auth />} />
+          {/* Dashboard Routes */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/coach-dashboard" element={<CoachDashboard />} />
           {/* Admin Routes */}
           <Route path="/admin/images" element={<ImageGenerator />} />
           <Route path="*" element={<NotFound />} />

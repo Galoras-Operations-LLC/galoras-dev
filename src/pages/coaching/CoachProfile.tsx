@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { MessageCoachModal } from "@/components/coaching/MessageCoachModal";
+import { BookSessionModal } from "@/components/coaching/BookSessionModal";
 import { 
   ArrowLeft,
   Star, 
@@ -26,6 +27,7 @@ import { supabase } from "@/integrations/supabase/client";
 export default function CoachProfile() {
   const { coachId } = useParams<{ coachId: string }>();
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const { data: coach, isLoading } = useQuery({
     queryKey: ["coach", coachId],
@@ -300,7 +302,11 @@ export default function CoachProfile() {
                   )}
 
                   <div className="space-y-3 mb-6">
-                    <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90" size="lg">
+                    <Button 
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90" 
+                      size="lg"
+                      onClick={() => setIsBookingModalOpen(true)}
+                    >
                       <Calendar className="mr-2 h-4 w-4" />
                       Book a Session
                     </Button>
@@ -412,6 +418,18 @@ export default function CoachProfile() {
         coachId={coachId || ""}
         coachName={coach?.display_name || coach?.profile?.full_name || "Coach"}
         coachUserId={coach?.user_id || ""}
+      />
+
+      {/* Book Session Modal */}
+      <BookSessionModal
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+        coach={{
+          id: coach.id,
+          display_name: coach.display_name || coach.profile?.full_name || "Coach",
+          hourly_rate: coach.hourly_rate,
+          user_id: coach.user_id,
+        }}
       />
     </Layout>
   );

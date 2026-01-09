@@ -179,6 +179,44 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_availability: {
+        Row: {
+          coach_id: string
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_available: boolean | null
+          start_time: string
+        }
+        Insert: {
+          coach_id: string
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_available?: boolean | null
+          start_time: string
+        }
+        Update: {
+          coach_id?: string
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_available?: boolean | null
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_availability_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coach_categories: {
         Row: {
           category_id: string
@@ -472,6 +510,62 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      session_bookings: {
+        Row: {
+          client_email: string
+          client_id: string
+          client_name: string
+          coach_id: string
+          created_at: string | null
+          duration_minutes: number | null
+          google_calendar_event_id: string | null
+          id: string
+          notes: string | null
+          scheduled_date: string
+          scheduled_time: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_email: string
+          client_id: string
+          client_name: string
+          coach_id: string
+          created_at?: string | null
+          duration_minutes?: number | null
+          google_calendar_event_id?: string | null
+          id?: string
+          notes?: string | null
+          scheduled_date: string
+          scheduled_time: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_email?: string
+          client_id?: string
+          client_name?: string
+          coach_id?: string
+          created_at?: string | null
+          duration_minutes?: number | null
+          google_calendar_event_id?: string | null
+          id?: string
+          notes?: string | null
+          scheduled_date?: string
+          scheduled_time?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_bookings_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       testimonials: {
         Row: {
