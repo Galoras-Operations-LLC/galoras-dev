@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { CoachingDirectory, CoachProfile, CoachMatching, WhyCoaching } from "./pages/coaching";
 import CoachDashboard from "./pages/coaching/CoachDashboard";
+import CoachProfileEdit from "./pages/coaching/CoachProfileEdit";
 import { Business, SportOfBusiness, LeadershipCircles, Workshops, Diagnostics } from "./pages/business";
 import Compass from "./pages/Compass";
 import Labs from "./pages/Labs";
@@ -49,6 +50,7 @@ const App = () => (
           {/* Dashboard Routes */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/coach-dashboard" element={<CoachDashboard />} />
+          <Route path="/coach-dashboard/edit" element={<CoachProfileEdit />} />
           {/* Admin Routes */}
           <Route path="/admin/images" element={<ImageGenerator />} />
           <Route path="*" element={<NotFound />} />

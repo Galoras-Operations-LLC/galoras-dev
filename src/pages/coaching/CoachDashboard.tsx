@@ -20,7 +20,8 @@ import {
   Mail,
   FileText,
   TrendingUp,
-  Users
+  Users,
+  ImageIcon
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -221,11 +222,17 @@ export default function CoachDashboard() {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Coach Dashboard</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage your bookings and availability
-          </p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Coach Dashboard</h1>
+            <p className="text-muted-foreground mt-2">
+              Manage your bookings and availability
+            </p>
+          </div>
+          <Button onClick={() => navigate('/coach-dashboard/edit')} variant="outline">
+            <ImageIcon className="h-4 w-4 mr-2" />
+            Edit Profile
+          </Button>
         </div>
 
         {/* Stats Cards */}
