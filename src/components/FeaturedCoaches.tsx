@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import featuredCoachesPlaceholder from "@/assets/featured-coaches-placeholder.jpg";
 
 export function FeaturedCoaches() {
   const { data: featuredCoaches, isLoading } = useQuery({
@@ -42,8 +43,43 @@ export function FeaturedCoaches() {
     );
   }
 
+  // Show placeholder image when no featured coaches exist
   if (!featuredCoaches || featuredCoaches.length === 0) {
-    return null;
+    return (
+      <section className="relative bg-black overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-20 blur-sm scale-110"
+          style={{ backgroundImage: `url(${featuredCoachesPlaceholder})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
+        
+        <div className="container-wide relative z-10">
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-center text-white pt-16 mb-8">
+            Featured Coaches
+          </h2>
+          
+          <Link to="/coaching" className="block">
+            <img
+              src={featuredCoachesPlaceholder}
+              alt="Featured Coaches"
+              className="w-full max-w-5xl mx-auto object-contain"
+            />
+          </Link>
+          
+          <div className="text-center pb-12">
+            <Link
+              to="/coaching"
+              className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm font-medium transition-colors"
+            >
+              View All Coaches
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
