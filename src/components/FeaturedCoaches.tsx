@@ -9,7 +9,7 @@ export function FeaturedCoaches() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("coaches")
-        .select("id, display_name, avatar_url, headline, specialties")
+        .select("id, display_name, avatar_url, cutout_url, headline, specialties")
         .eq("status", "approved")
         .eq("is_featured", true)
         .limit(5);
@@ -74,7 +74,7 @@ export function FeaturedCoaches() {
                 key={coach.id}
                 to={`/coaching/${coach.id}`}
                 className={cn(
-                  "group relative overflow-hidden transition-all duration-500 hover:scale-105",
+                  "group relative transition-all duration-500 hover:scale-105",
                   isCenter 
                     ? "w-36 h-56 sm:w-44 sm:h-72 md:w-52 md:h-80 z-20" 
                     : isEdge
@@ -82,9 +82,18 @@ export function FeaturedCoaches() {
                     : "w-28 h-48 sm:w-36 sm:h-60 md:w-44 md:h-72 z-10"
                 )}
               >
-                {/* Coach Image */}
-                <div className="absolute inset-0 rounded-t-full overflow-hidden">
-                  {coach.avatar_url ? (
+                {/* Coach Cutout or Avatar */}
+                {coach.cutout_url ? (
+                  <img
+                    src={coach.cutout_url}
+                    alt={coach.display_name || "Coach"}
+                    className={cn(
+                      "w-full h-full object-contain object-bottom transition-all duration-500 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]",
+                      !isCenter && "grayscale group-hover:grayscale-0"
+                    )}
+                  />
+                ) : coach.avatar_url ? (
+                  <div className="absolute inset-0 rounded-t-full overflow-hidden">
                     <img
                       src={coach.avatar_url}
                       alt={coach.display_name || "Coach"}
@@ -93,17 +102,14 @@ export function FeaturedCoaches() {
                         !isCenter && "grayscale group-hover:grayscale-0"
                       )}
                     />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-b from-muted/40 to-muted/20 flex items-center justify-center">
-                      <span className="text-4xl font-bold text-white/50">
-                        {coach.display_name?.charAt(0) || "C"}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
+                  </div>
+                ) : (
+                  <div className="absolute inset-0 rounded-t-full overflow-hidden bg-gradient-to-b from-muted/40 to-muted/20 flex items-center justify-center">
+                    <span className="text-4xl font-bold text-white/50">
+                      {coach.display_name?.charAt(0) || "C"}
+                    </span>
+                  </div>
+                )}
 
                 {/* Name tooltip on hover */}
                 <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:bottom-4 transition-all duration-300 whitespace-nowrap">

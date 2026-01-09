@@ -259,6 +259,7 @@ export type Database = {
           bio: string | null
           coaching_style: string | null
           created_at: string
+          cutout_url: string | null
           display_name: string | null
           experience_years: number | null
           headline: string | null
@@ -284,6 +285,7 @@ export type Database = {
           bio?: string | null
           coaching_style?: string | null
           created_at?: string
+          cutout_url?: string | null
           display_name?: string | null
           experience_years?: number | null
           headline?: string | null
@@ -309,6 +311,7 @@ export type Database = {
           bio?: string | null
           coaching_style?: string | null
           created_at?: string
+          cutout_url?: string | null
           display_name?: string | null
           experience_years?: number | null
           headline?: string | null
