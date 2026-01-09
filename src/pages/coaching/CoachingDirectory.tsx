@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CoachCard } from "@/components/coaching/CoachCard";
+import { FeaturedCoaches } from "@/components/FeaturedCoaches";
 import { 
   Search, 
   Filter, 
@@ -205,6 +206,9 @@ export default function CoachingDirectory() {
           </div>
         </div>
       </section>
+
+      {/* Featured Coaches */}
+      <FeaturedCoaches />
 
       {/* Coaches Grid */}
       <section className="section-padding bg-muted/50">
