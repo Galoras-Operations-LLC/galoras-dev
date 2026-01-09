@@ -168,7 +168,7 @@ export function FeaturedCoaches() {
         </motion.h2>
 
         <motion.div
-          className="flex justify-center items-end gap-0 sm:gap-2 md:gap-4 px-4 -mx-4 overflow-visible"
+          className="flex items-end gap-4 px-4 -mx-4 overflow-x-auto overflow-y-visible scroll-smooth snap-x snap-mandatory pb-4 scrollbar-none cursor-grab active:cursor-grabbing"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
@@ -176,7 +176,7 @@ export function FeaturedCoaches() {
         >
           {featuredCoaches.map((coach) => {
             return (
-              <motion.div key={coach.id} variants={itemVariants}>
+              <motion.div key={coach.id} variants={itemVariants} className="shrink-0 snap-center">
                 <TiltCard maxTilt={12} scale={1.05}>
                   <Link
                     to={`/coaching/${coach.id}`}
@@ -187,7 +187,7 @@ export function FeaturedCoaches() {
                       <img
                         src={
                           coach.cutout_url.startsWith("/")
-                            ? `${coach.cutout_url}?v=5`
+                            ? `${coach.cutout_url}?v=6`
                             : coach.cutout_url
                         }
                         alt={coach.display_name || "Coach"}

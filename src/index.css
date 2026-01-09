@@ -207,38 +207,48 @@
     animation: glowPulse 2s ease-in-out infinite;
   }
 
+  /* Hide scrollbars (still scrollable) */
+  .scrollbar-none {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge legacy */
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
 
   @keyframes fadeUp {
-    from { 
-      opacity: 0; 
+    from {
+      opacity: 0;
       transform: translateY(20px);
     }
-    to { 
+    to {
       opacity: 1;
       transform: translateY(0);
     }
   }
 
   @keyframes scaleIn {
-    from { 
+    from {
       opacity: 0;
       transform: scale(0.95);
     }
-    to { 
+    to {
       opacity: 1;
       transform: scale(1);
     }
   }
 
   @keyframes glowPulse {
-    0%, 100% { 
+    0%, 100% {
       box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
     }
-    50% { 
+    50% {
       box-shadow: 0 0 40px hsl(var(--primary) / 0.5);
     }
   }
