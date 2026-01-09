@@ -43,8 +43,11 @@ export function FeaturedCoaches() {
     );
   }
 
-  // Show placeholder image when no featured coaches exist
-  if (!featuredCoaches || featuredCoaches.length === 0) {
+  // Check if any coaches have cutout images
+  const hasAnyCutouts = featuredCoaches?.some(coach => coach.cutout_url);
+
+  // Show placeholder image when no featured coaches exist OR no cutouts available
+  if (!featuredCoaches || featuredCoaches.length === 0 || !hasAnyCutouts) {
     return (
       <section className="relative bg-black overflow-hidden">
         <div
