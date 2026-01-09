@@ -96,18 +96,46 @@ export default function CoachDashboard() {
     enabled: !!coachProfile,
   });
 
-  // Update booking status
+  // Update booking status with email notification
   const updateStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+    mutationFn: async ({ id, status, booking }: { id: string; status: string; booking?: typeof bookings extends (infer T)[] | undefined ? T : never }) => {
       const { error } = await supabase
         .from('session_bookings')
         .update({ status })
         .eq('id', id);
 
       if (error) throw error;
+
+      // Send email notification for confirm/cancel actions
+      if (booking && (status === 'confirmed' || status === 'cancelled')) {
+        try {
+          await supabase.functions.invoke('send-booking-notification', {
+            body: {
+              type: status === 'confirmed' ? 'booking_confirmed' : 'booking_cancelled',
+              coachId: coachProfile?.id,
+              coachName: coachProfile?.display_name || 'Your Coach',
+              coachEmail: user?.email,
+              clientEmail: booking.client_email,
+              clientName: booking.client_name,
+              scheduledDate: format(parseISO(booking.scheduled_date), 'MMMM d, yyyy'),
+              scheduledTime: booking.scheduled_time,
+              duration: booking.duration_minutes,
+              notes: booking.notes,
+            },
+          });
+        } catch (emailError) {
+          console.error('Failed to send email notification:', emailError);
+          // Don't fail the mutation if email fails
+        }
+      }
     },
-    onSuccess: () => {
-      toast({ title: 'Status Updated', description: 'Booking status has been updated.' });
+    onSuccess: (_, { status }) => {
+      const message = status === 'confirmed' 
+        ? 'Session confirmed and client notified.' 
+        : status === 'cancelled' 
+        ? 'Session declined and client notified.'
+        : 'Booking status has been updated.';
+      toast({ title: 'Status Updated', description: message });
       queryClient.invalidateQueries({ queryKey: ['coach-session-bookings'] });
     },
   });
@@ -317,14 +345,14 @@ export default function CoachDashboard() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => updateStatus.mutate({ id: booking.id, status: 'cancelled' })}
+                              onClick={() => updateStatus.mutate({ id: booking.id, status: 'cancelled', booking })}
                             >
                               <XCircle className="h-4 w-4 mr-1" />
                               Decline
                             </Button>
                             <Button
                               size="sm"
-                              onClick={() => updateStatus.mutate({ id: booking.id, status: 'confirmed' })}
+                              onClick={() => updateStatus.mutate({ id: booking.id, status: 'confirmed', booking })}
                             >
                               <CheckCircle className="h-4 w-4 mr-1" />
                               Confirm
