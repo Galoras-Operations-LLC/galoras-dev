@@ -38,15 +38,7 @@ export default function CoachProfile() {
         .eq("id", coachId)
         .single();
       if (error) throw error;
-      
-      // Get profile for this coach
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name, avatar_url, bio")
-        .eq("user_id", coachData.user_id)
-        .single();
-      
-      return { ...coachData, profile };
+      return coachData;
     },
     enabled: !!coachId,
   });
@@ -133,15 +125,15 @@ export default function CoachProfile() {
                   <div className="flex flex-col sm:flex-row gap-6 -mt-12">
                     <div className="relative shrink-0">
                       <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center overflow-hidden border-4 border-background shadow-lg">
-                        {coach.profile?.avatar_url ? (
-                          <img 
-                            src={coach.profile.avatar_url} 
-                            alt={coach.profile?.full_name || "Coach"} 
+                        {coach.avatar_url ? (
+                          <img
+                            src={coach.avatar_url}
+                            alt={coach.display_name || "Coach"}
                             className="w-full h-full object-cover"
                           />
                         ) : (
                           <span className="text-4xl font-bold text-white">
-                            {coach.profile?.full_name?.charAt(0) || "C"}
+                            {coach.display_name?.charAt(0) || "C"}
                           </span>
                         )}
                       </div>
@@ -156,7 +148,7 @@ export default function CoachProfile() {
                       <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
                           <h1 className="text-2xl sm:text-3xl font-display font-bold">
-                            {coach.profile?.full_name || "Coach"}
+                            {coach.display_name || "Coach"}
                           </h1>
                           <p className="text-lg text-muted-foreground">
                             {coach.headline || "Executive Coach"}
@@ -203,7 +195,7 @@ export default function CoachProfile() {
                 <CardContent className="p-6">
                   <h2 className="text-xl font-display font-semibold mb-4">About</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    {coach.bio || coach.profile?.bio || "This coach hasn't added a bio yet."}
+                    {coach.bio || "This coach hasn't added a bio yet."}
                   </p>
                 </CardContent>
               </Card>
@@ -416,7 +408,7 @@ export default function CoachProfile() {
         isOpen={isMessageModalOpen}
         onClose={() => setIsMessageModalOpen(false)}
         coachId={coachId || ""}
-        coachName={coach?.display_name || coach?.profile?.full_name || "Coach"}
+        coachName={coach?.display_name || "Coach"}
         coachUserId={coach?.user_id || ""}
       />
 
@@ -426,7 +418,7 @@ export default function CoachProfile() {
         onClose={() => setIsBookingModalOpen(false)}
         coach={{
           id: coach.id,
-          display_name: coach.display_name || coach.profile?.full_name || "Coach",
+          display_name: coach.display_name || "Coach",
           hourly_rate: coach.hourly_rate,
           user_id: coach.user_id,
         }}
