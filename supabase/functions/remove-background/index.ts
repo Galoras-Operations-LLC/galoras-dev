@@ -38,8 +38,14 @@ serve(async (req) => {
         throw new Error(`Failed to fetch image: ${imageResponse.statusText}`);
       }
       
-      const imageBlob = await imageResponse.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(imageBlob)));
+      const imageBuffer = new Uint8Array(await imageResponse.arrayBuffer());
+      // Avoid call stack overflow on large images
+      let binary = "";
+      const chunkSize = 0x8000;
+      for (let i = 0; i < imageBuffer.length; i += chunkSize) {
+        binary += String.fromCharCode(...imageBuffer.subarray(i, i + chunkSize));
+      }
+      const base64 = btoa(binary);
       const contentType = imageResponse.headers.get("content-type") || "image/jpeg";
       imageBase64 = `data:${contentType};base64,${base64}`;
     }
