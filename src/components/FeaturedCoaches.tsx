@@ -125,17 +125,17 @@ export function FeaturedCoaches() {
   }
 
   return (
-    <section className="relative py-24 bg-black overflow-hidden">
+    <section className="relative py-16 md:py-24 bg-black overflow-hidden min-h-[500px] md:min-h-[600px]">
       {/* Blurred background - uses first coach's image or a generic one */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-20 blur-sm scale-110"
+        className="absolute inset-0 bg-cover bg-center opacity-15 blur-md scale-110"
         style={{
           backgroundImage: featuredCoaches[0]?.avatar_url
             ? `url(${featuredCoaches[0].avatar_url})`
             : "url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1920&q=80')",
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/90" />
 
       <div className="container-wide relative z-10">
         <motion.h2
@@ -149,7 +149,7 @@ export function FeaturedCoaches() {
         </motion.h2>
 
         <motion.div
-          className="flex justify-center items-end gap-2 sm:gap-4 md:gap-6 px-4"
+          className="flex justify-center items-end gap-0 sm:gap-2 md:gap-4 px-4 -mx-4 overflow-visible"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
@@ -167,10 +167,10 @@ export function FeaturedCoaches() {
                     className={cn(
                       "group relative block transition-all duration-500",
                       isCenter 
-                        ? "w-36 h-56 sm:w-44 sm:h-72 md:w-52 md:h-80 z-20" 
+                        ? "w-48 h-72 sm:w-56 sm:h-80 md:w-72 md:h-[420px] lg:w-80 lg:h-[480px] z-20" 
                         : isEdge
-                        ? "w-24 h-40 sm:w-32 sm:h-52 md:w-40 md:h-64 z-10"
-                        : "w-28 h-48 sm:w-36 sm:h-60 md:w-44 md:h-72 z-10"
+                        ? "w-36 h-56 sm:w-44 sm:h-64 md:w-56 md:h-80 lg:w-64 lg:h-96 z-10"
+                        : "w-40 h-60 sm:w-48 sm:h-72 md:w-60 md:h-96 lg:w-72 lg:h-[420px] z-10"
                     )}
                   >
                     {/* Coach Cutout or Avatar */}
