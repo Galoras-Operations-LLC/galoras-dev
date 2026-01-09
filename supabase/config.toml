@@ -2,3 +2,6 @@ project_id = "eaymgpkydqintchebsqa"
 
 [functions.generate-brand-image]
 verify_jwt = false
+
+[functions.send-booking-notification]
+verify_jwt = false
