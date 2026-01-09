@@ -127,6 +127,7 @@ export type Database = {
       }
       coach_applications: {
         Row: {
+          avatar_url: string | null
           bio: string | null
           certifications: string | null
           created_at: string
@@ -144,6 +145,7 @@ export type Database = {
           why_galoras: string | null
         }
         Insert: {
+          avatar_url?: string | null
           bio?: string | null
           certifications?: string | null
           created_at?: string
@@ -161,6 +163,7 @@ export type Database = {
           why_galoras?: string | null
         }
         Update: {
+          avatar_url?: string | null
           bio?: string | null
           certifications?: string | null
           created_at?: string

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,13 +9,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { 
-  ArrowRight, 
   Award, 
   Users, 
   Globe,
   Zap,
-  CheckCircle,
-  Send
+  Send,
+  Upload,
+  X
 } from "lucide-react";
 
 const benefits = [
@@ -57,6 +57,9 @@ const specialtyOptions = [
 export default function Apply() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -78,14 +81,76 @@ export default function Apply() {
     }
   };
 
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file (JPG, PNG, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image under 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const removePhoto = () => {
+    setPhotoFile(null);
+    if (photoPreview) {
+      URL.revokeObjectURL(photoPreview);
+      setPhotoPreview(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      let avatarUrl: string | null = null;
+
+      // Upload photo if provided
+      if (photoFile) {
+        const fileExt = photoFile.name.split(".").pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `applications/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("coach-photos")
+          .upload(filePath, photoFile);
+
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          throw new Error("Failed to upload photo");
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("coach-photos")
+          .getPublicUrl(filePath);
+
+        avatarUrl = publicUrl;
+      }
+
       const { error } = await supabase.from("coach_applications").insert({
         ...formData,
         experience_years: formData.experience_years ? parseInt(formData.experience_years) : null,
+        avatar_url: avatarUrl,
       });
 
       if (error) throw error;
@@ -107,7 +172,9 @@ export default function Apply() {
         bio: "",
         why_galoras: "",
       });
+      removePhoto();
     } catch (error) {
+      console.error("Submit error:", error);
       toast({
         title: "Error",
         description: "Failed to submit application. Please try again.",
@@ -177,6 +244,55 @@ export default function Apply() {
                 </p>
                 
                 <form onSubmit={handleSubmit} className="space-y-8">
+                  {/* Profile Photo */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-display font-semibold">Profile Photo</h3>
+                    <p className="text-sm text-muted-foreground">Upload a professional headshot (optional but recommended)</p>
+                    
+                    <div className="flex items-center gap-6">
+                      {photoPreview ? (
+                        <div className="relative">
+                          <img
+                            src={photoPreview}
+                            alt="Profile preview"
+                            className="w-24 h-24 rounded-full object-cover border-2 border-border"
+                          />
+                          <button
+                            type="button"
+                            onClick={removePhoto}
+                            className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/90 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="w-24 h-24 rounded-full bg-muted border-2 border-dashed border-border flex items-center justify-center">
+                          <Upload className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                      )}
+                      
+                      <div>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handlePhotoSelect}
+                          className="hidden"
+                          id="photo-upload"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          {photoFile ? "Change Photo" : "Upload Photo"}
+                        </Button>
+                        <p className="text-xs text-muted-foreground mt-2">JPG, PNG up to 5MB</p>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Personal Information */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-display font-semibold">Personal Information</h3>
