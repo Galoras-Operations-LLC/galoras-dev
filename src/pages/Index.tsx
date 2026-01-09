@@ -3,6 +3,7 @@ import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { FounderVideoModal } from "@/components/FounderVideoModal";
+import { FeaturedCoaches } from "@/components/FeaturedCoaches";
 import { ArrowRight, Users, Building2, Compass, Zap, Target, Brain, MessageCircle, TrendingUp } from "lucide-react";
 
 const pillars = [
@@ -126,6 +127,9 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* Featured Coaches */}
+      <FeaturedCoaches />
 
       {/* Categories Preview */}
       <section className="section-padding bg-muted/30">
