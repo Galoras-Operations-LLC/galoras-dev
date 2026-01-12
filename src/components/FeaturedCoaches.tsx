@@ -6,6 +6,25 @@ import { cn } from "@/lib/utils";
 import { TiltCard } from "@/components/ui/tilt-card";
 import featuredCoachesPlaceholder from "@/assets/featured-coaches-placeholder.jpg";
 
+// External images from galoras-feature-coaches.lovable.app
+const EXTERNAL_COACH_IMAGES: Record<string, { hero?: string; portrait?: string }> = {
+  "jason smyth": {
+    hero: "https://galoras-feature-coaches.lovable.app/assets/jason-hero-victory-D2kKCFwy.jpeg",
+    portrait: "https://galoras-feature-coaches.lovable.app/assets/jason-portrait-formal-lRckfQCD.jpeg",
+  },
+  "conor mcgowan smyth": {
+    hero: "https://galoras-feature-coaches.lovable.app/assets/coach-two-hero-MoOSdKjN.jpeg",
+    portrait: "https://galoras-feature-coaches.lovable.app/assets/coach-two-portrait-Av_TSgOx.jpeg",
+  },
+};
+
+// Helper to get external image for a coach by name
+const getExternalImage = (displayName: string | null) => {
+  if (!displayName) return null;
+  const key = displayName.toLowerCase();
+  return EXTERNAL_COACH_IMAGES[key] || null;
+};
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -201,31 +220,54 @@ export function FeaturedCoaches() {
                     )}
                   >
                     {/* Coach Cutout or Avatar - grayscale, color on hover */}
-                    {coach.cutout_url ? (
-                      <img
-                        src={
-                          coach.cutout_url.startsWith("/")
-                            ? `${coach.cutout_url}?v=7`
-                            : coach.cutout_url
-                        }
-                        alt={coach.display_name || "Coach"}
-                        className="w-full h-full object-contain object-bottom transition-all duration-500 drop-shadow-[0_10px_40px_rgba(0,0,0,0.6)] grayscale group-hover:grayscale-0 group-hover:scale-105"
-                      />
-                    ) : coach.avatar_url ? (
-                      <div className="absolute inset-0 overflow-hidden">
-                        <img
-                          src={coach.avatar_url}
-                          alt={coach.display_name || "Coach"}
-                          className="w-full h-full object-cover object-top transition-all duration-500 grayscale group-hover:grayscale-0"
-                        />
-                      </div>
-                    ) : (
-                      <div className="absolute inset-0 overflow-hidden bg-gradient-to-b from-muted/40 to-muted/20 flex items-center justify-center">
-                        <span className="text-4xl font-bold text-white/50">
-                          {coach.display_name?.charAt(0) || "C"}
-                        </span>
-                      </div>
-                    )}
+                    {(() => {
+                      // Check for external image first
+                      const externalImg = getExternalImage(coach.display_name);
+                      const imageUrl = externalImg?.hero || coach.cutout_url || coach.avatar_url;
+                      
+                      if (externalImg?.hero) {
+                        // Use external hero image
+                        return (
+                          <div className="absolute inset-0 overflow-hidden">
+                            <img
+                              src={externalImg.hero}
+                              alt={coach.display_name || "Coach"}
+                              className="w-full h-full object-cover object-top transition-all duration-500 grayscale group-hover:grayscale-0 group-hover:scale-105"
+                            />
+                          </div>
+                        );
+                      } else if (coach.cutout_url) {
+                        return (
+                          <img
+                            src={
+                              coach.cutout_url.startsWith("/")
+                                ? `${coach.cutout_url}?v=7`
+                                : coach.cutout_url
+                            }
+                            alt={coach.display_name || "Coach"}
+                            className="w-full h-full object-contain object-bottom transition-all duration-500 drop-shadow-[0_10px_40px_rgba(0,0,0,0.6)] grayscale group-hover:grayscale-0 group-hover:scale-105"
+                          />
+                        );
+                      } else if (coach.avatar_url) {
+                        return (
+                          <div className="absolute inset-0 overflow-hidden">
+                            <img
+                              src={coach.avatar_url}
+                              alt={coach.display_name || "Coach"}
+                              className="w-full h-full object-cover object-top transition-all duration-500 grayscale group-hover:grayscale-0"
+                            />
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="absolute inset-0 overflow-hidden bg-gradient-to-b from-muted/40 to-muted/20 flex items-center justify-center">
+                            <span className="text-4xl font-bold text-white/50">
+                              {coach.display_name?.charAt(0) || "C"}
+                            </span>
+                          </div>
+                        );
+                      }
+                    })()}
 
                     {/* Name tooltip on hover */}
                     <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:bottom-4 transition-all duration-300 whitespace-nowrap z-20">
