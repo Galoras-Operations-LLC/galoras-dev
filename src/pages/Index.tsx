@@ -62,11 +62,11 @@ export default function Index() {
           <div className="max-w-4xl mx-auto text-center stagger-children">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground leading-tight mb-6">
               Where Coaching Is Evaluated by{" "}
-              <span className="text-gradient">Performance</span> — Not Reputation
+              <span className="text-gradient">Performance</span> Rather Than Reputation
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10">
-              Galoras is a performance-led coaching exchange designed to surface and deploy real execution capability under real-world conditions.
+              Galoras connects individuals and organizations with proven performance expertise, quickly, intelligently and at scale.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
