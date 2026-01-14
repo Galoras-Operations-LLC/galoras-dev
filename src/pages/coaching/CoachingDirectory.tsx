@@ -137,18 +137,21 @@ export default function CoachingDirectory() {
               Coaching Exchange
             </div>
             <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
-              Find Your <span className="text-gradient">Elite Coach</span>
+              Explore <span className="text-gradient">Execution-Ready</span> Coaches
             </h1>
             <p className="text-lg text-muted-foreground mb-8">
-              Browse our network of vetted, world-class coaches. Each has been carefully selected for their expertise, experience, and results.
+              Coaches in this exchange are surfaced based on demonstrated execution experience, deployability, and real-world performance — not visibility or self-promotion.
             </p>
             
-            <Link to="/coaching/matching">
-              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary">
-                <Sparkles className="mr-2 h-5 w-5" />
-                Get AI-Matched Instead
-              </Button>
-            </Link>
+            <div className="flex flex-col items-center gap-2">
+              <Link to="/coaching/matching">
+                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary">
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Begin Performance Context Mapping
+                </Button>
+              </Link>
+              <p className="text-sm text-muted-foreground">AI supports the selection process — it does not replace performance evaluation.</p>
+            </div>
           </div>
 
           {/* Search Bar */}
@@ -157,7 +160,7 @@ export default function CoachingDirectory() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
-                  placeholder="Search by name, specialty, or keyword..."
+                  placeholder="Search by execution context, challenge, or operating environment..."
                   className="pl-10 h-12 bg-background"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -267,14 +270,14 @@ export default function CoachingDirectory() {
         <div className="container-wide">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              Not Sure Who's Right for You?
+              Begin Performance Context Mapping
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
-              Let Compass AI analyze your goals, preferences, and style to match you with coaches who'll help you thrive.
+              Compass AI supports the selection process by mapping your context, constraints, and needs — it does not replace performance evaluation.
             </p>
             <Link to="/coaching/matching">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary">
-                Start AI Matching
+                Start Context Mapping
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>

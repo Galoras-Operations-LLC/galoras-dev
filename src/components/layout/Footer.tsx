@@ -47,8 +47,7 @@ export function Footer() {
               <img src={galorasLogo} alt="Galoras" className="h-12 w-auto" />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-sm">
-              Galoras connects individuals and organizations with vetted, elite performance coaches. 
-              Unlock clarity, confidence, and high-performance habits.
+              Galoras is a performance-led coaching exchange designed to identify and deploy real execution capability for individuals and organizations operating under pressure.
             </p>
             {/* Social Links */}
             <div className="flex items-center gap-4">

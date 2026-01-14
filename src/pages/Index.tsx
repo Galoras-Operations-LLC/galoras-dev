@@ -9,21 +9,21 @@ const pillars = [
   {
     icon: Users,
     title: "Coaching Exchange",
-    description: "Find vetted, elite coaches for leadership, career, performance, and life transitions.",
+    description: "A performance-led selection system that surfaces coaches with demonstrated execution experience — not just polished profiles.",
     href: "/coaching",
-    cta: "Find My Coach",
+    cta: "Explore the Exchange",
   },
   {
     icon: Building2,
     title: "Galoras for Business",
-    description: "Bring the clarity and discipline of elite sport into your organization.",
+    description: "Access execution-ready coaches and operators who have performed under real organizational pressure — without relying on reputation or guesswork.",
     href: "/business",
     cta: "Explore Programs",
   },
   {
     icon: Compass,
     title: "Compass AI",
-    description: "AI-powered matching, behavioral insights, and progress tracking.",
+    description: "Decision-support infrastructure that strengthens signal quality, tracks progress, and supports evidence-based coaching deployment.",
     href: "/compass",
     cta: "See How It Works",
   },
@@ -60,24 +60,19 @@ export default function Index() {
         
         <div className="container-wide relative z-10 py-20">
           <div className="max-w-4xl mx-auto text-center stagger-children">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-8">
-              <Zap className="h-4 w-4" />
-              Where Human Potential Meets Elite Performance
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-display font-bold text-foreground leading-tight mb-6">
-              Find the Coach Who Brings Out the{" "}
-              <span className="text-gradient">Strongest Version</span> of You
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground leading-tight mb-6">
+              Where Coaching Is Evaluated by{" "}
+              <span className="text-gradient">Performance</span> — Not Reputation
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-              Galoras connects people and organizations with coaches, experts, and programs that build clarity, confidence, and high-performance habits — powered by Compass AI.
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10">
+              Galoras is a performance-led coaching exchange designed to surface and deploy real execution capability under real-world conditions.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/coaching">
                 <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary text-lg px-8 h-14">
-                  Find My Coach
+                  Explore the Coaching Exchange
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -96,8 +91,8 @@ export default function Index() {
         <div className="container-wide">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">The Galoras Ecosystem</h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Three integrated pillars designed to serve individuals, coaches, and organizations.
+            <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+              Three integrated pillars designed to identify, validate, and deploy coaching capability across individual, group, and enterprise environments.
             </p>
           </div>
           
@@ -131,8 +126,8 @@ export default function Index() {
       <section className="section-padding bg-muted/30">
         <div className="container-wide">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Coaching Categories</h2>
-            <p className="text-muted-foreground text-lg">Find your focus area</p>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Performance Domains</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Areas where execution capability has been demonstrated — not just discussed.</p>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -155,14 +150,14 @@ export default function Index() {
       {/* CTA Section */}
       <section className="section-padding hero-gradient">
         <div className="container-wide text-center">
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Ready to Grow?</h2>
-          <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
-            Whether you're an individual seeking clarity or an organization building high-performance culture.
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Ready for Proven Execution Support?</h2>
+          <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
+            Whether you're an individual navigating complexity or an organization operating under scale and pressure, Galoras is designed to surface coaching capability that performs in real conditions.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/coaching">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                Find My Coach
+                Explore the Coaching Exchange
               </Button>
             </Link>
             <Link to="/contact">

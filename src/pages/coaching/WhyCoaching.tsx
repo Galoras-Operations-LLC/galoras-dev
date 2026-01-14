@@ -20,32 +20,32 @@ const benefits = [
   {
     icon: Target,
     title: "Clarity & Focus",
-    description: "Cut through the noise and identify what truly matters. A coach helps you define clear goals and create actionable plans.",
+    description: "Faster signal clarity in complex decision environments.",
   },
   {
     icon: TrendingUp,
     title: "Accelerated Growth",
-    description: "Research shows coaching can accelerate professional development by 70%. Don't leave your growth to chance.",
+    description: "Progress driven by execution patterns, not trial and error.",
   },
   {
     icon: Brain,
     title: "New Perspectives",
-    description: "Break free from limiting beliefs and blind spots. A coach offers objective insights you can't get from within.",
+    description: "Insight from operators who have already navigated similar constraints.",
   },
   {
     icon: Users,
     title: "Accountability Partner",
-    description: "Stay committed to your goals with someone invested in your success. Regular check-ins keep you on track.",
+    description: "Shared ownership of decisions and follow-through.",
   },
   {
     icon: Zap,
     title: "Peak Performance",
-    description: "Like elite athletes, top performers have coaches. Unlock your full potential with expert guidance.",
+    description: "Coaching calibrated for pressure, not comfort.",
   },
   {
     icon: Heart,
     title: "Work-Life Integration",
-    description: "Achieve sustainable success without burning out. Find the balance that works for your whole life.",
+    description: "Sustainable performance without sacrificing long-term capacity.",
   },
 ];
 
@@ -88,15 +88,14 @@ export default function WhyCoaching() {
         <div className="container-wide relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-              Why <span className="text-gradient">Coaching</span> Works
+              Why <span className="text-gradient">Performance-Led Coaching</span> Works
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8">
-              The world's most successful people have coaches. Here's why investing in coaching 
-              is the smartest decision you can make for your career and life.
+              Coaching works when it is deployed by people who understand the realities of execution, tradeoffs, and consequence. Galoras is designed to make that capability visible.
             </p>
             <Link to="/coaching/matching">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary">
-                Find Your Coach
+                Explore the Exchange
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -125,10 +124,10 @@ export default function WhyCoaching() {
         <div className="container-wide">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              The Coaching Advantage
+              The Galoras Coaching Advantage
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Coaching isn't therapy, consulting, or mentoring. It's a unique partnership designed to unlock your potential.
+              Coaching at Galoras is designed to improve execution — not just insight. The advantage comes from selecting coaches who have already performed in environments similar to yours.
             </p>
           </div>
 
@@ -165,12 +164,11 @@ export default function WhyCoaching() {
                   </h3>
                   <ul className="space-y-3">
                     {[
-                      "A partnership focused on your goals",
-                      "Forward-looking and action-oriented",
-                      "About unlocking YOUR answers",
-                      "Structured with accountability",
-                      "Confidential and judgment-free",
-                      "Tailored to your unique situation",
+                      "A performance partnership grounded in real operating environments",
+                      "Focused on decisions, tradeoffs, and execution — not advice",
+                      "Structured around accountability and outcome ownership",
+                      "Context-aware, not one-size-fits-all",
+                      "Designed to perform under pressure",
                     ].map((item, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm">
                         <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
@@ -190,11 +188,10 @@ export default function WhyCoaching() {
                   <ul className="space-y-3">
                     {[
                       "Therapy or mental health treatment",
-                      "Someone telling you what to do",
-                      "A quick fix or magic solution",
-                      "Only for people who are struggling",
-                      "About the coach's agenda",
-                      "A one-size-fits-all approach",
+                      "Motivational speaking or inspiration-only",
+                      "Generic frameworks without context",
+                      "A passive or observational role",
+                      "About the coach's methodology over results",
                     ].map((item, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
                         <span className="w-4 h-4 rounded-full border border-red-500/50 flex items-center justify-center text-red-500 text-xs mt-0.5 shrink-0">✕</span>
@@ -217,7 +214,7 @@ export default function WhyCoaching() {
               Real Results, Real People
             </h2>
             <p className="text-muted-foreground text-lg">
-              Hear from people who've transformed their lives through coaching.
+              Examples of outcomes achieved when coaching is deployed in the right context.
             </p>
           </div>
 
@@ -254,8 +251,8 @@ export default function WhyCoaching() {
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
               How Galoras Works
             </h2>
-            <p className="text-muted-foreground text-lg">
-              Finding the right coach is simple with our AI-powered matching.
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Galoras is designed to improve signal quality — so real coaching capability becomes visible and deployable.
             </p>
           </div>
 
@@ -265,20 +262,20 @@ export default function WhyCoaching() {
                 {
                   step: 1,
                   icon: Lightbulb,
-                  title: "Share Your Goals",
-                  description: "Tell us what you want to achieve. Our matching questionnaire takes just 5 minutes.",
+                  title: "Define Your Operating Context",
+                  description: "Clarify the environment, pressure, and outcomes you're navigating — not just aspirations.",
                 },
                 {
                   step: 2,
                   icon: BarChart3,
-                  title: "Get Matched",
-                  description: "Compass AI analyzes your needs and matches you with coaches who fit your style and goals.",
+                  title: "Performance-Led Selection",
+                  description: "Compass AI maps your context and surfaces coaches based on demonstrated execution capability.",
                 },
                 {
                   step: 3,
                   icon: Zap,
-                  title: "Start Growing",
-                  description: "Book a chemistry call, then begin your transformation with regular coaching sessions.",
+                  title: "Deploy Coaching in Real Conditions",
+                  description: "Coaching is applied where decisions, accountability, and results matter — not in theory.",
                 },
               ].map((item, index) => (
                 <div key={index} className="text-center">
@@ -308,21 +305,21 @@ export default function WhyCoaching() {
         <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/90 to-background/95" />
         <div className="container-wide text-center relative z-10">
           <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-            Ready to Invest in Yourself?
+            Ready for Proven Execution Support?
           </h2>
           <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
-            Join thousands of professionals who've accelerated their growth with the right coach.
+            Galoras is a performance-led coaching exchange where coaches are surfaced based on demonstrated execution capability.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/coaching/matching">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary">
-                Find My Coach Match
+                Explore the Coaching Exchange
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link to="/coaching">
+            <Link to="/coaching/why">
               <Button size="lg" variant="outline" className="border-primary/50 hover:bg-primary/10">
-                Browse All Coaches
+                Understand How Selection Works
               </Button>
             </Link>
           </div>
