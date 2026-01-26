@@ -10,7 +10,8 @@ import {
   Target,
   BarChart3,
   Lightbulb,
-  Zap
+  Zap,
+  Brain
 } from "lucide-react";
 
 const offerings = [
@@ -75,14 +76,17 @@ export default function Business() {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
               Galoras for <span className="text-gradient">Business</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8">
+            <p className="text-lg md:text-xl text-foreground font-medium mb-4">
+              The Sport of Business is Galoras' flagship performance framework — helping leadership teams align, decide, and execute under pressure.
+            </p>
+            <p className="text-lg text-muted-foreground mb-8">
               Bring the clarity and discipline of elite sport into your organization. 
               Build high-performance teams, develop exceptional leaders, and create winning cultures.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/contact">
                 <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary">
-                  Schedule Consultation
+                  Book a Business Consultation
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -91,6 +95,39 @@ export default function Business() {
                   Explore Programs
                 </Button>
               </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The Sport of Business Section */}
+      <section className="section-padding bg-background">
+        <div className="container-wide">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
+              The Sport of Business
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              The Sport of Business applies elite performance principles from sport to leadership teams.
+              Rather than focusing on individuals, it measures and improves how teams align, decide, and execute together.
+            </p>
+          </div>
+          
+          {/* Visual: Alignment → Decision-Making → Execution */}
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20">
+              <Target className="h-6 w-6 text-primary" />
+              <span className="font-display font-semibold">Alignment</span>
+            </div>
+            <ArrowRight className="h-5 w-5 text-primary hidden md:block" />
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20">
+              <Brain className="h-6 w-6 text-primary" />
+              <span className="font-display font-semibold">Decision-Making</span>
+            </div>
+            <ArrowRight className="h-5 w-5 text-primary hidden md:block" />
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20">
+              <Zap className="h-6 w-6 text-primary" />
+              <span className="font-display font-semibold">Execution Under Pressure</span>
             </div>
           </div>
         </div>
@@ -154,24 +191,23 @@ export default function Business() {
         </div>
       </section>
 
-      {/* Why Galoras */}
+      {/* Methodology Section */}
       <section className="section-padding bg-muted/30">
         <div className="container-wide">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                Why Organizations Choose Galoras
+                A Proven Performance Methodology — Not Guesswork
               </h2>
               <p className="text-muted-foreground text-lg mb-6">
-                We bring a unique perspective to leadership development, combining the rigor of elite athletics with cutting-edge organizational psychology.
+                Powered by a data-driven team performance methodology used by enterprise leadership teams globally.
+                This methodology underpins Leadership Labs, executive coaching, and enterprise engagements — delivering measurable improvements in speed, clarity, and accountability.
               </p>
               <ul className="space-y-4">
                 {[
-                  "Sport-inspired frameworks that create lasting behavior change",
-                  "AI-powered matching ensures the right coach for every leader",
-                  "Measurable outcomes with clear ROI tracking",
-                  "Flexible delivery: in-person, virtual, or hybrid",
-                  "Scalable programs from startups to Fortune 500",
+                  "Team diagnostics that reveal alignment and execution gaps",
+                  "Sequenced interventions based on real team data",
+                  "Benchmarked insights across teams and organizations",
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <Target className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -188,6 +224,31 @@ export default function Business() {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/20" />
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Leadership Labs Section */}
+      <section className="section-padding bg-background">
+        <div className="container-wide">
+          <div className="text-center mb-12">
+            <p className="text-lg text-primary font-medium mb-4">
+              Leadership Labs are the primary way organizations experience The Sport of Business in practice.
+            </p>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+              Leadership Labs
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Immersive, facilitated working sessions designed to install alignment, clarity, and execution discipline across your leadership team.
+            </p>
+          </div>
+          <div className="text-center">
+            <Link to="/labs">
+              <Button size="lg" variant="outline" className="border-primary/50 hover:bg-primary/10">
+                Explore Leadership Labs
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -219,7 +280,7 @@ export default function Business() {
           </p>
           <Link to="/contact">
             <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary">
-              Book a Consultation
+              Book a Business Consultation
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>

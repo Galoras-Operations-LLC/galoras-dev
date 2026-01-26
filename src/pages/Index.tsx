@@ -86,6 +86,55 @@ export default function Index() {
         </div>
       </section>
 
+      {/* How Galoras Delivers The Sport of Business */}
+      <section className="section-padding bg-muted/30">
+        <div className="container-wide">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+              How Galoras Delivers The Sport of Business
+            </h2>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Column 1 */}
+            <div className="p-8 rounded-2xl bg-card border border-border">
+              <h3 className="text-xl font-display font-semibold mb-2">The Sport of Business</h3>
+              <p className="text-sm text-primary font-medium mb-4">The performance framework</p>
+              <p className="text-muted-foreground">
+                Treats leadership teams as performance units, not individuals.
+              </p>
+            </div>
+            
+            {/* Column 2 */}
+            <div className="p-8 rounded-2xl bg-card border border-border">
+              <h3 className="text-xl font-display font-semibold mb-2">Proven Methodology</h3>
+              <p className="text-sm text-primary font-medium mb-4">Under the hood</p>
+              <p className="text-muted-foreground">
+                Data-driven diagnostics and sequenced interventions grounded in behavioral science.
+              </p>
+            </div>
+            
+            {/* Column 3 */}
+            <div className="p-8 rounded-2xl bg-card border border-border">
+              <h3 className="text-xl font-display font-semibold mb-2">Leadership Labs</h3>
+              <p className="text-sm text-primary font-medium mb-4">How teams experience it</p>
+              <p className="text-muted-foreground">
+                Immersive, facilitated working sessions that install alignment, clarity, and execution discipline.
+              </p>
+            </div>
+          </div>
+          
+          <div className="text-center mt-10">
+            <Link to="/business">
+              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary">
+                Explore Galoras for Business
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Three Pillars */}
       <section className="section-padding bg-background">
         <div className="container-wide">
