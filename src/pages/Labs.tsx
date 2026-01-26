@@ -265,12 +265,15 @@ export default function Labs() {
               OUR COURSES
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-4">
               <span className="text-gradient">LEADERSHIP</span>{" "}
               <span className="text-primary">LABS</span>
             </h1>
+            <p className="text-lg text-foreground font-medium mb-4 max-w-xl">
+              Leadership Labs are immersive, facilitated experiences where teams practice The Sport of Business in real time.
+            </p>
             <p className="text-lg text-muted-foreground mb-8 max-w-xl">
-              Multiple event/workshop will be organized from time to time. Find the event that going to happen.
+              Multiple events and workshops are organized throughout the year. Find the experience that fits your team.
             </p>
             <Link to="#courses">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary">
