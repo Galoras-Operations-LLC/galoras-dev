@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import galorasLogo from "@/assets/galoras-logo.png";
+import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -54,10 +55,26 @@ const navItems = [
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
-  
-  // TODO: Replace with actual auth state
-  const isLoggedIn = false;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session?.user);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session?.user);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50">
@@ -135,16 +152,21 @@ export function Navbar() {
                     <User className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link to="/dashboard">
+                        <User className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={(e) => {
+                      e.preventDefault();
+                      handleSignOut();
+                    }}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <>
@@ -215,20 +237,44 @@ export function Navbar() {
                 >
                   Apply to Coach
                 </Link>
-                <Link
-                  to="/login"
-                  className="block px-3 py-2 text-sm font-medium rounded-md hover:bg-muted"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Log In
-                </Link>
-                <div className="px-3">
-                  <Button className="w-full bg-primary text-primary-foreground" asChild>
-                    <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                      Get Started
+                {isLoggedIn ? (
+                  <>
+                    <Link
+                      to="/dashboard"
+                      className="block px-3 py-2 text-sm font-medium rounded-md hover:bg-muted"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Dashboard
                     </Link>
-                  </Button>
-                </div>
+                    <button
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm font-medium rounded-md hover:bg-muted"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        handleSignOut();
+                      }}
+                    >
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className="block px-3 py-2 text-sm font-medium rounded-md hover:bg-muted"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Log In
+                    </Link>
+                    <div className="px-3">
+                      <Button className="w-full bg-primary text-primary-foreground" asChild>
+                        <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                          Get Started
+                        </Link>
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
