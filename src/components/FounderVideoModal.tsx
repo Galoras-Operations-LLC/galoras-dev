@@ -110,18 +110,18 @@ export function FounderVideoModal() {
           {/* Backdrop overlay when expanded */}
           {isExpanded && (
             <div 
-              className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
+              className="fixed inset-0 bg-black/50 z-[45] transition-opacity duration-300"
               onClick={handleClose}
             />
           )}
           
           <div
-            className={`fixed z-50 bg-black rounded-lg shadow-2xl overflow-hidden transition-all duration-300 ease-in-out ${
+            className={`fixed z-40 bg-black rounded-lg shadow-2xl overflow-hidden transition-all duration-300 ease-in-out ${
               isExpanded 
-                ? "top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-3xl" 
+                ? "top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-3xl z-50" 
                 : isThumbnail
-                  ? "top-4 right-4 w-16 h-16 cursor-pointer hover-scale"
-                  : "top-4 right-4 w-64 sm:w-80"
+                  ? "top-24 right-4 w-16 h-16 cursor-pointer hover-scale"
+                  : "top-24 right-4 w-64 sm:w-80"
             }`}
             onClick={isThumbnail ? handleThumbnailClick : undefined}
           >

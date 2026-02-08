@@ -125,11 +125,9 @@ export function Navbar() {
 
           {/* Right Side Actions */}
           <div className="hidden lg:flex items-center gap-3">
-            <Link to="/apply">
-              <Button variant="ghost" size="sm">
-                Apply to Coach
-              </Button>
-            </Link>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/apply">Apply to Coach</Link>
+            </Button>
             {isLoggedIn ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -150,16 +148,12 @@ export function Navbar() {
               </DropdownMenu>
             ) : (
               <>
-                <Link to="/login">
-                  <Button variant="ghost" size="sm">
-                    Log In
-                  </Button>
-                </Link>
-                <Link to="/signup">
-                  <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                    Get Started
-                  </Button>
-                </Link>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/login">Log In</Link>
+                </Button>
+                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+                  <Link to="/signup">Get Started</Link>
+                </Button>
               </>
             )}
           </div>
@@ -229,11 +223,11 @@ export function Navbar() {
                   Log In
                 </Link>
                 <div className="px-3">
-                  <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-primary text-primary-foreground">
+                  <Button className="w-full bg-primary text-primary-foreground" asChild>
+                    <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
                       Get Started
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </div>
