@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -14,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CheckCircle, XCircle, Clock, Loader2, ShieldAlert } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Loader2, ShieldAlert, ShieldX } from "lucide-react";
 import { format } from "date-fns";
 
 interface CoachApplication {
@@ -29,11 +28,10 @@ interface CoachApplication {
 }
 
 export default function Applicants() {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [applications, setApplications] = useState<CoachApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [accessState, setAccessState] = useState<"loading" | "denied" | "granted">("loading");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,7 +42,8 @@ export default function Applicants() {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      navigate("/");
+      setAccessState("denied");
+      setIsLoading(false);
       return;
     }
 
@@ -57,17 +56,12 @@ export default function Applicants() {
       .maybeSingle();
 
     if (roleError || !roleData) {
-      setIsAdmin(false);
-      toast({
-        title: "Access Denied",
-        description: "You don't have permission to view this page.",
-        variant: "destructive",
-      });
-      navigate("/");
+      setAccessState("denied");
+      setIsLoading(false);
       return;
     }
 
-    setIsAdmin(true);
+    setAccessState("granted");
     fetchApplications();
   };
 
@@ -133,7 +127,8 @@ export default function Applicants() {
     }
   };
 
-  if (isAdmin === null) {
+  // Loading state while checking access
+  if (accessState === "loading") {
     return (
       <Layout>
         <div className="min-h-[60vh] flex items-center justify-center">
@@ -143,23 +138,54 @@ export default function Applicants() {
     );
   }
 
-  if (!isAdmin) {
-    return null;
+  // Access denied state - show message instead of redirecting
+  if (accessState === "denied") {
+    return (
+      <Layout>
+        <section className="py-16">
+          <div className="container-wide">
+            <Card className="max-w-md mx-auto">
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center text-center gap-4">
+                  <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
+                    <ShieldX className="h-8 w-8 text-destructive" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-semibold mb-2">Admin access required</h1>
+                    <p className="text-muted-foreground">
+                      You do not have permission to view this page. Please contact an administrator if you believe this is an error.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      </Layout>
+    );
   }
 
   return (
     <Layout>
       <section className="py-16">
         <div className="container-wide">
+          {/* Clear page title */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <ShieldAlert className="h-8 w-8 text-primary" />
+              Coach Applications (Admin)
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Review and manage coach applications
+            </p>
+          </div>
+
           <Card>
             <CardHeader>
-              <div className="flex items-center gap-2">
-                <ShieldAlert className="h-6 w-6 text-primary" />
-                <div>
-                  <CardTitle>Coach Applications</CardTitle>
-                  <CardDescription>Review and manage coach applications</CardDescription>
-                </div>
-              </div>
+              <CardTitle>Applications</CardTitle>
+              <CardDescription>
+                {applications.length} total application{applications.length !== 1 ? 's' : ''}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {isLoading ? (
