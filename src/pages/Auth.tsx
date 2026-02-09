@@ -52,7 +52,7 @@ export default function Auth() {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: loginData.email,
         password: loginData.password,
       });
@@ -64,8 +64,9 @@ export default function Auth() {
         throw error;
       }
 
+      const userName = data.user?.user_metadata?.full_name || data.user?.email?.split('@')[0] || 'there';
       toast({
-        title: "Welcome back!",
+        title: `Welcome back, ${userName}!`,
         description: "You've been successfully logged in.",
       });
     } catch (error: any) {
