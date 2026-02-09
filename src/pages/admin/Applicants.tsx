@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CheckCircle, XCircle, Clock, Loader2, ShieldAlert, ShieldX } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Loader2, ShieldAlert, ShieldX, Copy, Link } from "lucide-react";
 import { format } from "date-fns";
 
 interface CoachApplication {
@@ -25,6 +25,8 @@ interface CoachApplication {
   bio: string | null;
   experience_years: number | null;
   specialties: string[] | null;
+  onboarding_token: string | null;
+  onboarding_status: string | null;
 }
 
 export default function Applicants() {
@@ -84,16 +86,30 @@ export default function Applicants() {
     setIsLoading(false);
   };
 
+  const generateToken = () => {
+    return crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+  };
+
   const updateStatus = async (id: string, newStatus: "approved" | "rejected") => {
     setUpdatingId(id);
     
-    const { error } = await supabase
+    const updateData: Record<string, unknown> = {
+      status: newStatus,
+      reviewed_at: new Date().toISOString()
+    };
+
+    // If approving, generate onboarding token
+    if (newStatus === "approved") {
+      updateData.onboarding_token = generateToken();
+      updateData.onboarding_status = "pending";
+    }
+    
+    const { data, error } = await supabase
       .from("coach_applications")
-      .update({ 
-        status: newStatus,
-        reviewed_at: new Date().toISOString()
-      })
-      .eq("id", id);
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single();
 
     if (error) {
       toast({
@@ -106,14 +122,35 @@ export default function Applicants() {
         title: `Application ${newStatus}`,
         description: `The application has been ${newStatus}.`,
       });
-      // Update local state immediately
+      // Update local state with returned data
       setApplications(prev => 
         prev.map(app => 
-          app.id === id ? { ...app, status: newStatus } : app
+          app.id === id ? { ...app, ...data } : app
         )
       );
     }
     setUpdatingId(null);
+  };
+
+  const copyOnboardingLink = (token: string) => {
+    const baseUrl = window.location.origin;
+    const link = `${baseUrl}/coach/onboarding?token=${token}`;
+    navigator.clipboard.writeText(link);
+    toast({
+      title: "Link copied!",
+      description: "Onboarding link has been copied to clipboard.",
+    });
+  };
+
+  const getOnboardingBadge = (status: string | null) => {
+    switch (status) {
+      case "completed":
+        return <Badge className="bg-green-500/10 text-green-600 border-green-500/20">Completed</Badge>;
+      case "pending":
+        return <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">Pending</Badge>;
+      default:
+        return <Badge variant="outline" className="text-muted-foreground">—</Badge>;
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -205,6 +242,7 @@ export default function Applicants() {
                         <TableHead>Email</TableHead>
                         <TableHead>Submitted</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Onboarding</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -215,8 +253,19 @@ export default function Applicants() {
                           <TableCell>{app.email}</TableCell>
                           <TableCell>{format(new Date(app.created_at), "MMM d, yyyy")}</TableCell>
                           <TableCell>{getStatusBadge(app.status)}</TableCell>
+                          <TableCell>{getOnboardingBadge(app.onboarding_status)}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
+                              {app.status === "approved" && app.onboarding_token && app.onboarding_status === "pending" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => copyOnboardingLink(app.onboarding_token!)}
+                                >
+                                  <Copy className="h-4 w-4 mr-1" />
+                                  Copy Link
+                                </Button>
+                              )}
                               <Button
                                 size="sm"
                                 variant="outline"

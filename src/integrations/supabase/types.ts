@@ -136,6 +136,8 @@ export type Database = {
           full_name: string
           id: string
           linkedin_url: string | null
+          onboarding_status: string | null
+          onboarding_token: string | null
           phone: string | null
           reviewed_at: string | null
           reviewer_notes: string | null
@@ -154,6 +156,8 @@ export type Database = {
           full_name: string
           id?: string
           linkedin_url?: string | null
+          onboarding_status?: string | null
+          onboarding_token?: string | null
           phone?: string | null
           reviewed_at?: string | null
           reviewer_notes?: string | null
@@ -172,6 +176,8 @@ export type Database = {
           full_name?: string
           id?: string
           linkedin_url?: string | null
+          onboarding_status?: string | null
+          onboarding_token?: string | null
           phone?: string | null
           reviewed_at?: string | null
           reviewer_notes?: string | null

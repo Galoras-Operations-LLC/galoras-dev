@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import { CoachingDirectory, CoachProfile, CoachMatching, WhyCoaching } from "./pages/coaching";
 import CoachDashboard from "./pages/coaching/CoachDashboard";
 import CoachProfileEdit from "./pages/coaching/CoachProfileEdit";
+import CoachOnboarding from "./pages/coaching/CoachOnboarding";
 import { Business, SportOfBusiness, LeadershipCircles, Workshops, Diagnostics } from "./pages/business";
 import Compass from "./pages/Compass";
 import Labs from "./pages/Labs";
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/coaching/:coachId" element={<CoachProfile />} />
           <Route path="/coaching/matching" element={<CoachMatching />} />
           <Route path="/coaching/why" element={<WhyCoaching />} />
+          <Route path="/coach/onboarding" element={<CoachOnboarding />} />
           {/* B2B Routes */}
           <Route path="/business" element={<Business />} />
           <Route path="/business/sport-of-business" element={<SportOfBusiness />} />
