@@ -1,0 +1,1 @@
+ALTER TABLE coach_applications ADD COLUMN IF NOT EXISTS user_id uuid;

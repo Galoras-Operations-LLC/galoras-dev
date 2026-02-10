@@ -186,7 +186,7 @@ export function Navbar() {
                         <DropdownMenuItem asChild>
                           <Link to="/admin/applicants">
                             <ShieldCheck className="mr-2 h-4 w-4" />
-                            Applicants
+                            Coach Approval
                           </Link>
                         </DropdownMenuItem>
                       </>
@@ -286,7 +286,7 @@ export function Navbar() {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <ShieldCheck className="h-4 w-4" />
-                        Applicants
+                        Coach Approval
                       </Link>
                     )}
                     <button

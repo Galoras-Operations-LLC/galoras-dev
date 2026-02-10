@@ -143,6 +143,7 @@ export type Database = {
           reviewer_notes: string | null
           specialties: string[] | null
           status: Database["public"]["Enums"]["coach_status"] | null
+          user_id: string | null
           website_url: string | null
           why_galoras: string | null
         }
@@ -163,6 +164,7 @@ export type Database = {
           reviewer_notes?: string | null
           specialties?: string[] | null
           status?: Database["public"]["Enums"]["coach_status"] | null
+          user_id?: string | null
           website_url?: string | null
           why_galoras?: string | null
         }
@@ -183,6 +185,7 @@ export type Database = {
           reviewer_notes?: string | null
           specialties?: string[] | null
           status?: Database["public"]["Enums"]["coach_status"] | null
+          user_id?: string | null
           website_url?: string | null
           why_galoras?: string | null
         }
