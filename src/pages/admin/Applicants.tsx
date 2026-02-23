@@ -94,56 +94,35 @@ export default function Applicants() {
     [applications]
   );
 
-  const generateToken = () =>
-    crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
-
-  const BASE62 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const generateShortId = (length = 12) => {
-    const bytes = crypto.getRandomValues(new Uint8Array(length));
-    return Array.from(bytes, (b) => BASE62[b % 62]).join("");
-  };
-
   const approveApplication = async (id: string) => {
     setUpdatingId(id);
-    const token = generateToken();
-    const shortId = generateShortId();
-
-    const { data, error } = await supabase
-      .from("coach_applications")
-      .update({
-        status: "approved" as const,
-        onboarding_token: token,
-        onboarding_status: "pending",
-        onboarding_short_id: shortId,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) {
-      toast({ title: "Approve failed", description: error.message, variant: "destructive" });
-      setUpdatingId(null);
-      return;
-    }
-
-    // Insert into onboarding_links (service-role table, but admin can insert via RLS bypass if needed)
-    // We use the supabase client here; if RLS blocks, the edge function handles it
-    const { error: linkError } = await supabase
-      .from("onboarding_links")
-      .insert({
-        short_id: shortId,
-        application_id: id,
-        onboarding_token: token,
+    try {
+      const res = await supabase.functions.invoke("create-onboarding-link", {
+        body: { applicationId: id },
       });
-
-    if (linkError) {
-      console.error("Failed to create onboarding link:", linkError);
-      // Still proceed — the approval succeeded, link can be created later
+      if (res.error) throw res.error;
+      if (res.data?.error) throw new Error(res.data.error);
+      toast({ title: "Application approved", description: "Masked onboarding link created." });
+      fetchApplications();
+    } catch (err: any) {
+      toast({ title: "Approve failed", description: err.message || String(err), variant: "destructive" });
     }
+    setUpdatingId(null);
+  };
 
-    toast({ title: "Application approved", description: "Onboarding link is now available." });
-    setApplications((prev) => prev.map((a) => (a.id === id ? { ...a, ...data } : a)));
+  const regenerateLink = async (id: string) => {
+    setUpdatingId(id);
+    try {
+      const res = await supabase.functions.invoke("create-onboarding-link", {
+        body: { applicationId: id },
+      });
+      if (res.error) throw res.error;
+      if (res.data?.error) throw new Error(res.data.error);
+      toast({ title: "Link regenerated", description: "New masked link created. Old links expired." });
+      fetchApplications();
+    } catch (err: any) {
+      toast({ title: "Regenerate failed", description: err.message || String(err), variant: "destructive" });
+    }
     setUpdatingId(null);
   };
 
@@ -218,21 +197,26 @@ export default function Applicants() {
     if (app.onboarding_short_id) {
       return `${window.location.origin}/onboard/${app.onboarding_short_id}`;
     }
-    // Fallback for legacy approved applications without short_id
-    return app.onboarding_token ? `${window.location.origin}/coaching/onboarding?token=${app.onboarding_token}` : null;
+    return null;
   };
 
   const openOnboardingLink = (app: CoachApplication) => {
     const url = getOnboardingUrl(app);
-    if (url) window.open(url, "_blank");
+    if (!url) {
+      toast({ title: "No masked link", description: "Use Regenerate Link.", variant: "destructive" });
+      return;
+    }
+    window.open(url, "_blank");
   };
 
   const copyOnboardingLink = (app: CoachApplication) => {
     const url = getOnboardingUrl(app);
-    if (url) {
-      navigator.clipboard.writeText(url);
-      toast({ title: "Link copied!", description: "Onboarding link copied to clipboard." });
+    if (!url) {
+      toast({ title: "No masked link", description: "Use Regenerate Link.", variant: "destructive" });
+      return;
     }
+    navigator.clipboard.writeText(url);
+    toast({ title: "Link copied!", description: "Onboarding link copied to clipboard." });
   };
 
   // Status badges
@@ -432,7 +416,7 @@ export default function Applicants() {
                               <TableCell>{onboardingBadge(app.onboarding_status)}</TableCell>
                               <TableCell className="text-right">
                                 <div className="flex justify-end gap-2">
-                                  {app.status === "approved" && (app.onboarding_short_id || app.onboarding_token) && app.onboarding_status === "pending" && (
+                                  {app.status === "approved" && app.onboarding_short_id && (app.onboarding_status === "pending" || app.onboarding_status === "needs_changes") && (
                                     <>
                                       <Button size="sm" onClick={() => openOnboardingLink(app)}>
                                         <ExternalLink className="h-4 w-4 mr-1" />Open Onboarding
@@ -441,6 +425,12 @@ export default function Applicants() {
                                         <Copy className="h-4 w-4 mr-1" />Copy
                                       </Button>
                                     </>
+                                  )}
+                                  {app.status === "approved" && !app.onboarding_short_id && app.onboarding_status !== "completed" && (
+                                    <Button size="sm" variant="outline" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                                      disabled={updatingId === app.id} onClick={() => regenerateLink(app.id)}>
+                                      {updatingId === app.id ? <Loader2 className="h-4 w-4 animate-spin" /> : "Regenerate Link"}
+                                    </Button>
                                   )}
                                   <Button size="sm" variant="outline" onClick={() => setDetailApp(app)}>
                                     <Eye className="h-4 w-4 mr-1" />View

@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.resolve-onboarding-link]
 verify_jwt = false
+
+[functions.create-onboarding-link]
+verify_jwt = true

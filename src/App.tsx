@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { CoachingDirectory, CoachProfile, CoachMatching, WhyCoaching } from "./pages/coaching";
@@ -24,6 +24,11 @@ import Applicants from "./pages/admin/Applicants";
 
 const queryClient = new QueryClient();
 
+function CoachOnboardingRedirect() {
+  const location = useLocation();
+  return <Navigate to={`/coaching/onboarding${location.search}`} replace />;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -38,7 +43,7 @@ const App = () => (
           <Route path="/coaching/matching" element={<CoachMatching />} />
           <Route path="/coaching/why" element={<WhyCoaching />} />
           <Route path="/coaching/onboarding" element={<CoachOnboarding />} />
-          <Route path="/coach/onboarding" element={<CoachOnboarding />} />
+          <Route path="/coach/onboarding" element={<CoachOnboardingRedirect />} />
           <Route path="/onboard/:shortId" element={<OnboardRedirect />} />
           {/* B2B Routes */}
           <Route path="/business" element={<Business />} />
