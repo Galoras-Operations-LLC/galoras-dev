@@ -1,13 +1,20 @@
 
 
-## Add `galoras-logo.svg` to `/public`
+## Replace Logo in Navbar with SVG
 
-Copy the uploaded SVG file to `public/galoras-logo.svg`.
+The project doesn't have a `Header.tsx` -- the logo lives in `src/components/layout/Navbar.tsx` (line 100).
 
-This places the clean vector logo (transparent background, bolt + square G mark + wordmark) alongside the existing `public/favicon.ico` and other public assets, making it available at `/galoras-logo.svg` for direct URL reference in HTML, CSS, or meta tags.
+**Current code (line 100):**
+```tsx
+<img src={galorasLogo} alt="Galoras" className="h-10 md:h-12 w-auto" />
+```
+Where `galorasLogo` is imported from `@/assets/galoras-logo.png`.
 
-**File operation:**
-- Copy `user-uploads://galoras-logo.svg` to `public/galoras-logo.svg`
+**Change:**
+1. Remove the PNG import (`import galorasLogo from "@/assets/galoras-logo.png"`) from line 23
+2. Replace the `<img>` tag with:
+   ```tsx
+   <img src="/galoras-logo.svg" alt="Galoras" className="h-8 w-auto" />
+   ```
 
-No other files need to change -- this is purely adding the asset.
-
+This switches from the bundled PNG asset to the public SVG for crisper rendering at all sizes.
