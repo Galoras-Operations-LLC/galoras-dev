@@ -1,139 +1,180 @@
 
 
-# Phase A + Phase B: Masked Onboarding Links
+# Phase A+B Signoff -- Revised Implementation Plan
 
-## Phase A -- Immediate UI Fix
+## Confirmed Current State (from code inspection)
 
-### File: `src/pages/admin/Applicants.tsx`
-
-**"All" tab (lines 391-396):** Replace the "Copy Link" button block with two buttons:
-
-1. **"Open Onboarding"** (primary) -- opens `/coaching/onboarding?token=...` in a new tab using `window.open()`. Note: uses `/coaching/onboarding` (not `/coach/onboarding`).
-2. **"Copy Link"** (secondary/ghost, smaller) -- keeps existing clipboard copy behavior but also uses the corrected `/coaching/onboarding` route.
-
-**Also fix `copyOnboardingLink` function (line 189-193):** Update the URL from `/coach/onboarding` to `/coaching/onboarding`.
-
-**Add `openOnboardingLink` function:** Opens the onboarding URL in a new tab.
-
-**Route fix in `App.tsx` (line 39):** Change `/coach/onboarding` to `/coaching/onboarding` for route consistency. Keep old route as a redirect or alias to avoid breaking any existing links.
-
-No other tabs (Queue A, Queue B) are affected -- they don't show Copy Link buttons.
+- `onboarding_links` table exists, 0 rows
+- 6 applications, all `onboarding_short_id = NULL`:
+  - Barnes Lam: approved, no token, onboarding_status = NULL
+  - Mitesh Kapadia: approved, has token, onboarding_status = needs_changes
+  - Nick Frost: approved, has token, onboarding_status = pending
+  - Cindy Chu: approved, has token, onboarding_status = pending
+  - Melody Chi: approved, has token, onboarding_status = completed
+  - Conor McGowan Smyth: pending, no token
+- Admin auth: `user_roles` table + `has_role(user_id, 'admin')` DB function
+- `/coach/onboarding` (App.tsx line 41) renders `CoachOnboarding` directly -- no redirect
+- `getOnboardingUrl` (Applicants.tsx line 221-222) falls back to raw token URL
+- `resolve-onboarding-link` has `verify_jwt = false` (correct for public use)
+- `complete-onboarding` already marks `used_at` on `onboarding_links` (lines 87-90)
+- `OnboardRedirect.tsx` already exists and works correctly
+- "All" tab buttons (line 435) use `app.onboarding_short_id || app.onboarding_token` and only check `onboarding_status === "pending"` (misses `needs_changes`)
 
 ---
 
-## Phase B -- Masked Onboarding Route
+## Fix 1 -- Edge Function: `create-onboarding-link`
 
-### Step 1: Database Migration
+**New file:** `supabase/functions/create-onboarding-link/index.ts`
 
-**New table `onboarding_links`:**
+**Config:** `supabase/config.toml` -- add `[functions.create-onboarding-link]` with `verify_jwt = true`
 
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid (PK) | Default gen_random_uuid() |
-| short_id | text (unique, not null) | 10-12 char base62 random string |
-| application_id | uuid (FK) | References coach_applications.id |
-| onboarding_token | text (not null) | The real token (plaintext initially, service-role-only access) |
-| created_at | timestamptz | Default now() |
-| expires_at | timestamptz | Default now() + 30 days |
-| used_at | timestamptz | NULL until onboarding is completed |
+**Function logic:**
 
-RLS: Enable RLS on the table with NO public policies. Only the edge function (service role) accesses this table, so no RLS policies are needed for anon/authenticated roles.
+1. CORS preflight handling
+2. Extract JWT from `Authorization: Bearer <token>` header
+3. Create service-role Supabase client using `SUPABASE_SERVICE_ROLE_KEY`
+4. `supabase.auth.getUser(token)` to get `user.id`
+5. Admin check: `SELECT has_role(user.id, 'admin')` via RPC -- if false, return 403
+6. Input: `{ applicationId }` from request body
+7. Fetch current application: `SELECT status, onboarding_status FROM coach_applications WHERE id = applicationId`
+8. **Status guard:** If `onboarding_status = 'completed'`, return 400 "Cannot regenerate after onboarding completion"
+9. Allowed states: `onboarding_status IS NULL` or `IN ('pending', 'needs_changes')`
+10. Generate server-side:
+    - `token`: two UUIDs concatenated, dashes stripped (64 hex chars)
+    - `shortId`: 12-char base62 via `crypto.getRandomValues` + base62 alphabet
+11. **Revoke old links** (Fix 5 built-in):
+    ```sql
+    UPDATE onboarding_links SET expires_at = now()
+    WHERE application_id = applicationId AND expires_at > now()
+    ```
+12. **Update `coach_applications`** (preserves `needs_changes`):
+    ```sql
+    SET status = 'approved',
+        onboarding_token = token,
+        onboarding_short_id = shortId,
+        onboarding_status = COALESCE(onboarding_status, 'pending'),
+        reviewed_at = now()
+    WHERE id = applicationId
+    ```
+13. **Insert into `onboarding_links`:**
+    ```sql
+    INSERT (short_id, application_id, onboarding_token)
+    -- expires_at defaults to now() + 30 days
+    ```
+14. If any step fails: return error with details (no silent success)
+15. Return `{ shortId, applicationId }` on success
 
-**New column on `coach_applications`:**
-- `onboarding_short_id text` (nullable) -- stores the short ID for quick admin reference
+---
 
-### Step 2: New Edge Function -- `resolve-onboarding-link`
+## Fix 2 -- Remove Raw Token Fallback (Applicants.tsx)
 
-- **Config:** `verify_jwt = false` in `supabase/config.toml`
-- **Runs with service role** (uses `SUPABASE_SERVICE_ROLE_KEY`)
-- Accepts `{ shortId }` in request body
-- Looks up `onboarding_links` by `short_id`
-- Validates: `expires_at > now()` (not expired)
-- Does **NOT** mark `used_at` on resolve (allows retries and device switches)
-- Returns `{ token }` to the client
-- Returns 404 if expired or not found
+### `getOnboardingUrl` (replace lines 217-223)
 
-**Single-use marking:** `used_at` is set only when `complete-onboarding` edge function runs successfully. A small update to `complete-onboarding/index.ts` will add: after marking the application as completed, also update `onboarding_links` SET `used_at = now()` WHERE `onboarding_token = token`.
+```typescript
+const getOnboardingUrl = (app: CoachApplication) => {
+  if (app.onboarding_short_id) {
+    return `${window.location.origin}/onboard/${app.onboarding_short_id}`;
+  }
+  return null; // No raw token fallback
+};
+```
 
-### Step 3: Short ID Generation
+### `openOnboardingLink` (replace lines 225-228)
 
-Use a URL-safe base62 alphabet (A-Z, a-z, 0-9), generating a 12-character random string. Implementation in the edge function or in `Applicants.tsx`:
+Add null check -- if URL is null, show destructive toast "Masked link not generated -- use Regenerate Link."
 
-```text
-const BASE62 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-function generateShortId(length = 12) {
-  const bytes = crypto.getRandomValues(new Uint8Array(length));
-  return Array.from(bytes, b => BASE62[b % 62]).join('');
+### `copyOnboardingLink` (replace lines 230-236)
+
+Same null check with error toast.
+
+### `approveApplication` (replace lines 106-148)
+
+Remove `generateToken`, `generateShortId` helpers (lines 97-104). Replace entire function body with:
+- Call `supabase.functions.invoke("create-onboarding-link", { body: { applicationId: id } })`
+- On success: toast + `fetchApplications()`
+- On error: destructive toast, no local state mutation
+
+### Add `regenerateLink` function
+
+Same edge function call, different success toast: "New masked link created. Old links expired."
+
+### Fix 2B -- "All" tab buttons (replace lines 435-444)
+
+**Open/Copy buttons shown when:**
+- `status === 'approved'`
+- `onboarding_short_id` exists (not null)
+- `onboarding_status` is `'pending'` OR `'needs_changes'`
+
+**Regenerate Link button shown when:**
+- `status === 'approved'`
+- `onboarding_short_id` is NULL
+- `onboarding_status` is NULL, `'pending'`, or `'needs_changes'`
+
+**Never show onboarding buttons for `completed`.**
+
+---
+
+## Fix 3 -- Backfill Migration
+
+**New SQL migration** (PL/pgSQL DO block)
+
+**Scope:** `status = 'approved' AND onboarding_short_id IS NULL AND (onboarding_status IS NULL OR onboarding_status IN ('pending', 'needs_changes'))`
+
+This covers: Barnes Lam, Mitesh Kapadia, Nick Frost, Cindy Chu. **Excludes** Melody Chi (completed).
+
+**For each row:**
+1. If `onboarding_token IS NULL` (Barnes Lam): generate token from two concatenated UUIDs (dashes stripped)
+2. Generate `short_id` from `substr(replace(gen_random_uuid()::text, '-', ''), 1, 12)`
+3. Retry loop (max 5 attempts) on unique violation
+4. Update `coach_applications`: set `onboarding_short_id`, `onboarding_token` (if was null), `onboarding_status = COALESCE(onboarding_status, 'pending')`
+5. Insert into `onboarding_links` with `expires_at = now() + interval '30 days'`
+
+---
+
+## Fix 4 -- Hard Redirect `/coach/onboarding`
+
+**Replace App.tsx line 41:**
+
+```typescript
+// Old:
+<Route path="/coach/onboarding" element={<CoachOnboarding />} />
+
+// New: query-preserving redirect wrapper
+function CoachOnboardingRedirect() {
+  const location = useLocation();
+  return <Navigate to={`/coaching/onboarding${location.search}`} replace />;
 }
+// ...
+<Route path="/coach/onboarding" element={<CoachOnboardingRedirect />} />
 ```
 
-### Step 4: New Frontend Route -- `/onboard/:shortId`
+Add `Navigate, useLocation` to react-router-dom imports.
 
-**New file: `src/pages/coaching/OnboardRedirect.tsx`**
-- Reads `shortId` from URL params
-- Calls `resolve-onboarding-link` edge function
-- On success: navigates to `/coaching/onboarding?token={token}` (internal redirect via `useNavigate`)
-- On failure: shows "Invalid or expired link" error page
-- Shows loading spinner during resolution
+---
 
-**Update `App.tsx`:**
-- Add route: `<Route path="/onboard/:shortId" element={<OnboardRedirect />} />`
-- Keep `/coaching/onboarding` route (still accepts `?token=` for the redirect target)
+## Fix 5 -- Regenerate Revokes Old Links
 
-### Step 5: Update `approveApplication` in `Applicants.tsx`
-
-After generating the `onboarding_token` and saving it to `coach_applications`:
-1. Generate a 12-char base62 `shortId`
-2. Insert into `onboarding_links` table: `{ short_id, application_id, onboarding_token, expires_at }`
-3. Update `coach_applications` with `onboarding_short_id = shortId`
-4. Update local state with the short ID
-
-### Step 6: Update Admin UI Buttons (replaces Phase A raw-token buttons)
-
-- **"Open Onboarding"** now opens `/onboard/{shortId}` (not the raw token URL)
-- **"Copy Link"** copies the `/onboard/{shortId}` URL
-- Both functions check: if `onboarding_short_id` exists, use masked URL; otherwise fall back to raw token URL (backward compatibility for existing approved applications)
-
-### Step 7: Update `complete-onboarding/index.ts`
-
-After successfully marking `onboarding_status = 'completed'`, also:
+Already built into Fix 1's edge function. Before inserting new link:
 ```sql
-UPDATE onboarding_links SET used_at = now() WHERE onboarding_token = token
+UPDATE onboarding_links SET expires_at = now()
+WHERE application_id = ? AND expires_at > now()
 ```
-This marks the link as used only after successful completion.
-
----
-
-## Token Storage Security Note
-
-The `onboarding_token` is stored as plaintext in `onboarding_links` for this phase. This is acceptable because:
-- The table has RLS enabled with zero public policies
-- Only the edge function accesses it via `SUPABASE_SERVICE_ROLE_KEY`
-- The token is never exposed in admin UI (admin only sees/shares the `shortId`)
-- Hashing can be added in a future phase if needed
-
----
-
-## Masking Scope Confirmation
-
-- Raw onboarding token is never shown in Admin UI buttons or text
-- Admin copies/shares only `/onboard/{shortId}`
-- Token appears in the final onboarding URL (`/coaching/onboarding?token=...`) after the redirect -- this is acceptable per requirements
 
 ---
 
 ## Files Changed Summary
 
-| File | Phase | Change |
+| File | Action | Description |
 |---|---|---|
-| `src/App.tsx` | A+B | Fix route `/coach/onboarding` to `/coaching/onboarding`, add `/onboard/:shortId` route |
-| `src/pages/admin/Applicants.tsx` | A+B | Add "Open Onboarding" button, generate shortId on approve, use masked URLs |
-| SQL migration | B | Create `onboarding_links` table, add `onboarding_short_id` to `coach_applications` |
-| `supabase/functions/resolve-onboarding-link/index.ts` | B | New edge function |
-| `supabase/config.toml` | B | Add `verify_jwt = false` for resolve-onboarding-link |
-| `src/pages/coaching/OnboardRedirect.tsx` | B | New redirect page component |
-| `supabase/functions/complete-onboarding/index.ts` | B | Mark `used_at` on onboarding_links after completion |
+| `supabase/functions/create-onboarding-link/index.ts` | Create | Admin-only edge function for deterministic link creation |
+| `supabase/config.toml` | Edit | Add `[functions.create-onboarding-link]` with `verify_jwt = true` |
+| `src/pages/admin/Applicants.tsx` | Edit | Remove raw fallback, approve/regenerate via edge function, button conditions include `needs_changes` |
+| `src/App.tsx` | Edit | Replace `/coach/onboarding` with query-preserving redirect |
+| SQL migration | Create | Backfill short IDs + onboarding_links for approved apps (excluding completed) |
 
-## No Blockers
+## Files NOT Changed
 
-All adjustments are straightforward. Phase A and B will be implemented together in a single pass.
+- `resolve-onboarding-link/index.ts` -- already correct
+- `complete-onboarding/index.ts` -- already marks `used_at`
+- `OnboardRedirect.tsx` -- already correct
+
