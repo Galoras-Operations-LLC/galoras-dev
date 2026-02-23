@@ -18,7 +18,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
-import galorasLogo from "@/assets/galoras-logo.png";
+
 import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
@@ -103,7 +103,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <img src={galorasLogo} alt="Galoras" className="h-10 md:h-12 w-auto" />
+            <img src="/galoras-logo.svg" alt="Galoras" className="h-8 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}
