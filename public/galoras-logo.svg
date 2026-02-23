@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 170" role="img" aria-label="Galoras logo">
+  <!--
+    Clean vector rebuild (navbar-ready):
+    - No background (transparent)
+    - Bolt outline + square G mark + wordmark
+    - Colors tuned to your image (light blue + near-black)
+  -->
+  <defs>
+    <style>
+      .blue { fill: #5FB5F5; }
+      .blue-stroke { stroke: #5FB5F5; }
+      .black { fill: #0A0A0A; }
+      .word { fill: #5FB5F5; font-family: Poppins, Arial, sans-serif; font-weight: 600; letter-spacing: 0.42em; }
+    </style>
+  </defs>
+
+  <!-- Icon row -->
+  <g transform="translate(20,20)">
+    <!-- Bolt (simple, clean outline) -->
+    <path d="M70 0 L35 65 H70 L45 130 L120 55 H85 L110 0 Z" fill="none" class="blue-stroke" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"></path>
+
+    <!-- Square + G -->
+    <rect x="170" y="5" width="120" height="120" rx="6" class="blue"></rect>
+    <text x="230" y="92" text-anchor="middle" dominant-baseline="middle" class="black" font-family="Poppins, Arial, sans-serif" font-size="78" font-weight="800">G</text>
+
+    <!-- Wordmark -->
+    <text x="180" y="160" class="word" font-size="26">GALORAS</text>
+  </g>
+</svg>
