@@ -36,6 +36,20 @@ interface CoachApplication {
   onboarding_status: string | null;
   reviewed_at: string | null;
   reviewer_notes: string | null;
+  // New structured fields
+  coach_background: string | null;
+  coach_background_detail: string | null;
+  certification_interest: string | null;
+  coaching_experience_years: string | null;
+  leadership_experience_years: string | null;
+  current_role: string | null;
+  coaching_experience_level: string | null;
+  primary_join_reason: string | null;
+  commitment_level: string | null;
+  start_timeline: string | null;
+  excitement_note: string | null;
+  pillar_specialties: string[] | null;
+  coaching_philosophy: string | null;
 }
 
 export default function Applicants() {

@@ -9,6 +9,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { 
   Award, 
   Users, 
   Globe,
@@ -17,6 +24,18 @@ import {
   Upload,
   X
 } from "lucide-react";
+import {
+  COACH_BACKGROUND_OPTIONS,
+  BACKGROUND_DETAIL_CONFIG,
+  CERTIFICATION_INTEREST_OPTIONS,
+  COACHING_EXPERIENCE_OPTIONS,
+  LEADERSHIP_EXPERIENCE_OPTIONS,
+  COACHING_LEVEL_OPTIONS,
+  JOIN_REASON_OPTIONS,
+  COMMITMENT_LEVEL_OPTIONS,
+  START_TIMELINE_OPTIONS,
+  PILLAR_SPECIALTIES,
+} from "@/lib/coaching-constants";
 
 const benefits = [
   {
@@ -41,19 +60,6 @@ const benefits = [
   },
 ];
 
-const specialtyOptions = [
-  "Leadership Development",
-  "Executive Coaching",
-  "Career Transitions",
-  "Performance Optimization",
-  "Work-Life Balance",
-  "Communication Skills",
-  "Team Dynamics",
-  "Entrepreneurship",
-  "Mindset & Resilience",
-  "Health & Wellness",
-];
-
 export default function Apply() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,18 +72,42 @@ export default function Apply() {
     phone: "",
     linkedin_url: "",
     website_url: "",
-    experience_years: "",
-    certifications: "",
-    specialties: [] as string[],
     bio: "",
-    why_galoras: "",
+    coaching_philosophy: "",
+    // Structured fields
+    coach_background: "",
+    coach_background_detail: "",
+    certification_interest: "",
+    coaching_experience_years: "",
+    leadership_experience_years: "",
+    current_role: "",
+    coaching_experience_level: "",
+    pillar_specialties: [] as string[],
+    // Motivation
+    primary_join_reason: "",
+    commitment_level: "",
+    start_timeline: "",
+    excitement_note: "",
   });
 
-  const handleSpecialtyChange = (specialty: string, checked: boolean) => {
+  const backgroundConfig = formData.coach_background
+    ? BACKGROUND_DETAIL_CONFIG[formData.coach_background]
+    : null;
+
+  const handleBackgroundChange = (value: string) => {
+    setFormData({
+      ...formData,
+      coach_background: value,
+      coach_background_detail: "",
+      certification_interest: "",
+    });
+  };
+
+  const handlePillarChange = (specialty: string, checked: boolean) => {
     if (checked) {
-      setFormData({ ...formData, specialties: [...formData.specialties, specialty] });
+      setFormData({ ...formData, pillar_specialties: [...formData.pillar_specialties, specialty] });
     } else {
-      setFormData({ ...formData, specialties: formData.specialties.filter(s => s !== specialty) });
+      setFormData({ ...formData, pillar_specialties: formData.pillar_specialties.filter(s => s !== specialty) });
     }
   };
 
@@ -86,20 +116,12 @@ export default function Apply() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload an image file (JPG, PNG, etc.)",
-        variant: "destructive",
-      });
+      toast({ title: "Invalid file type", description: "Please upload an image file (JPG, PNG, etc.)", variant: "destructive" });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please upload an image under 5MB",
-        variant: "destructive",
-      });
+      toast({ title: "File too large", description: "Please upload an image under 5MB", variant: "destructive" });
       return;
     }
 
@@ -125,7 +147,6 @@ export default function Apply() {
     try {
       let avatarUrl: string | null = null;
 
-      // Upload photo if provided
       if (photoFile) {
         const fileExt = photoFile.name.split(".").pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
@@ -147,11 +168,33 @@ export default function Apply() {
         avatarUrl = publicUrl;
       }
 
+      // Clear irrelevant conditional fields
+      const coach_background_detail = backgroundConfig?.field === "detail" ? formData.coach_background_detail : null;
+      const certification_interest = backgroundConfig?.field === "certification" ? formData.certification_interest : null;
+
       const { error } = await supabase.from("coach_applications").insert({
-        ...formData,
-        experience_years: formData.experience_years ? parseInt(formData.experience_years) : null,
+        full_name: formData.full_name,
+        email: formData.email,
+        phone: formData.phone || null,
+        linkedin_url: formData.linkedin_url || null,
+        website_url: formData.website_url || null,
+        bio: formData.bio,
         avatar_url: avatarUrl,
-      });
+        // New structured fields
+        coach_background: formData.coach_background,
+        coach_background_detail,
+        certification_interest,
+        coaching_experience_years: formData.coaching_experience_years,
+        leadership_experience_years: formData.leadership_experience_years,
+        current_role: formData.current_role || null,
+        coaching_experience_level: formData.coaching_experience_level,
+        pillar_specialties: formData.pillar_specialties,
+        primary_join_reason: formData.primary_join_reason,
+        commitment_level: formData.commitment_level,
+        start_timeline: formData.start_timeline,
+        excitement_note: formData.excitement_note || null,
+        coaching_philosophy: formData.coaching_philosophy || null,
+      } as any);
 
       if (error) throw error;
 
@@ -161,25 +204,16 @@ export default function Apply() {
       });
 
       setFormData({
-        full_name: "",
-        email: "",
-        phone: "",
-        linkedin_url: "",
-        website_url: "",
-        experience_years: "",
-        certifications: "",
-        specialties: [],
-        bio: "",
-        why_galoras: "",
+        full_name: "", email: "", phone: "", linkedin_url: "", website_url: "", bio: "",
+        coaching_philosophy: "", coach_background: "", coach_background_detail: "",
+        certification_interest: "", coaching_experience_years: "", leadership_experience_years: "",
+        current_role: "", coaching_experience_level: "", pillar_specialties: [],
+        primary_join_reason: "", commitment_level: "", start_timeline: "", excitement_note: "",
       });
       removePhoto();
     } catch (error) {
       console.error("Submit error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to submit application. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to submit application. Please try again.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
@@ -189,7 +223,6 @@ export default function Apply() {
     <Layout>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
-        {/* Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1920&auto=format&fit=crop')" }}
@@ -252,16 +285,8 @@ export default function Apply() {
                     <div className="flex items-center gap-6">
                       {photoPreview ? (
                         <div className="relative">
-                          <img
-                            src={photoPreview}
-                            alt="Profile preview"
-                            className="w-24 h-24 rounded-full object-cover border-2 border-border"
-                          />
-                          <button
-                            type="button"
-                            onClick={removePhoto}
-                            className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/90 transition-colors"
-                          >
+                          <img src={photoPreview} alt="Profile preview" className="w-24 h-24 rounded-full object-cover border-2 border-border" />
+                          <button type="button" onClick={removePhoto} className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/90 transition-colors">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
@@ -272,19 +297,8 @@ export default function Apply() {
                       )}
                       
                       <div>
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/*"
-                          onChange={handlePhotoSelect}
-                          className="hidden"
-                          id="photo-upload"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => fileInputRef.current?.click()}
-                        >
+                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" id="photo-upload" />
+                        <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
                           <Upload className="w-4 h-4 mr-2" />
                           {photoFile ? "Change Photo" : "Upload Photo"}
                         </Button>
@@ -299,57 +313,26 @@ export default function Apply() {
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Full Name *</Label>
-                        <Input
-                          id="name"
-                          required
-                          value={formData.full_name}
-                          onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                          placeholder="Jane Smith"
-                        />
+                        <Input id="name" required value={formData.full_name} onChange={(e) => setFormData({ ...formData, full_name: e.target.value })} placeholder="Jane Smith" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">Email Address *</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          required
-                          value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          placeholder="jane@coaching.com"
-                        />
+                        <Input id="email" type="email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="jane@coaching.com" />
                       </div>
                     </div>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="phone">Phone Number</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          placeholder="+1 (555) 000-0000"
-                        />
+                        <Input id="phone" type="tel" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="+1 (555) 000-0000" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="linkedin">LinkedIn Profile</Label>
-                        <Input
-                          id="linkedin"
-                          type="url"
-                          value={formData.linkedin_url}
-                          onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
-                          placeholder="https://linkedin.com/in/yourprofile"
-                        />
+                        <Input id="linkedin" type="url" value={formData.linkedin_url} onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })} placeholder="https://linkedin.com/in/yourprofile" />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="website">Website / Portfolio</Label>
-                      <Input
-                        id="website"
-                        type="url"
-                        value={formData.website_url}
-                        onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-                        placeholder="https://yourwebsite.com"
-                      />
+                      <Input id="website" type="url" value={formData.website_url} onChange={(e) => setFormData({ ...formData, website_url: e.target.value })} placeholder="https://yourwebsite.com" />
                     </div>
                   </div>
 
@@ -358,72 +341,178 @@ export default function Apply() {
                     <h3 className="text-lg font-display font-semibold">Professional Background</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="experience">Years of Coaching Experience *</Label>
-                        <Input
-                          id="experience"
-                          type="number"
-                          required
-                          min="0"
-                          value={formData.experience_years}
-                          onChange={(e) => setFormData({ ...formData, experience_years: e.target.value })}
-                          placeholder="5"
-                        />
+                        <Label>Coach Background *</Label>
+                        <Select value={formData.coach_background} onValueChange={handleBackgroundChange} required>
+                          <SelectTrigger><SelectValue placeholder="Select background" /></SelectTrigger>
+                          <SelectContent>
+                            {COACH_BACKGROUND_OPTIONS.map((opt) => (
+                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="certifications">Certifications</Label>
+                        <Label>Years of Coaching Experience *</Label>
+                        <Select value={formData.coaching_experience_years} onValueChange={(v) => setFormData({ ...formData, coaching_experience_years: v })} required>
+                          <SelectTrigger><SelectValue placeholder="Select range" /></SelectTrigger>
+                          <SelectContent>
+                            {COACHING_EXPERIENCE_OPTIONS.map((opt) => (
+                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Conditional sub-field */}
+                    {backgroundConfig?.field === "detail" && (
+                      <div className="space-y-2">
+                        <Label>{backgroundConfig.label} *</Label>
                         <Input
-                          id="certifications"
-                          value={formData.certifications}
-                          onChange={(e) => setFormData({ ...formData, certifications: e.target.value })}
-                          placeholder="ICF PCC, CTI, etc."
+                          required
+                          value={formData.coach_background_detail}
+                          onChange={(e) => setFormData({ ...formData, coach_background_detail: e.target.value })}
+                          placeholder={backgroundConfig.label}
                         />
                       </div>
+                    )}
+                    {backgroundConfig?.field === "certification" && (
+                      <div className="space-y-2">
+                        <Label>{backgroundConfig.label} *</Label>
+                        <Select value={formData.certification_interest} onValueChange={(v) => setFormData({ ...formData, certification_interest: v })} required>
+                          <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                          <SelectContent>
+                            {CERTIFICATION_INTEREST_OPTIONS.map((opt) => (
+                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label>Years of Leadership / Professional Experience *</Label>
+                      <Select value={formData.leadership_experience_years} onValueChange={(v) => setFormData({ ...formData, leadership_experience_years: v })} required>
+                        <SelectTrigger><SelectValue placeholder="Select range" /></SelectTrigger>
+                        <SelectContent>
+                          {LEADERSHIP_EXPERIENCE_OPTIONS.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="currentRole">Current / Most Recent Role</Label>
+                      <Input id="currentRole" value={formData.current_role} onChange={(e) => setFormData({ ...formData, current_role: e.target.value })} placeholder="e.g., VP of Operations, Head Coach" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Coaching Experience Level *</Label>
+                      <Select value={formData.coaching_experience_level} onValueChange={(v) => setFormData({ ...formData, coaching_experience_level: v })} required>
+                        <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
+                        <SelectContent>
+                          {COACHING_LEVEL_OPTIONS.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
-                  {/* Specialties */}
+                  {/* Pillar Specialties */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-display font-semibold">Specialties</h3>
-                    <p className="text-sm text-muted-foreground">Select all areas where you have expertise:</p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {specialtyOptions.map((specialty) => (
-                        <div key={specialty} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={specialty}
-                            checked={formData.specialties.includes(specialty)}
-                            onCheckedChange={(checked) => handleSpecialtyChange(specialty, checked as boolean)}
-                          />
-                          <Label htmlFor={specialty} className="text-sm cursor-pointer">
-                            {specialty}
-                          </Label>
+                    <p className="text-sm text-muted-foreground">Select all areas where you have expertise (grouped by pillar):</p>
+                    <div className="space-y-6">
+                      {Object.entries(PILLAR_SPECIALTIES).map(([pillar, specialties]) => (
+                        <div key={pillar}>
+                          <p className="text-sm font-semibold text-muted-foreground mb-2">{pillar}</p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {specialties.map((specialty) => (
+                              <div key={specialty} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={specialty}
+                                  checked={formData.pillar_specialties.includes(specialty)}
+                                  onCheckedChange={(checked) => handlePillarChange(specialty, checked as boolean)}
+                                />
+                                <Label htmlFor={specialty} className="text-sm cursor-pointer">{specialty}</Label>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Bio */}
+                  {/* About You */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-display font-semibold">About You</h3>
                     <div className="space-y-2">
                       <Label htmlFor="bio">Professional Bio *</Label>
-                      <Textarea
-                        id="bio"
-                        required
-                        rows={4}
-                        value={formData.bio}
-                        onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                        placeholder="Tell us about your coaching philosophy, background, and what makes you unique..."
-                      />
+                      <Textarea id="bio" required rows={4} value={formData.bio} onChange={(e) => setFormData({ ...formData, bio: e.target.value })} placeholder="Tell us about your coaching background and what makes you unique..." />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="why">Why Galoras?</Label>
+                      <Label htmlFor="philosophy">Coaching Philosophy</Label>
                       <Textarea
-                        id="why"
-                        rows={3}
-                        value={formData.why_galoras}
-                        onChange={(e) => setFormData({ ...formData, why_galoras: e.target.value })}
-                        placeholder="What attracted you to Galoras and why do you want to join our network?"
+                        id="philosophy"
+                        rows={2}
+                        maxLength={300}
+                        value={formData.coaching_philosophy}
+                        onChange={(e) => setFormData({ ...formData, coaching_philosophy: e.target.value })}
+                        placeholder="Your coaching philosophy in a sentence or two..."
                       />
+                      <p className="text-xs text-muted-foreground text-right">{formData.coaching_philosophy.length}/300</p>
+                    </div>
+                  </div>
+
+                  {/* Motivation */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-display font-semibold">Motivation</h3>
+                    <div className="space-y-2">
+                      <Label>Primary Reason for Joining *</Label>
+                      <Select value={formData.primary_join_reason} onValueChange={(v) => setFormData({ ...formData, primary_join_reason: v })} required>
+                        <SelectTrigger><SelectValue placeholder="Select reason" /></SelectTrigger>
+                        <SelectContent>
+                          {JOIN_REASON_OPTIONS.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Coaching Commitment Level *</Label>
+                      <Select value={formData.commitment_level} onValueChange={(v) => setFormData({ ...formData, commitment_level: v })} required>
+                        <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
+                        <SelectContent>
+                          {COMMITMENT_LEVEL_OPTIONS.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>When Would You Like to Begin? *</Label>
+                      <Select value={formData.start_timeline} onValueChange={(v) => setFormData({ ...formData, start_timeline: v })} required>
+                        <SelectTrigger><SelectValue placeholder="Select timeline" /></SelectTrigger>
+                        <SelectContent>
+                          {START_TIMELINE_OPTIONS.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="excitement">What excites you most about coaching?</Label>
+                      <Textarea
+                        id="excitement"
+                        rows={2}
+                        maxLength={200}
+                        value={formData.excitement_note}
+                        onChange={(e) => setFormData({ ...formData, excitement_note: e.target.value })}
+                        placeholder="Optional — max 200 characters"
+                      />
+                      <p className="text-xs text-muted-foreground text-right">{formData.excitement_note.length}/200</p>
                     </div>
                   </div>
 

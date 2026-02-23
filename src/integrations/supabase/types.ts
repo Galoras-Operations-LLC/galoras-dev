@@ -129,19 +129,32 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          certification_interest: string | null
           certifications: string | null
+          coach_background: string | null
+          coach_background_detail: string | null
+          coaching_experience_level: string | null
+          coaching_experience_years: string | null
+          coaching_philosophy: string | null
+          commitment_level: string | null
           created_at: string
+          current_role: string | null
           email: string
+          excitement_note: string | null
           experience_years: number | null
           full_name: string
           id: string
+          leadership_experience_years: string | null
           linkedin_url: string | null
           onboarding_status: string | null
           onboarding_token: string | null
           phone: string | null
+          pillar_specialties: string[] | null
+          primary_join_reason: string | null
           reviewed_at: string | null
           reviewer_notes: string | null
           specialties: string[] | null
+          start_timeline: string | null
           status: Database["public"]["Enums"]["coach_status"] | null
           user_id: string | null
           website_url: string | null
@@ -150,19 +163,32 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          certification_interest?: string | null
           certifications?: string | null
+          coach_background?: string | null
+          coach_background_detail?: string | null
+          coaching_experience_level?: string | null
+          coaching_experience_years?: string | null
+          coaching_philosophy?: string | null
+          commitment_level?: string | null
           created_at?: string
+          current_role?: string | null
           email: string
+          excitement_note?: string | null
           experience_years?: number | null
           full_name: string
           id?: string
+          leadership_experience_years?: string | null
           linkedin_url?: string | null
           onboarding_status?: string | null
           onboarding_token?: string | null
           phone?: string | null
+          pillar_specialties?: string[] | null
+          primary_join_reason?: string | null
           reviewed_at?: string | null
           reviewer_notes?: string | null
           specialties?: string[] | null
+          start_timeline?: string | null
           status?: Database["public"]["Enums"]["coach_status"] | null
           user_id?: string | null
           website_url?: string | null
@@ -171,19 +197,32 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          certification_interest?: string | null
           certifications?: string | null
+          coach_background?: string | null
+          coach_background_detail?: string | null
+          coaching_experience_level?: string | null
+          coaching_experience_years?: string | null
+          coaching_philosophy?: string | null
+          commitment_level?: string | null
           created_at?: string
+          current_role?: string | null
           email?: string
+          excitement_note?: string | null
           experience_years?: number | null
           full_name?: string
           id?: string
+          leadership_experience_years?: string | null
           linkedin_url?: string | null
           onboarding_status?: string | null
           onboarding_token?: string | null
           phone?: string | null
+          pillar_specialties?: string[] | null
+          primary_join_reason?: string | null
           reviewed_at?: string | null
           reviewer_notes?: string | null
           specialties?: string[] | null
+          start_timeline?: string | null
           status?: Database["public"]["Enums"]["coach_status"] | null
           user_id?: string | null
           website_url?: string | null
@@ -269,8 +308,12 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          coach_background: string | null
+          coaching_experience_level: string | null
+          coaching_philosophy: string | null
           coaching_style: string | null
           created_at: string
+          current_role: string | null
           cutout_url: string | null
           display_name: string | null
           experience_years: number | null
@@ -280,8 +323,10 @@ export type Database = {
           is_enterprise_ready: boolean | null
           is_featured: boolean | null
           languages: string[] | null
+          leadership_experience_years: string | null
           linkedin_url: string | null
           location: string | null
+          pillar_specialties: string[] | null
           rating: number | null
           signature_framework: string | null
           specialties: string[] | null
@@ -295,8 +340,12 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          coach_background?: string | null
+          coaching_experience_level?: string | null
+          coaching_philosophy?: string | null
           coaching_style?: string | null
           created_at?: string
+          current_role?: string | null
           cutout_url?: string | null
           display_name?: string | null
           experience_years?: number | null
@@ -306,8 +355,10 @@ export type Database = {
           is_enterprise_ready?: boolean | null
           is_featured?: boolean | null
           languages?: string[] | null
+          leadership_experience_years?: string | null
           linkedin_url?: string | null
           location?: string | null
+          pillar_specialties?: string[] | null
           rating?: number | null
           signature_framework?: string | null
           specialties?: string[] | null
@@ -321,8 +372,12 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          coach_background?: string | null
+          coaching_experience_level?: string | null
+          coaching_philosophy?: string | null
           coaching_style?: string | null
           created_at?: string
+          current_role?: string | null
           cutout_url?: string | null
           display_name?: string | null
           experience_years?: number | null
@@ -332,8 +387,10 @@ export type Database = {
           is_enterprise_ready?: boolean | null
           is_featured?: boolean | null
           languages?: string[] | null
+          leadership_experience_years?: string | null
           linkedin_url?: string | null
           location?: string | null
+          pillar_specialties?: string[] | null
           rating?: number | null
           signature_framework?: string | null
           specialties?: string[] | null

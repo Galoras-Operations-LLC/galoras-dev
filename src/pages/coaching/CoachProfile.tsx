@@ -200,8 +200,74 @@ export default function CoachProfile() {
                 </CardContent>
               </Card>
 
-              {/* Specialties */}
-              {coach.specialties && coach.specialties.length > 0 && (
+              {/* Coaching Philosophy */}
+              {(coach as any).coaching_philosophy && (
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="text-xl font-display font-semibold mb-4">Coaching Philosophy</h2>
+                    <p className="text-muted-foreground leading-relaxed italic">
+                      "{(coach as any).coaching_philosophy}"
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Coach Background & Experience */}
+              {((coach as any).coach_background || (coach as any).coaching_experience_level || (coach as any).leadership_experience_years) && (
+                <Card>
+                  <CardContent className="p-6 space-y-3">
+                    <h2 className="text-xl font-display font-semibold mb-4">Background & Experience</h2>
+                    {(coach as any).coach_background && (
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-4 w-4 text-primary" />
+                        <span className="font-medium">Background:</span>
+                        <span className="text-muted-foreground">{(coach as any).coach_background}</span>
+                      </div>
+                    )}
+                    {(coach as any).coaching_experience_level && (
+                      <div className="flex items-center gap-2">
+                        <Award className="h-4 w-4 text-primary" />
+                        <span className="font-medium">Level:</span>
+                        <Badge variant="secondary">{(coach as any).coaching_experience_level}</Badge>
+                      </div>
+                    )}
+                    {(coach as any).leadership_experience_years && (
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-primary" />
+                        <span className="font-medium">Leadership Experience:</span>
+                        <span className="text-muted-foreground">{(coach as any).leadership_experience_years}</span>
+                      </div>
+                    )}
+                    {(coach as any).current_role && (
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-4 w-4 text-primary" />
+                        <span className="font-medium">Current Role:</span>
+                        <span className="text-muted-foreground">{(coach as any).current_role}</span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Pillar Specialties */}
+              {(coach as any).pillar_specialties && (coach as any).pillar_specialties.length > 0 ? (
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="text-xl font-display font-semibold mb-4">Specialties</h2>
+                    <div className="flex flex-wrap gap-2">
+                      {(coach as any).pillar_specialties.map((specialty: string, i: number) => (
+                        <Badge
+                          key={i}
+                          variant="secondary"
+                          className={`px-3 py-1 ${specialty.includes("Sport of Business") ? "bg-primary/10 text-primary border-primary/20" : ""}`}
+                        >
+                          {specialty}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : coach.specialties && coach.specialties.length > 0 ? (
                 <Card>
                   <CardContent className="p-6">
                     <h2 className="text-xl font-display font-semibold mb-4">Specialties</h2>
@@ -214,7 +280,7 @@ export default function CoachProfile() {
                     </div>
                   </CardContent>
                 </Card>
-              )}
+              ) : null}
 
               {/* Coaching Style & Framework */}
               {(coach.coaching_style || coach.signature_framework) && (

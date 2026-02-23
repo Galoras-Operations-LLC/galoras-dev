@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { getPillarForSpecialty } from "@/lib/coaching-constants";
 
 interface CoachApplication {
   id: string;
@@ -25,6 +26,20 @@ interface CoachApplication {
   onboarding_status: string | null;
   reviewed_at: string | null;
   reviewer_notes: string | null;
+  // New structured fields
+  coach_background: string | null;
+  coach_background_detail: string | null;
+  certification_interest: string | null;
+  coaching_experience_years: string | null;
+  leadership_experience_years: string | null;
+  current_role: string | null;
+  coaching_experience_level: string | null;
+  primary_join_reason: string | null;
+  commitment_level: string | null;
+  start_timeline: string | null;
+  excitement_note: string | null;
+  pillar_specialties: string[] | null;
+  coaching_philosophy: string | null;
 }
 
 interface Props {
@@ -35,6 +50,16 @@ interface Props {
 
 export function ApplicationDetailDialog({ application, open, onOpenChange }: Props) {
   if (!application) return null;
+
+  // Group pillar specialties by pillar
+  const groupedSpecialties: Record<string, string[]> = {};
+  if (application.pillar_specialties) {
+    for (const s of application.pillar_specialties) {
+      const pillar = getPillarForSpecialty(s) || "Other";
+      if (!groupedSpecialties[pillar]) groupedSpecialties[pillar] = [];
+      groupedSpecialties[pillar].push(s);
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -49,11 +74,42 @@ export function ApplicationDetailDialog({ application, open, onOpenChange }: Pro
           <Field label="Email" value={application.email} />
           <Field label="Phone" value={application.phone} />
           <Field label="Bio" value={application.bio} />
-          <Field label="Experience" value={application.experience_years ? `${application.experience_years} years` : null} />
-          <Field label="Certifications" value={application.certifications} />
-          {application.specialties && application.specialties.length > 0 && (
+          <Field label="Coaching Philosophy" value={application.coaching_philosophy} />
+
+          {/* Structured fields */}
+          <Field label="Coach Background" value={application.coach_background} />
+          <Field label="Background Detail" value={application.coach_background_detail} />
+          <Field label="Certification Interest" value={application.certification_interest} />
+          <Field label="Coaching Experience" value={application.coaching_experience_years} />
+          <Field label="Leadership Experience" value={application.leadership_experience_years} />
+          <Field label="Current Role" value={application.current_role} />
+          <Field label="Coaching Level" value={application.coaching_experience_level} />
+
+          {/* Pillar specialties grouped */}
+          {Object.keys(groupedSpecialties).length > 0 && (
             <div>
-              <span className="font-medium text-muted-foreground">Specialties</span>
+              <span className="font-medium text-muted-foreground">Pillar Specialties</span>
+              <div className="mt-1 space-y-2">
+                {Object.entries(groupedSpecialties).map(([pillar, specs]) => (
+                  <div key={pillar}>
+                    <span className="text-xs font-semibold text-muted-foreground">{pillar}</span>
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      {specs.map((s) => (
+                        <Badge key={s} variant="secondary" className={s.includes("Sport of Business") ? "bg-primary/10 text-primary border-primary/20" : ""}>
+                          {s}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Legacy specialties (for old applications) */}
+          {application.specialties && application.specialties.length > 0 && !application.pillar_specialties?.length && (
+            <div>
+              <span className="font-medium text-muted-foreground">Specialties (Legacy)</span>
               <div className="flex flex-wrap gap-1 mt-1">
                 {application.specialties.map((s) => (
                   <Badge key={s} variant="secondary">{s}</Badge>
@@ -61,7 +117,18 @@ export function ApplicationDetailDialog({ application, open, onOpenChange }: Pro
               </div>
             </div>
           )}
-          <Field label="Why Galoras" value={application.why_galoras} />
+
+          {/* Motivation */}
+          <Field label="Primary Join Reason" value={application.primary_join_reason} />
+          <Field label="Commitment Level" value={application.commitment_level} />
+          <Field label="Start Timeline" value={application.start_timeline} />
+          <Field label="What Excites Them" value={application.excitement_note} />
+
+          {/* Legacy fields (only if present and new fields empty) */}
+          {!application.coach_background && <Field label="Experience" value={application.experience_years ? `${application.experience_years} years` : null} />}
+          {!application.coach_background && <Field label="Certifications" value={application.certifications} />}
+          {!application.primary_join_reason && <Field label="Why Galoras" value={application.why_galoras} />}
+
           <Field label="Website" value={application.website_url} link />
           <Field label="LinkedIn" value={application.linkedin_url} link />
           <Field label="Submitted" value={format(new Date(application.created_at), "MMM d, yyyy 'at' h:mm a")} />
@@ -84,9 +151,7 @@ function Field({ label, value, link }: { label: string; value: string | null | u
       <span className="font-medium text-muted-foreground">{label}</span>
       <p className="mt-0.5">
         {link ? (
-          <a href={value} target="_blank" rel="noopener noreferrer" className="text-primary underline">
-            {value}
-          </a>
+          <a href={value} target="_blank" rel="noopener noreferrer" className="text-primary underline">{value}</a>
         ) : (
           value
         )}

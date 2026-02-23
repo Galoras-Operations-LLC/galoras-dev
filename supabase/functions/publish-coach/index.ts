@@ -176,6 +176,13 @@ Deno.serve(async (req) => {
         linkedin_url: app.linkedin_url,
         website_url: app.website_url,
         status: "approved",
+        // New structured fields
+        coach_background: app.coach_background || null,
+        coaching_experience_level: app.coaching_experience_level || null,
+        leadership_experience_years: app.leadership_experience_years || null,
+        pillar_specialties: app.pillar_specialties || null,
+        current_role: app.current_role || null,
+        coaching_philosophy: app.coaching_philosophy || null,
       })
       .select("id")
       .single();

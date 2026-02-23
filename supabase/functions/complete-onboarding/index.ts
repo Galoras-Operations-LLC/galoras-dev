@@ -12,7 +12,13 @@ serve(async (req) => {
   }
 
   try {
-    const { token, fullName, bio, coachingFocus, linkedinUrl, avatarUrl } = await req.json();
+    const {
+      token, fullName, bio, coachingFocus, linkedinUrl, avatarUrl,
+      coachingPhilosophy, coachBackground, coachBackgroundDetail,
+      certificationInterest, coachingExperienceYears, leadershipExperienceYears,
+      currentRole, coachingExperienceLevel, pillarSpecialties,
+      primaryJoinReason, commitmentLevel, startTimeline, excitementNote,
+    } = await req.json();
 
     if (!token || !fullName || !bio || !coachingFocus) {
       return new Response(
@@ -52,6 +58,20 @@ serve(async (req) => {
         avatar_url: avatarUrl || null,
         onboarding_status: "completed",
         reviewed_at: new Date().toISOString(),
+        // New structured fields
+        coaching_philosophy: coachingPhilosophy || null,
+        coach_background: coachBackground || null,
+        coach_background_detail: coachBackgroundDetail || null,
+        certification_interest: certificationInterest || null,
+        coaching_experience_years: coachingExperienceYears || null,
+        leadership_experience_years: leadershipExperienceYears || null,
+        current_role: currentRole || null,
+        coaching_experience_level: coachingExperienceLevel || null,
+        pillar_specialties: pillarSpecialties || null,
+        primary_join_reason: primaryJoinReason || null,
+        commitment_level: commitmentLevel || null,
+        start_timeline: startTimeline || null,
+        excitement_note: excitementNote || null,
       })
       .eq("id", application.id);
 
