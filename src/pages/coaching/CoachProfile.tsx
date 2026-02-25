@@ -360,14 +360,34 @@ export default function CoachProfile() {
                   )}
 
                   <div className="space-y-3 mb-6">
-                    <Button 
-                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90" 
-                      size="lg"
-                      onClick={() => setIsBookingModalOpen(true)}
-                    >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      Book a Session
-                    </Button>
+                    {(coach as any).booking_url ? (
+                      <Button 
+                        className="w-full bg-primary text-primary-foreground hover:bg-primary/90" 
+                        size="lg"
+                        title="Schedule directly with this coach"
+                        onClick={() => {
+                          // Fire-and-forget click logging
+                          supabase.from('booking_click_events').insert({
+                            coach_id: coach.id,
+                            user_id: null,
+                            session_id: null,
+                          } as any).then(() => {});
+                          window.open((coach as any).booking_url, '_blank', 'noopener,noreferrer');
+                        }}
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        Book a Session
+                      </Button>
+                    ) : (
+                      <Button 
+                        className="w-full bg-primary text-primary-foreground hover:bg-primary/90" 
+                        size="lg"
+                        onClick={() => setIsBookingModalOpen(true)}
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        Book a Session
+                      </Button>
+                    )}
                     <Button 
                       variant="outline" 
                       className="w-full" 

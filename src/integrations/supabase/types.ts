@@ -68,6 +68,30 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_click_events: {
+        Row: {
+          coach_id: string
+          created_at: string
+          id: string
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          coach_id: string
+          created_at?: string
+          id?: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          coach_id?: string
+          created_at?: string
+          id?: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       brand_images: {
         Row: {
           generated_at: string
@@ -130,6 +154,7 @@ export type Database = {
           availability_status: string | null
           avatar_url: string | null
           bio: string | null
+          booking_url: string | null
           certification_interest: string | null
           certifications: string | null
           coach_background: string | null
@@ -175,6 +200,7 @@ export type Database = {
           availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
+          booking_url?: string | null
           certification_interest?: string | null
           certifications?: string | null
           coach_background?: string | null
@@ -220,6 +246,7 @@ export type Database = {
           availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
+          booking_url?: string | null
           certification_interest?: string | null
           certifications?: string | null
           coach_background?: string | null
@@ -341,6 +368,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          booking_url: string | null
           coach_background: string | null
           coaching_experience_level: string | null
           coaching_philosophy: string | null
@@ -373,6 +401,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          booking_url?: string | null
           coach_background?: string | null
           coaching_experience_level?: string | null
           coaching_philosophy?: string | null
@@ -405,6 +434,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          booking_url?: string | null
           coach_background?: string | null
           coaching_experience_level?: string | null
           coaching_philosophy?: string | null

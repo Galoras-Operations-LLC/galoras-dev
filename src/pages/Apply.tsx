@@ -110,6 +110,7 @@ export default function Apply() {
     founder_function_strength: [] as string[],
     exec_level: "",
     exec_function: [] as string[],
+    booking_url: "",
   });
 
   const backgroundConfig = formData.coach_background
@@ -238,6 +239,7 @@ export default function Apply() {
         founder_function_strength: isFounderBackground(formData.coach_background) && formData.founder_function_strength.length > 0 ? formData.founder_function_strength : null,
         exec_level: isExecutiveBackground(formData.coach_background) ? formData.exec_level || null : null,
         exec_function: isExecutiveBackground(formData.coach_background) && formData.exec_function.length > 0 ? formData.exec_function : null,
+        booking_url: formData.booking_url || null,
       } as any);
 
       if (error) throw error;
@@ -256,6 +258,7 @@ export default function Apply() {
         primary_pillar: "", secondary_pillars: [], industry_focus: [], coaching_style: [],
         engagement_model: "", availability_status: "",
         founder_stage_focus: [], founder_function_strength: [], exec_level: "", exec_function: [],
+        booking_url: "",
       });
       removePhoto();
     } catch (error) {
@@ -380,6 +383,17 @@ export default function Apply() {
                     <div className="space-y-2">
                       <Label htmlFor="website">Website / Portfolio</Label>
                       <Input id="website" type="url" value={formData.website_url} onChange={(e) => setFormData({ ...formData, website_url: e.target.value })} placeholder="https://yourwebsite.com" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="booking_url">Booking Link (e.g., Calendly)</Label>
+                      <Input
+                        id="booking_url"
+                        type="url"
+                        value={formData.booking_url}
+                        onChange={(e) => setFormData({ ...formData, booking_url: e.target.value })}
+                        placeholder="https://calendly.com/yourname"
+                      />
+                      <p className="text-xs text-muted-foreground">Optional — must start with https://</p>
                     </div>
                   </div>
 

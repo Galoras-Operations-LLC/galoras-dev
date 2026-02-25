@@ -22,6 +22,7 @@ serve(async (req) => {
       primaryPillar, secondaryPillars, industryFocus, coachingStyle,
       engagementModel, availabilityStatus,
       founderStageFocus, founderFunctionStrength, execLevel, execFunction,
+      bookingUrl,
     } = await req.json();
 
     if (!token || !fullName || !bio || !coachingFocus) {
@@ -87,6 +88,7 @@ serve(async (req) => {
         founder_function_strength: founderFunctionStrength || null,
         exec_level: execLevel || null,
         exec_function: execFunction || null,
+        booking_url: bookingUrl || null,
       })
       .eq("id", application.id);
 

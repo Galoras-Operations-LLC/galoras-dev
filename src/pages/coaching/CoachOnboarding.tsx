@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, CheckCircle, AlertCircle, User, FileText, Linkedin, Image } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle, User, FileText, Linkedin, Image, Calendar } from "lucide-react";
 import {
   COACH_BACKGROUND_OPTIONS,
   BACKGROUND_DETAIL_CONFIG,
@@ -91,6 +91,7 @@ export default function CoachOnboarding() {
   const [founderFunctionStrength, setFounderFunctionStrength] = useState<string[]>([]);
   const [execLevel, setExecLevel] = useState("");
   const [execFunction, setExecFunction] = useState<string[]>([]);
+  const [bookingUrl, setBookingUrl] = useState("");
 
   const backgroundConfig = coachBackground ? BACKGROUND_DETAIL_CONFIG[coachBackground] : null;
 
@@ -174,6 +175,7 @@ export default function CoachOnboarding() {
           founderFunctionStrength: isFounderBackground(coachBackground) && founderFunctionStrength.length > 0 ? founderFunctionStrength : null,
           execLevel: isExecutiveBackground(coachBackground) ? execLevel || null : null,
           execFunction: isExecutiveBackground(coachBackground) && execFunction.length > 0 ? execFunction : null,
+          bookingUrl: bookingUrl.trim() || null,
         },
       });
       if (error || data?.error) throw new Error(data?.error || "Failed to complete onboarding");
@@ -570,6 +572,13 @@ export default function CoachOnboarding() {
                   <Label htmlFor="avatarUrl" className="flex items-center gap-2"><Image className="h-4 w-4" />Profile Image URL</Label>
                   <Input id="avatarUrl" type="url" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} placeholder="https://example.com/your-photo.jpg" />
                   <p className="text-sm text-muted-foreground">Enter a URL to your professional photo (optional).</p>
+                </div>
+
+                {/* Booking URL */}
+                <div className="space-y-2">
+                  <Label htmlFor="bookingUrl" className="flex items-center gap-2"><Calendar className="h-4 w-4" />Booking Link (e.g., Calendly)</Label>
+                  <Input id="bookingUrl" type="url" value={bookingUrl} onChange={(e) => setBookingUrl(e.target.value)} placeholder="https://calendly.com/yourname" />
+                  <p className="text-sm text-muted-foreground">Optional — must start with https://</p>
                 </div>
 
                 <Button type="submit" className="w-full" disabled={state === "submitting"}>

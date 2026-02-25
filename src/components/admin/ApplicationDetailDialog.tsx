@@ -172,6 +172,7 @@ export function ApplicationDetailDialog({ application, open, onOpenChange }: Pro
           {!application.coach_background && <Field label="Certifications" value={application.certifications} />}
           {!application.primary_join_reason && <Field label="Why Galoras" value={application.why_galoras} />}
 
+          <Field label="Booking Link" value={(application as any).booking_url} link />
           <Field label="Website" value={application.website_url} link />
           <Field label="LinkedIn" value={application.linkedin_url} link />
           <Field label="Submitted" value={format(new Date(application.created_at), "MMM d, yyyy 'at' h:mm a")} />

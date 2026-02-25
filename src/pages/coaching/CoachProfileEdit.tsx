@@ -5,6 +5,7 @@ import { Layout } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
 import { CoachPhotoUpload } from '@/components/coaching/CoachPhotoUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -68,6 +69,24 @@ export default function CoachProfileEdit() {
         description: 'Failed to save your profile. Please try again.',
         variant: 'destructive',
       });
+    },
+  });
+
+  // Update booking URL mutation
+  const updateBookingUrl = useMutation({
+    mutationFn: async (bookingUrl: string) => {
+      const { error } = await supabase
+        .from('coaches')
+        .update({ booking_url: bookingUrl || null } as any)
+        .eq('id', coachProfile!.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-coach-profile'] });
+      toast({ title: 'Booking Link Updated', description: 'Your booking link has been saved.' });
+    },
+    onError: () => {
+      toast({ title: 'Update Failed', description: 'Failed to save booking link.', variant: 'destructive' });
     },
   });
 
@@ -156,6 +175,32 @@ export default function CoachProfileEdit() {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Featured</p>
                   <p>{coachProfile.is_featured ? 'Yes' : 'No'}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Booking Link</p>
+                  <form
+                    className="flex gap-2 mt-1"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const input = (e.currentTarget.elements.namedItem('bookingUrl') as HTMLInputElement);
+                      const val = input.value.trim();
+                      if (val && !val.startsWith('https://')) {
+                        toast({ title: 'Invalid URL', description: 'Booking link must start with https://', variant: 'destructive' });
+                        return;
+                      }
+                      updateBookingUrl.mutate(val);
+                    }}
+                  >
+                    <Input
+                      name="bookingUrl"
+                      type="url"
+                      defaultValue={(coachProfile as any).booking_url || ''}
+                      placeholder="https://calendly.com/yourname"
+                      className="flex-1"
+                    />
+                    <Button type="submit" size="sm" disabled={updateBookingUrl.isPending}>Save</Button>
+                  </form>
+                  <p className="text-xs text-muted-foreground mt-1">e.g., Calendly link — must start with https://</p>
                 </div>
               </div>
             </CardContent>
