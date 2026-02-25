@@ -1,29 +1,3 @@
-
-
-## Clean up: Delete orphaned file and update plan language
-
-### Current State
-The refactor described in the plan has already been implemented:
-- `CoachProfile.tsx` no longer imports or uses `BookSessionModal`
-- `coach.booking_url` is accessed directly (no `as any` casts)
-- The fallback shows "Booking link coming soon"
-- No unused imports remain in `CoachProfile.tsx`
-
-However, the **orphaned component file** `src/components/coaching/BookSessionModal.tsx` still exists on disk despite being unused.
-
-### Changes
-
-**1. Delete `src/components/coaching/BookSessionModal.tsx`**
-This file is no longer imported anywhere in the project. Removing it eliminates dead code.
-
-**2. Update `.lovable/plan.md` with the user's three refinements**
-- Add: "Ensure there are no unused imports after removal."
-- Change line-number reference to: "Replace the fallback branch where booking currently opens the modal (not strictly by line number)."
-- Fix typo: `coach.booking_url directly` (add space)
-
-### Updated plan text
-
-```
 ## Remove BookSessionModal Fallback, Show "Booking link coming soon"
 
 ### What's Already Done
@@ -56,4 +30,3 @@ else:
 [Send Message] button always shown
 
 No database changes needed.
-```
