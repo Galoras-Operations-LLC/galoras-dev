@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { CoachCard } from "@/components/coaching/CoachCard";
 import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,28 +25,7 @@ type FeaturedCoach = {
 
 export function FeaturedCoaches() {
   const [selectedCoach, setSelectedCoach] = useState<FeaturedCoach | null>(null);
-  const [startIndex, setStartIndex] = useState(0);
-  const [visibleCount, setVisibleCount] = useState(2);
-
-  // Responsive visible count
-  useEffect(() => {
-    const lgQuery = window.matchMedia("(min-width: 1024px)");
-    const mdQuery = window.matchMedia("(min-width: 768px)");
-
-    const update = () => {
-      if (lgQuery.matches) setVisibleCount(4);
-      else if (mdQuery.matches) setVisibleCount(3);
-      else setVisibleCount(2);
-    };
-
-    update();
-    lgQuery.addEventListener("change", update);
-    mdQuery.addEventListener("change", update);
-    return () => {
-      lgQuery.removeEventListener("change", update);
-      mdQuery.removeEventListener("change", update);
-    };
-  }, []);
+  const [pageIndex, setPageIndex] = useState(0);
 
   const { data: featuredCoaches, isLoading } = useQuery({
     queryKey: ["featured-coaches"],
@@ -66,23 +46,11 @@ export function FeaturedCoaches() {
     },
   });
 
-  // Auto-rotate timer
-  useEffect(() => {
-    if (!featuredCoaches || featuredCoaches.length === 0) return;
-    if (selectedCoach !== null) return;
-
-    const interval = setInterval(() => {
-      setStartIndex((prev) => (prev + visibleCount) % featuredCoaches.length);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [selectedCoach, visibleCount, featuredCoaches]);
-
   if (isLoading) {
     return (
       <section className="py-14 md:py-16">
         <div className="container mx-auto px-6">
-          <h2 className="text-2xl md:text-3xl font-semibold text-foreground text-center">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground text-center">
             Featured Coaches
           </h2>
           <p className="mt-2 text-sm text-muted-foreground text-center mb-10">
@@ -105,20 +73,54 @@ export function FeaturedCoaches() {
     return null;
   }
 
-  const visibleCoaches: FeaturedCoach[] = [];
-  for (let i = 0; i < visibleCount; i++) {
-    visibleCoaches.push(featuredCoaches[(startIndex + i) % featuredCoaches.length]);
+  const PAGE_SIZE = 4;
+  const maxPage = Math.ceil(featuredCoaches.length / PAGE_SIZE) - 1;
+  const showControls = featuredCoaches.length > PAGE_SIZE;
+
+  const start = pageIndex * PAGE_SIZE;
+  const sliced = featuredCoaches.slice(start, start + PAGE_SIZE);
+  // Fill remaining slots from beginning without duplicates
+  const visibleCoaches: FeaturedCoach[] = [...sliced];
+  if (visibleCoaches.length < PAGE_SIZE) {
+    const ids = new Set(visibleCoaches.map((c) => c.id));
+    for (const coach of featuredCoaches) {
+      if (visibleCoaches.length >= PAGE_SIZE) break;
+      if (!ids.has(coach.id)) {
+        visibleCoaches.push(coach);
+        ids.add(coach.id);
+      }
+    }
   }
+
+  const prevPage = () => setPageIndex((p) => (p <= 0 ? maxPage : p - 1));
+  const nextPage = () => setPageIndex((p) => (p >= maxPage ? 0 : p + 1));
 
   return (
     <section className="py-14 md:py-16">
       <div className="container mx-auto px-6">
-        <h2 className="text-2xl md:text-3xl font-semibold text-foreground text-center">
-          Featured Coaches
-        </h2>
-        <p className="mt-2 text-sm text-muted-foreground text-center mb-10">
-          Curated leaders selected by Galoras.
-        </p>
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex-1" />
+          <div className="text-center">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+              Featured Coaches
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Curated leaders selected by Galoras.
+            </p>
+          </div>
+          <div className="flex-1 flex justify-end gap-2">
+            {showControls && (
+              <>
+                <Button variant="ghost" size="icon" onClick={prevPage} aria-label="Previous coaches">
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={nextPage} aria-label="Next coaches">
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {visibleCoaches.map((coach, idx) => (
