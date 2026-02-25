@@ -51,6 +51,17 @@ interface CoachApplication {
   excitement_note: string | null;
   pillar_specialties: string[] | null;
   coaching_philosophy: string | null;
+  // New structured intake fields
+  primary_pillar: string | null;
+  secondary_pillars: string[] | null;
+  industry_focus: string[] | null;
+  coaching_style: string[] | null;
+  engagement_model: string | null;
+  availability_status: string | null;
+  founder_stage_focus: string[] | null;
+  founder_function_strength: string[] | null;
+  exec_level: string | null;
+  exec_function: string[] | null;
 }
 
 export default function Applicants() {

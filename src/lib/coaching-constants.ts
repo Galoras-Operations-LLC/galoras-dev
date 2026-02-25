@@ -110,3 +110,103 @@ export function getPillarForSpecialty(specialty: string): string | undefined {
   }
   return undefined;
 }
+
+// ── New Structured Intake Options ──
+
+// Primary Pillar (source-of-truth for matching/filtering)
+export const PRIMARY_PILLAR_OPTIONS = [
+  "Leadership",
+  "Performance",
+  "Transition",
+  "Mindset & Alignment",
+  "Galoras Signature",
+] as const;
+
+// Industry Focus
+export const INDUSTRY_FOCUS_OPTIONS = [
+  "Technology",
+  "Finance & Banking",
+  "Healthcare",
+  "Sports & Athletics",
+  "Education",
+  "Consulting",
+  "Non-Profit",
+  "Government",
+  "Media & Entertainment",
+  "Other",
+] as const;
+
+// Coaching Style
+export const COACHING_STYLE_OPTIONS = [
+  "Directive",
+  "Facilitative",
+  "Socratic",
+  "Solution-Focused",
+  "Transformational",
+  "Holistic",
+] as const;
+
+// Engagement Model
+export const ENGAGEMENT_MODEL_OPTIONS = [
+  "1:1 Coaching",
+  "Group Coaching",
+  "Workshop Facilitation",
+  "Hybrid (1:1 + Group)",
+] as const;
+
+// Availability Status
+export const AVAILABILITY_STATUS_OPTIONS = [
+  "Available Now",
+  "Limited Availability",
+  "Waitlist Only",
+  "Not Currently Available",
+] as const;
+
+// Founder-specific options (conditional on coach_background)
+export const FOUNDER_STAGE_OPTIONS = [
+  "Pre-Seed / Idea Stage",
+  "Seed",
+  "Series A",
+  "Series B+",
+  "Growth / Scale",
+  "Post-Exit",
+] as const;
+
+export const FOUNDER_FUNCTION_OPTIONS = [
+  "Product",
+  "Engineering",
+  "Sales",
+  "Marketing",
+  "Operations",
+  "Finance",
+  "People / HR",
+] as const;
+
+// Executive-specific options (conditional on coach_background)
+export const EXEC_LEVEL_OPTIONS = [
+  "C-Suite",
+  "VP",
+  "Director",
+  "Senior Manager",
+] as const;
+
+export const EXEC_FUNCTION_OPTIONS = [
+  "Operations",
+  "Finance",
+  "Marketing",
+  "Sales",
+  "Engineering",
+  "Product",
+  "HR / People",
+  "Strategy",
+] as const;
+
+// Helper: check if background is founder-type
+export function isFounderBackground(bg: string): boolean {
+  return bg === "Executive / Business Leader (Operator-Coach)";
+}
+
+// Helper: check if background is executive-type (same option, but shows exec fields too)
+export function isExecutiveBackground(bg: string): boolean {
+  return bg === "Executive / Business Leader (Operator-Coach)";
+}

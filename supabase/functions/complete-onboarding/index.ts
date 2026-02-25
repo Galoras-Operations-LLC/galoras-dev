@@ -18,6 +18,10 @@ serve(async (req) => {
       certificationInterest, coachingExperienceYears, leadershipExperienceYears,
       currentRole, coachingExperienceLevel, pillarSpecialties,
       primaryJoinReason, commitmentLevel, startTimeline, excitementNote,
+      // New structured fields
+      primaryPillar, secondaryPillars, industryFocus, coachingStyle,
+      engagementModel, availabilityStatus,
+      founderStageFocus, founderFunctionStrength, execLevel, execFunction,
     } = await req.json();
 
     if (!token || !fullName || !bio || !coachingFocus) {
@@ -72,6 +76,17 @@ serve(async (req) => {
         commitment_level: commitmentLevel || null,
         start_timeline: startTimeline || null,
         excitement_note: excitementNote || null,
+        // New structured intake fields
+        primary_pillar: primaryPillar || null,
+        secondary_pillars: secondaryPillars || null,
+        industry_focus: industryFocus || null,
+        coaching_style: coachingStyle || null,
+        engagement_model: engagementModel || null,
+        availability_status: availabilityStatus || null,
+        founder_stage_focus: founderStageFocus || null,
+        founder_function_strength: founderFunctionStrength || null,
+        exec_level: execLevel || null,
+        exec_function: execFunction || null,
       })
       .eq("id", application.id);
 

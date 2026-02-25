@@ -35,6 +35,17 @@ import {
   COMMITMENT_LEVEL_OPTIONS,
   START_TIMELINE_OPTIONS,
   PILLAR_SPECIALTIES,
+  PRIMARY_PILLAR_OPTIONS,
+  INDUSTRY_FOCUS_OPTIONS,
+  COACHING_STYLE_OPTIONS,
+  ENGAGEMENT_MODEL_OPTIONS,
+  AVAILABILITY_STATUS_OPTIONS,
+  FOUNDER_STAGE_OPTIONS,
+  FOUNDER_FUNCTION_OPTIONS,
+  EXEC_LEVEL_OPTIONS,
+  EXEC_FUNCTION_OPTIONS,
+  isFounderBackground,
+  isExecutiveBackground,
 } from "@/lib/coaching-constants";
 
 const benefits = [
@@ -88,6 +99,17 @@ export default function Apply() {
     commitment_level: "",
     start_timeline: "",
     excitement_note: "",
+    // New structured intake fields
+    primary_pillar: "",
+    secondary_pillars: [] as string[],
+    industry_focus: [] as string[],
+    coaching_style: [] as string[],
+    engagement_model: "",
+    availability_status: "",
+    founder_stage_focus: [] as string[],
+    founder_function_strength: [] as string[],
+    exec_level: "",
+    exec_function: [] as string[],
   });
 
   const backgroundConfig = formData.coach_background
@@ -100,6 +122,11 @@ export default function Apply() {
       coach_background: value,
       coach_background_detail: "",
       certification_interest: "",
+      // Reset conditional fields
+      founder_stage_focus: [],
+      founder_function_strength: [],
+      exec_level: "",
+      exec_function: [],
     });
   };
 
@@ -109,6 +136,12 @@ export default function Apply() {
     } else {
       setFormData({ ...formData, pillar_specialties: formData.pillar_specialties.filter(s => s !== specialty) });
     }
+  };
+
+  const handleArrayToggle = (field: "secondary_pillars" | "industry_focus" | "coaching_style" | "founder_stage_focus" | "founder_function_strength" | "exec_function", value: string, checked: boolean) => {
+    const current = formData[field];
+    const updated = checked ? [...current, value] : current.filter(v => v !== value);
+    setFormData({ ...formData, [field]: updated });
   };
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -180,7 +213,7 @@ export default function Apply() {
         website_url: formData.website_url || null,
         bio: formData.bio,
         avatar_url: avatarUrl,
-        // New structured fields
+        // Structured fields
         coach_background: formData.coach_background,
         coach_background_detail,
         certification_interest,
@@ -194,6 +227,17 @@ export default function Apply() {
         start_timeline: formData.start_timeline,
         excitement_note: formData.excitement_note || null,
         coaching_philosophy: formData.coaching_philosophy || null,
+        // New structured intake fields
+        primary_pillar: formData.primary_pillar || null,
+        secondary_pillars: formData.secondary_pillars.length > 0 ? formData.secondary_pillars : null,
+        industry_focus: formData.industry_focus.length > 0 ? formData.industry_focus : null,
+        coaching_style: formData.coaching_style.length > 0 ? formData.coaching_style : null,
+        engagement_model: formData.engagement_model || null,
+        availability_status: formData.availability_status || null,
+        founder_stage_focus: isFounderBackground(formData.coach_background) && formData.founder_stage_focus.length > 0 ? formData.founder_stage_focus : null,
+        founder_function_strength: isFounderBackground(formData.coach_background) && formData.founder_function_strength.length > 0 ? formData.founder_function_strength : null,
+        exec_level: isExecutiveBackground(formData.coach_background) ? formData.exec_level || null : null,
+        exec_function: isExecutiveBackground(formData.coach_background) && formData.exec_function.length > 0 ? formData.exec_function : null,
       } as any);
 
       if (error) throw error;
@@ -209,6 +253,9 @@ export default function Apply() {
         certification_interest: "", coaching_experience_years: "", leadership_experience_years: "",
         current_role: "", coaching_experience_level: "", pillar_specialties: [],
         primary_join_reason: "", commitment_level: "", start_timeline: "", excitement_note: "",
+        primary_pillar: "", secondary_pillars: [], industry_focus: [], coaching_style: [],
+        engagement_model: "", availability_status: "",
+        founder_stage_focus: [], founder_function_strength: [], exec_level: "", exec_function: [],
       });
       removePhoto();
     } catch (error) {
@@ -390,6 +437,59 @@ export default function Apply() {
                       </div>
                     )}
 
+                    {/* Conditional Founder/Executive fields */}
+                    {isFounderBackground(formData.coach_background) && (
+                      <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
+                        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Founder / Executive Details</h4>
+                        <div className="space-y-2">
+                          <Label>Founder Stage Focus</Label>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {FOUNDER_STAGE_OPTIONS.map((opt) => (
+                              <div key={opt} className="flex items-center space-x-2">
+                                <Checkbox id={`fs-${opt}`} checked={formData.founder_stage_focus.includes(opt)} onCheckedChange={(c) => handleArrayToggle("founder_stage_focus", opt, c as boolean)} />
+                                <Label htmlFor={`fs-${opt}`} className="text-sm cursor-pointer">{opt}</Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Functional Strengths</Label>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {FOUNDER_FUNCTION_OPTIONS.map((opt) => (
+                              <div key={opt} className="flex items-center space-x-2">
+                                <Checkbox id={`ff-${opt}`} checked={formData.founder_function_strength.includes(opt)} onCheckedChange={(c) => handleArrayToggle("founder_function_strength", opt, c as boolean)} />
+                                <Label htmlFor={`ff-${opt}`} className="text-sm cursor-pointer">{opt}</Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Executive Level</Label>
+                            <Select value={formData.exec_level} onValueChange={(v) => setFormData({ ...formData, exec_level: v })}>
+                              <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
+                              <SelectContent>
+                                {EXEC_LEVEL_OPTIONS.map((opt) => (
+                                  <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Executive Functions</Label>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {EXEC_FUNCTION_OPTIONS.map((opt) => (
+                              <div key={opt} className="flex items-center space-x-2">
+                                <Checkbox id={`ef-${opt}`} checked={formData.exec_function.includes(opt)} onCheckedChange={(c) => handleArrayToggle("exec_function", opt, c as boolean)} />
+                                <Label htmlFor={`ef-${opt}`} className="text-sm cursor-pointer">{opt}</Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="space-y-2">
                       <Label>Years of Leadership / Professional Experience *</Label>
                       <Select value={formData.leadership_experience_years} onValueChange={(v) => setFormData({ ...formData, leadership_experience_years: v })} required>
@@ -420,10 +520,89 @@ export default function Apply() {
                     </div>
                   </div>
 
-                  {/* Pillar Specialties */}
+                  {/* Primary Pillar Taxonomy */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-display font-semibold">Specialties</h3>
-                    <p className="text-sm text-muted-foreground">Select all areas where you have expertise (grouped by pillar):</p>
+                    <h3 className="text-lg font-display font-semibold">Coaching Pillar</h3>
+                    <p className="text-sm text-muted-foreground">Select your primary coaching pillar and any secondary areas.</p>
+                    <div className="space-y-2">
+                      <Label>Primary Pillar *</Label>
+                      <Select value={formData.primary_pillar} onValueChange={(v) => setFormData({ ...formData, primary_pillar: v, secondary_pillars: formData.secondary_pillars.filter(p => p !== v) })} required>
+                        <SelectTrigger><SelectValue placeholder="Select primary pillar" /></SelectTrigger>
+                        <SelectContent>
+                          {PRIMARY_PILLAR_OPTIONS.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Secondary Pillars</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        {PRIMARY_PILLAR_OPTIONS.filter(p => p !== formData.primary_pillar).map((opt) => (
+                          <div key={opt} className="flex items-center space-x-2">
+                            <Checkbox id={`sp-${opt}`} checked={formData.secondary_pillars.includes(opt)} onCheckedChange={(c) => handleArrayToggle("secondary_pillars", opt, c as boolean)} />
+                            <Label htmlFor={`sp-${opt}`} className="text-sm cursor-pointer">{opt}</Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Industry, Style, Engagement, Availability */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-display font-semibold">Coaching Preferences</h3>
+                    <div className="space-y-2">
+                      <Label>Industry Focus</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        {INDUSTRY_FOCUS_OPTIONS.map((opt) => (
+                          <div key={opt} className="flex items-center space-x-2">
+                            <Checkbox id={`if-${opt}`} checked={formData.industry_focus.includes(opt)} onCheckedChange={(c) => handleArrayToggle("industry_focus", opt, c as boolean)} />
+                            <Label htmlFor={`if-${opt}`} className="text-sm cursor-pointer">{opt}</Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Coaching Style</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        {COACHING_STYLE_OPTIONS.map((opt) => (
+                          <div key={opt} className="flex items-center space-x-2">
+                            <Checkbox id={`cs-${opt}`} checked={formData.coaching_style.includes(opt)} onCheckedChange={(c) => handleArrayToggle("coaching_style", opt, c as boolean)} />
+                            <Label htmlFor={`cs-${opt}`} className="text-sm cursor-pointer">{opt}</Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Engagement Model</Label>
+                        <Select value={formData.engagement_model} onValueChange={(v) => setFormData({ ...formData, engagement_model: v })}>
+                          <SelectTrigger><SelectValue placeholder="Select model" /></SelectTrigger>
+                          <SelectContent>
+                            {ENGAGEMENT_MODEL_OPTIONS.map((opt) => (
+                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Availability</Label>
+                        <Select value={formData.availability_status} onValueChange={(v) => setFormData({ ...formData, availability_status: v })}>
+                          <SelectTrigger><SelectValue placeholder="Select availability" /></SelectTrigger>
+                          <SelectContent>
+                            {AVAILABILITY_STATUS_OPTIONS.map((opt) => (
+                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Detailed Specialties (Legacy/Optional) */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-display font-semibold">Detailed Specialties (Optional)</h3>
+                    <p className="text-sm text-muted-foreground">Select specific areas of expertise within each pillar:</p>
                     <div className="space-y-6">
                       {Object.entries(PILLAR_SPECIALTIES).map(([pillar, specialties]) => (
                         <div key={pillar}>

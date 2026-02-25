@@ -127,6 +127,7 @@ export type Database = {
       }
       coach_applications: {
         Row: {
+          availability_status: string | null
           avatar_url: string | null
           bio: string | null
           certification_interest: string | null
@@ -136,14 +137,21 @@ export type Database = {
           coaching_experience_level: string | null
           coaching_experience_years: string | null
           coaching_philosophy: string | null
+          coaching_style: string[] | null
           commitment_level: string | null
           created_at: string
           current_role: string | null
           email: string
+          engagement_model: string | null
           excitement_note: string | null
+          exec_function: string[] | null
+          exec_level: string | null
           experience_years: number | null
+          founder_function_strength: string[] | null
+          founder_stage_focus: string[] | null
           full_name: string
           id: string
+          industry_focus: string[] | null
           leadership_experience_years: string | null
           linkedin_url: string | null
           onboarding_short_id: string | null
@@ -152,8 +160,10 @@ export type Database = {
           phone: string | null
           pillar_specialties: string[] | null
           primary_join_reason: string | null
+          primary_pillar: string | null
           reviewed_at: string | null
           reviewer_notes: string | null
+          secondary_pillars: string[] | null
           specialties: string[] | null
           start_timeline: string | null
           status: Database["public"]["Enums"]["coach_status"] | null
@@ -162,6 +172,7 @@ export type Database = {
           why_galoras: string | null
         }
         Insert: {
+          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           certification_interest?: string | null
@@ -171,14 +182,21 @@ export type Database = {
           coaching_experience_level?: string | null
           coaching_experience_years?: string | null
           coaching_philosophy?: string | null
+          coaching_style?: string[] | null
           commitment_level?: string | null
           created_at?: string
           current_role?: string | null
           email: string
+          engagement_model?: string | null
           excitement_note?: string | null
+          exec_function?: string[] | null
+          exec_level?: string | null
           experience_years?: number | null
+          founder_function_strength?: string[] | null
+          founder_stage_focus?: string[] | null
           full_name: string
           id?: string
+          industry_focus?: string[] | null
           leadership_experience_years?: string | null
           linkedin_url?: string | null
           onboarding_short_id?: string | null
@@ -187,8 +205,10 @@ export type Database = {
           phone?: string | null
           pillar_specialties?: string[] | null
           primary_join_reason?: string | null
+          primary_pillar?: string | null
           reviewed_at?: string | null
           reviewer_notes?: string | null
+          secondary_pillars?: string[] | null
           specialties?: string[] | null
           start_timeline?: string | null
           status?: Database["public"]["Enums"]["coach_status"] | null
@@ -197,6 +217,7 @@ export type Database = {
           why_galoras?: string | null
         }
         Update: {
+          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           certification_interest?: string | null
@@ -206,14 +227,21 @@ export type Database = {
           coaching_experience_level?: string | null
           coaching_experience_years?: string | null
           coaching_philosophy?: string | null
+          coaching_style?: string[] | null
           commitment_level?: string | null
           created_at?: string
           current_role?: string | null
           email?: string
+          engagement_model?: string | null
           excitement_note?: string | null
+          exec_function?: string[] | null
+          exec_level?: string | null
           experience_years?: number | null
+          founder_function_strength?: string[] | null
+          founder_stage_focus?: string[] | null
           full_name?: string
           id?: string
+          industry_focus?: string[] | null
           leadership_experience_years?: string | null
           linkedin_url?: string | null
           onboarding_short_id?: string | null
@@ -222,8 +250,10 @@ export type Database = {
           phone?: string | null
           pillar_specialties?: string[] | null
           primary_join_reason?: string | null
+          primary_pillar?: string | null
           reviewed_at?: string | null
           reviewer_notes?: string | null
+          secondary_pillars?: string[] | null
           specialties?: string[] | null
           start_timeline?: string | null
           status?: Database["public"]["Enums"]["coach_status"] | null

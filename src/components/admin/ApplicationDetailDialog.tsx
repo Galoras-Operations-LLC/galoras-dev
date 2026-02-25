@@ -26,7 +26,7 @@ interface CoachApplication {
   onboarding_status: string | null;
   reviewed_at: string | null;
   reviewer_notes: string | null;
-  // New structured fields
+  // Structured fields
   coach_background: string | null;
   coach_background_detail: string | null;
   certification_interest: string | null;
@@ -40,6 +40,17 @@ interface CoachApplication {
   excitement_note: string | null;
   pillar_specialties: string[] | null;
   coaching_philosophy: string | null;
+  // New structured intake fields
+  primary_pillar: string | null;
+  secondary_pillars: string[] | null;
+  industry_focus: string[] | null;
+  coaching_style: string[] | null;
+  engagement_model: string | null;
+  availability_status: string | null;
+  founder_stage_focus: string[] | null;
+  founder_function_strength: string[] | null;
+  exec_level: string | null;
+  exec_function: string[] | null;
 }
 
 interface Props {
@@ -85,10 +96,42 @@ export function ApplicationDetailDialog({ application, open, onOpenChange }: Pro
           <Field label="Current Role" value={application.current_role} />
           <Field label="Coaching Level" value={application.coaching_experience_level} />
 
-          {/* Pillar specialties grouped */}
+          {/* Primary Taxonomy */}
+          <Field label="Primary Pillar" value={application.primary_pillar} />
+          <ArrayField label="Secondary Pillars" values={application.secondary_pillars} />
+
+          {/* New structured fields */}
+          <ArrayField label="Industry Focus" values={application.industry_focus} />
+          <ArrayField label="Coaching Style" values={application.coaching_style} />
+          <Field label="Engagement Model" value={application.engagement_model} />
+          <Field label="Availability" value={application.availability_status} />
+
+          {/* Founder-specific fields */}
+          {(application.founder_stage_focus?.length || application.founder_function_strength?.length) && (
+            <div className="border-t pt-3">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Founder Details</span>
+              <div className="mt-2 space-y-2">
+                <ArrayField label="Stage Focus" values={application.founder_stage_focus} />
+                <ArrayField label="Function Strengths" values={application.founder_function_strength} />
+              </div>
+            </div>
+          )}
+
+          {/* Executive-specific fields */}
+          {(application.exec_level || application.exec_function?.length) && (
+            <div className="border-t pt-3">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Executive Details</span>
+              <div className="mt-2 space-y-2">
+                <Field label="Exec Level" value={application.exec_level} />
+                <ArrayField label="Exec Functions" values={application.exec_function} />
+              </div>
+            </div>
+          )}
+
+          {/* Detailed Specialties (legacy) grouped */}
           {Object.keys(groupedSpecialties).length > 0 && (
             <div>
-              <span className="font-medium text-muted-foreground">Pillar Specialties</span>
+              <span className="font-medium text-muted-foreground">Detailed Specialties (Legacy)</span>
               <div className="mt-1 space-y-2">
                 {Object.entries(groupedSpecialties).map(([pillar, specs]) => (
                   <div key={pillar}>
@@ -156,6 +199,20 @@ function Field({ label, value, link }: { label: string; value: string | null | u
           value
         )}
       </p>
+    </div>
+  );
+}
+
+function ArrayField({ label, values }: { label: string; values: string[] | null | undefined }) {
+  if (!values || values.length === 0) return null;
+  return (
+    <div>
+      <span className="font-medium text-muted-foreground">{label}</span>
+      <div className="flex flex-wrap gap-1 mt-0.5">
+        {values.map((v) => (
+          <Badge key={v} variant="secondary">{v}</Badge>
+        ))}
+      </div>
     </div>
   );
 }
