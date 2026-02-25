@@ -2,6 +2,7 @@
 export const COACH_BACKGROUND_OPTIONS = [
   "Certified Professional Coach",
   "Executive / Business Leader (Operator-Coach)",
+  "Founder / Entrepreneur",
   "Athlete / Elite Performer",
   "Emerging Coach (Interested in Galoras Certification Track)",
   "Other Relevant Professional Background",
@@ -11,6 +12,7 @@ export const COACH_BACKGROUND_OPTIONS = [
 export const BACKGROUND_DETAIL_CONFIG: Record<string, { field: "detail" | "certification" | null; label: string }> = {
   "Certified Professional Coach": { field: "detail", label: "List Certifications" },
   "Executive / Business Leader (Operator-Coach)": { field: "detail", label: "Most Recent Senior Role" },
+  "Founder / Entrepreneur": { field: "detail", label: "Company / Venture Name" },
   "Athlete / Elite Performer": { field: "detail", label: "Highest Level Competed" },
   "Emerging Coach (Interested in Galoras Certification Track)": { field: "certification", label: "Interest in Galoras Certification Track" },
   "Other Relevant Professional Background": { field: null, label: "" },
@@ -203,10 +205,10 @@ export const EXEC_FUNCTION_OPTIONS = [
 
 // Helper: check if background is founder-type
 export function isFounderBackground(bg: string): boolean {
-  return bg === "Executive / Business Leader (Operator-Coach)";
+  return bg === "Founder / Entrepreneur";
 }
 
-// Helper: check if background is executive-type (same option, but shows exec fields too)
+// Helper: check if background is executive-type
 export function isExecutiveBackground(bg: string): boolean {
   return bg === "Executive / Business Leader (Operator-Coach)";
 }

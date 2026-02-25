@@ -332,10 +332,10 @@ export default function CoachOnboarding() {
                     </div>
                   )}
 
-                  {/* Conditional Founder/Executive fields */}
+                  {/* Conditional Founder fields */}
                   {isFounderBackground(coachBackground) && (
                     <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
-                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Founder / Executive Details</h4>
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Founder Details</h4>
                       <div className="space-y-2">
                         <Label>Founder Stage Focus</Label>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -358,6 +358,13 @@ export default function CoachOnboarding() {
                           ))}
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {/* Conditional Executive fields */}
+                  {isExecutiveBackground(coachBackground) && (
+                    <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Executive Details</h4>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Executive Level</Label>
