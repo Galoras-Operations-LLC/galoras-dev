@@ -1,77 +1,63 @@
 
 
-## Add Featured Coach Checkbox + Filter Featured Gallery
+## Featured Gallery: Smaller Rectangles + Auto-Rotate
 
 ### Overview
-Add an independent "Featured Coach" toggle in the admin console that controls which coaches appear in the Featured gallery on `/coaching`. The `is_featured` column already exists on the `coaches` table. We need to add optional columns (`featured_rank`, `featured_at`), create an edge function for admin toggling (since RLS doesn't allow admin updates to coaches), update the admin UI, and remove the backfill logic from the Featured gallery.
+Update the Featured Coaches gallery to use smaller 16:9 tiles in a denser grid and auto-rotate the visible set every 4 seconds. Only `src/components/FeaturedCoaches.tsx` changes. No DB, routing, or logic changes.
 
-### 1. Database Migration
+### Changes to `src/components/FeaturedCoaches.tsx`
 
-Add two optional columns to the `coaches` table:
+**New state and effects:**
+- Add `startIndex` state (number, default 0)
+- Add `visibleCount` state derived from `window.matchMedia`:
+  - >= 1024px: 4 columns
+  - >= 768px: 3 columns
+  - otherwise: 2 columns
+- Add `useEffect` with `setInterval(4000ms)` that advances `startIndex` by `visibleCount`, wrapping via modulo. Interval pauses (does not tick) when `selectedCoach !== null`.
 
-```sql
-ALTER TABLE public.coaches ADD COLUMN IF NOT EXISTS featured_rank integer;
-ALTER TABLE public.coaches ADD COLUMN IF NOT EXISTS featured_at timestamptz;
+**Visible coaches slice (with wrap-around):**
+```text
+visibleCoaches = []
+for i in 0..visibleCount:
+  visibleCoaches.push(featuredCoaches[(startIndex + i) % featuredCoaches.length])
+```
+This handles lists shorter than `visibleCount` and seamless looping.
+
+**Grid layout update:**
+- Change grid classes from `grid md:grid-cols-2 lg:grid-cols-3` to `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4`
+- Change tile aspect ratio from `aspect-[4/3]` to `aspect-[16/9]`
+
+**Loading skeleton update:**
+- Grid: `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6`
+- Each skeleton: `aspect-[16/9] rounded-2xl bg-muted animate-pulse`
+
+**Everything else stays the same:**
+- Query logic unchanged
+- Modal popup unchanged (CoachCard static variant + "View Full Profile" button)
+- Empty state (return null) unchanged
+- No nested links
+
+### Technical Detail: Rotation Timer
+
+```text
+useEffect:
+  if no coaches or coaches.length === 0: return
+  if selectedCoach is not null: return (pause)
+  
+  interval = setInterval(() => {
+    setStartIndex(prev => (prev + visibleCount) % coaches.length)
+  }, 4000)
+  
+  return () => clearInterval(interval)
+  
+  deps: [selectedCoach, visibleCount, coaches.length]
 ```
 
-No RLS changes needed -- the edge function will use the service role key.
-
-### 2. New Edge Function: `toggle-featured-coach`
-
-Create `supabase/functions/toggle-featured-coach/index.ts`:
-- Accepts `{ coachId: string, isFeatured: boolean }`
-- Verifies caller is admin (same pattern as `publish-coach`)
-- Uses service role client to update the `coaches` table:
-  - `is_featured` = the provided value
-  - `featured_at` = `now()` when enabling, `null` when disabling
-  - `featured_rank` = `null` when disabling
-- Returns success/error
-
-### 3. Admin UI: Add Featured Toggle
-
-**File: `src/pages/admin/Applicants.tsx`**
-
-The admin manages `coach_applications`, not `coaches` directly. The featured toggle only makes sense for **published** coaches. Changes:
-
-- After publishing a coach, the admin needs to be able to toggle featured status
-- Add a "Featured" column header in the **All** tab and **Profiles** tab tables
-- For rows where `onboarding_status === "published"`, show a `Checkbox` (from `@/components/ui/checkbox`) labeled "Featured"
-- On toggle, call the `toggle-featured-coach` edge function
-- Need to look up the coach ID from the application -- will query `coaches` table by `display_name` matching `full_name` (same pattern used in `publish-coach` for idempotency), or store the coach_id on the application after publish
-
-**Implementation approach:**
-- After a coach is published, fetch the matching coach record ID
-- Store a local map of `applicationId -> coachId + isFeatured` by querying coaches for published applications
-- Render checkbox bound to that state; on change, call the edge function and refresh
-
-**Safety gate:** The checkbox is only enabled when `onboarding_status === "published"`. For non-published coaches, the checkbox is disabled/hidden.
-
-### 4. Featured Gallery: Remove Backfill Logic
-
-**File: `src/components/FeaturedCoaches.tsx`**
-
-Current behavior: fetches `is_featured = true` coaches, then backfills with other approved coaches up to 7 if not enough featured.
-
-New behavior:
-- Fetch ONLY coaches where `is_featured = true` and `status = 'approved'`
-- Order by `featured_rank ASC NULLS LAST`, then `featured_at DESC`
-- No backfill -- if no featured coaches, hide the section entirely (return `null`)
-- Remove the secondary query and backfill logic completely
-
-### Files Summary
-
-| File | Change |
-|---|---|
-| Database migration | Add `featured_rank` and `featured_at` columns |
-| `supabase/functions/toggle-featured-coach/index.ts` | New edge function for admin to toggle featured |
-| `src/pages/admin/Applicants.tsx` | Add Featured checkbox column for published coaches |
-| `src/components/FeaturedCoaches.tsx` | Remove backfill logic, filter strictly by `is_featured = true` |
-
-### What Is NOT Changing
-- Coach approval status workflow
-- Routing
-- CoachCard component
-- Bottom directory list on `/coaching`
-- Featured gallery visual design (image-only tiles + modal)
-- Database schema for existing columns
-
+### Acceptance Criteria
+- Tiles are 16:9 rectangles in a 2/3/4 column responsive grid
+- Tiles are image-only (no text/badges)
+- Visible set swaps every 4 seconds with seamless looping
+- Rotation pauses when modal is open, resumes on close
+- Click-to-modal behavior unchanged
+- Bottom directory list unchanged
+- No DB/logic/routing changes
