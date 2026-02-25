@@ -80,16 +80,19 @@ export function FeaturedCoaches() {
 
   if (isLoading) {
     return (
-      <section className="py-20 bg-secondary/30">
+      <section className="py-14 md:py-16">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-12">
-            Meet Our <span className="text-primary">Verified Coaches</span>
+          <h2 className="text-2xl md:text-3xl font-semibold text-foreground text-center">
+            Featured Coaches
           </h2>
+          <p className="mt-2 text-sm text-muted-foreground text-center mb-10">
+            Curated leaders selected by Galoras.
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="aspect-[16/9] rounded-2xl bg-muted animate-pulse"
+                className="aspect-[4/3] rounded-3xl bg-muted animate-pulse"
               />
             ))}
           </div>
@@ -108,17 +111,20 @@ export function FeaturedCoaches() {
   }
 
   return (
-    <section className="py-20 bg-secondary/30">
+    <section className="py-14 md:py-16">
       <div className="container mx-auto px-6">
-        <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-12">
-          Meet Our <span className="text-primary">Verified Coaches</span>
+        <h2 className="text-2xl md:text-3xl font-semibold text-foreground text-center">
+          Featured Coaches
         </h2>
+        <p className="mt-2 text-sm text-muted-foreground text-center mb-10">
+          Curated leaders selected by Galoras.
+        </p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {visibleCoaches.map((coach, idx) => (
             <div
               key={`${coach.id}-${idx}`}
-              className="group relative aspect-[16/9] overflow-hidden rounded-2xl cursor-pointer"
+              className="group relative aspect-[4/3] overflow-hidden rounded-3xl cursor-pointer border border-white/10 bg-white/5 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
               onClick={() => setSelectedCoach(coach)}
             >
               {coach.avatar_url ? (
@@ -137,6 +143,8 @@ export function FeaturedCoaches() {
             </div>
           ))}
         </div>
+
+        <div className="mx-auto mt-12 md:mt-14 h-px w-2/3 bg-white/10" />
       </div>
 
       <Dialog

@@ -216,6 +216,14 @@ export default function CoachingDirectory() {
       {/* Coaches Grid */}
       <section className="section-padding bg-muted/50">
         <div className="container-wide">
+          <div className="mt-12 mb-8 text-center">
+            <h2 className="text-xl md:text-2xl font-bold text-foreground">
+              Galoras Coaching Team
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Explore our full roster of approved coaches.
+            </p>
+          </div>
           {isLoading ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[...Array(6)].map((_, i) => (
