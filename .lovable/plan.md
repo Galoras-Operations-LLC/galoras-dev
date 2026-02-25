@@ -1,87 +1,37 @@
 
 
-## Add Booking Link and Click Event Logging
+## Remove BookSessionModal Fallback, Show "Booking link coming soon"
 
-### Overview
+### What's Already Done
+- `coaches.booking_url` column exists in database
+- `booking_click_events` table exists with RLS
+- Booking URL input fields exist in Apply, Onboarding, and Profile Edit forms
+- Coach profile already renders "Book a Session" with external redirect when `booking_url` is present
+- Click logging already works (fire-and-forget insert)
 
-Add a `booking_url` field to both `coach_applications` and `coaches` tables, capture it in intake/onboarding/edit forms, render a "Book a Session" CTA on coach profiles that opens the URL in a new tab, and log each click to a new `booking_click_events` table.
+### What Needs to Change
 
----
+**Single file: `src/pages/coaching/CoachProfile.tsx`**
 
-### 1. Database Migration
+1. Remove `BookSessionModal` import and its state (`isBookingModalOpen`, `setIsBookingModalOpen`)
+2. Remove the `<BookSessionModal>` component at the bottom of the file
+3. Replace the fallback `else` branch (lines 381-389) -- currently opens the modal -- with a small muted text: "Booking link coming soon"
+4. Remove `booking_url` casting: since `booking_url` is now in the Supabase types for `coaches`, use `coach.booking_url` directly instead of `(coach as any).booking_url`
 
-**New columns:**
-- `coach_applications.booking_url` (TEXT, nullable)
-- `coaches.booking_url` (TEXT, nullable)
+The "Send Message" button and `MessageCoachModal` remain unchanged.
 
-**New table: `booking_click_events`**
+### Technical Details
 
-| Column | Type | Default |
-|--------|------|---------|
-| id | UUID | gen_random_uuid() |
-| coach_id | UUID | required |
-| user_id | UUID | nullable |
-| session_id | TEXT | nullable |
-| created_at | TIMESTAMPTZ | now() |
+The sidebar booking section will become:
 
-RLS: Allow anyone to INSERT (public click logging). SELECT restricted to admins only.
+```text
+if coach.booking_url exists:
+  [Book a Session] button -> opens URL in new tab + logs click
+else:
+  small muted text: "Booking link coming soon"
 
----
+[Send Message] button (always shown)
+```
 
-### 2. Form Updates
-
-**`src/pages/Apply.tsx`**
-- Add `booking_url` to form state (default empty string)
-- Add input field labeled "Booking Link (e.g., Calendly)" with `type="url"` and `placeholder="https://calendly.com/yourname"`
-- Basic validation: if provided, must start with `https://`
-- Include in insert payload
-
-**`src/pages/coaching/CoachOnboarding.tsx`**
-- Add `bookingUrl` state variable
-- Add same input field
-- Include in complete-onboarding edge function payload
-
-**`src/pages/coaching/CoachProfileEdit.tsx`**
-- Add booking URL input to the Profile Information card
-- Allow coach to update their `booking_url` on the `coaches` table
-
----
-
-### 3. Edge Function Update
-
-**`supabase/functions/complete-onboarding/index.ts`**
-- Accept `bookingUrl` from request body
-- Persist as `booking_url` on `coach_applications`
-
----
-
-### 4. Coach Profile UI Update
-
-**`src/pages/coaching/CoachProfile.tsx`**
-- In the sidebar booking card: if `(coach as any).booking_url` exists, replace the existing "Book a Session" button with one that:
-  - Logs a click event to `booking_click_events` (fire-and-forget, no await)
-  - Opens `booking_url` in a new tab via `window.open(url, '_blank', 'noopener,noreferrer')`
-- If `booking_url` is null/empty, keep the existing BookSessionModal button as fallback
-- Add tooltip: "Schedule directly with this coach"
-
----
-
-### 5. Admin Visibility
-
-**`src/components/admin/ApplicationDetailDialog.tsx`**
-- Display `booking_url` in the application detail view (read-only link)
-
----
-
-### Files Changed
-
-| File | Change |
-|------|--------|
-| New migration SQL | Add `booking_url` to both tables + create `booking_click_events` with RLS |
-| `src/pages/Apply.tsx` | Add booking URL input + include in payload |
-| `src/pages/coaching/CoachOnboarding.tsx` | Add booking URL input + include in payload |
-| `src/pages/coaching/CoachProfileEdit.tsx` | Add booking URL edit field |
-| `supabase/functions/complete-onboarding/index.ts` | Accept + persist `bookingUrl` |
-| `src/pages/coaching/CoachProfile.tsx` | Conditional "Book a Session" button with click logging |
-| `src/components/admin/ApplicationDetailDialog.tsx` | Display booking URL |
+No database changes needed. No new files.
 
