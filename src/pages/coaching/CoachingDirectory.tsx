@@ -231,7 +231,7 @@ export default function CoachingDirectory() {
           ) : filteredCoaches && filteredCoaches.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredCoaches.map((coach) => (
-                <CoachCard
+              <CoachCard
                   key={coach.id}
                   id={coach.id}
                   displayName={coach.display_name}
@@ -240,6 +240,9 @@ export default function CoachingDirectory() {
                   specialties={coach.specialties}
                   isFeatured={coach.is_featured}
                   isEnterpriseReady={coach.is_enterprise_ready}
+                  bio={coach.bio}
+                  location={coach.location}
+                  currentRole={coach.current_role}
                 />
               ))}
             </div>

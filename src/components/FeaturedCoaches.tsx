@@ -1,73 +1,13 @@
-import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { cn } from "@/lib/utils";
-import { TiltCard } from "@/components/ui/tilt-card";
-import featuredCoachesPlaceholder from "@/assets/featured-coaches-placeholder.jpg";
-
-// External images from galoras-feature-coaches.lovable.app
-const EXTERNAL_COACH_IMAGES: Record<string, { hero?: string; portrait?: string }> = {
-  "jason smyth": {
-    hero: "https://galoras-feature-coaches.lovable.app/assets/jason-hero-victory-D2kKCFwy.jpeg",
-    portrait: "https://galoras-feature-coaches.lovable.app/assets/jason-portrait-formal-lRckfQCD.jpeg",
-  },
-  "conor mcgowan smyth": {
-    hero: "https://galoras-feature-coaches.lovable.app/assets/coach-two-hero-MoOSdKjN.jpeg",
-    portrait: "https://galoras-feature-coaches.lovable.app/assets/coach-two-portrait-Av_TSgOx.jpeg",
-  },
-};
-
-// Helper to get external image for a coach by name
-const getExternalImage = (displayName: string | null) => {
-  if (!displayName) return null;
-  const key = displayName.toLowerCase();
-  return EXTERNAL_COACH_IMAGES[key] || null;
-};
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-} as const;
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 40, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 100,
-      damping: 12,
-    },
-  },
-} as const;
-
-const titleVariants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
-    },
-  },
-} as const;
+import { CoachCard } from "@/components/coaching/CoachCard";
 
 export function FeaturedCoaches() {
   const { data: featuredCoaches, isLoading } = useQuery({
     queryKey: ["featured-coaches"],
     queryFn: async () => {
-      // Prefer featured coaches, but always return 7 cards by filling with other approved coaches.
-      const baseSelect = "id, display_name, avatar_url, cutout_url, headline, specialties, is_featured";
+      const baseSelect =
+        "id, display_name, avatar_url, headline, specialties, is_featured, bio, location, current_role";
 
       const { data: featured, error: featuredError } = await supabase
         .from("coaches")
@@ -99,20 +39,27 @@ export function FeaturedCoaches() {
 
   if (isLoading) {
     return (
-      <section className="relative py-24 bg-black overflow-hidden">
-        <div className="container-wide relative z-10">
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-center text-white mb-16">
-            Featured Coaches
+      <section className="py-20 bg-secondary/30">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-4">
+            Meet Our <span className="text-primary">Verified Coaches</span>
           </h2>
-          <div className="flex justify-center items-end gap-4 md:gap-6">
-            {[...Array(7)].map((_, i) => (
+          <p className="text-center text-muted-foreground mb-12">
+            Elite professionals committed to growth, performance, and impact.
+          </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className={cn(
-                  "rounded-t-full bg-muted/20 animate-pulse",
-                  i === 3 ? "w-40 h-64 md:w-52 md:h-80" : "w-32 h-52 md:w-44 md:h-72"
-                )}
-              />
+                className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse"
+              >
+                <div className="h-56 md:h-64 bg-muted" />
+                <div className="p-6 space-y-4">
+                  <div className="h-5 bg-muted rounded w-2/3" />
+                  <div className="h-4 bg-muted rounded w-full" />
+                  <div className="h-4 bg-muted rounded w-1/2" />
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -120,186 +67,36 @@ export function FeaturedCoaches() {
     );
   }
 
-  // Check if any coaches have cutout images
-  const hasAnyCutouts = featuredCoaches?.some(coach => coach.cutout_url);
-
-  // Show placeholder image when no featured coaches exist OR no cutouts available
-  if (!featuredCoaches || featuredCoaches.length === 0 || !hasAnyCutouts) {
-    return (
-      <section className="relative bg-black overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-20 blur-sm scale-110"
-          style={{ backgroundImage: `url(${featuredCoachesPlaceholder})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
-        
-        <div className="container-wide relative z-10">
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-center text-white pt-16 mb-8">
-            Featured Coaches
-          </h2>
-          
-          <Link to="/coaching" className="block">
-            <img
-              src={featuredCoachesPlaceholder}
-              alt="Featured Coaches"
-              className="w-full max-w-5xl mx-auto object-contain"
-            />
-          </Link>
-          
-          <div className="text-center pb-12">
-            <Link
-              to="/coaching"
-              className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm font-medium transition-colors"
-            >
-              View All Coaches
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </section>
-    );
+  if (!featuredCoaches || featuredCoaches.length === 0) {
+    return null;
   }
 
   return (
-    <section className="relative py-16 md:py-24 bg-black overflow-hidden min-h-[500px] md:min-h-[600px]">
-      {/* Blurred background - uses first coach's image or a generic one */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-15 blur-md scale-110"
-        style={{
-          backgroundImage: featuredCoaches[0]?.avatar_url
-            ? `url(${featuredCoaches[0].avatar_url})`
-            : "url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1920&q=80')",
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/90" />
+    <section className="py-20 bg-secondary/30">
+      <div className="container mx-auto px-6">
+        <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-4">
+          Meet Our <span className="text-primary">Verified Coaches</span>
+        </h2>
+        <p className="text-center text-muted-foreground mb-12">
+          Elite professionals committed to growth, performance, and impact.
+        </p>
 
-      <div className="container-wide relative z-10">
-        <motion.h2
-          className="text-3xl md:text-4xl font-display font-bold text-center text-white mb-16"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={titleVariants}
-        >
-          Featured Coaches
-        </motion.h2>
-
-        <motion.div
-          className="flex items-end justify-center -mx-4 overflow-x-auto overflow-y-visible scroll-smooth snap-x snap-mandatory pb-4 scrollbar-none cursor-grab active:cursor-grabbing"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={containerVariants}
-        >
-          {featuredCoaches.map((coach, index) => {
-            const totalCoaches = featuredCoaches.length;
-            const middleIndex = Math.floor(totalCoaches / 2);
-            const isCenter = index === middleIndex;
-            const distanceFromCenter = Math.abs(index - middleIndex);
-
-            return (
-              <motion.div
-                key={coach.id}
-                variants={itemVariants}
-                className="shrink-0 snap-center"
-                style={{
-                  marginLeft: index === 0 ? 0 : "-2rem",
-                  zIndex: totalCoaches - distanceFromCenter,
-                }}
-              >
-                <TiltCard maxTilt={8} scale={1.03}>
-                  <Link
-                    to={`/coaching/${coach.id}`}
-                    className={cn(
-                      "group relative flex items-end justify-center transition-all duration-500 overflow-hidden",
-                      isCenter
-                        ? "w-52 h-80 sm:w-64 sm:h-96 md:w-80 md:h-[480px] lg:w-96 lg:h-[520px]"
-                        : "w-40 h-64 sm:w-48 sm:h-80 md:w-56 md:h-96 lg:w-64 lg:h-[420px]"
-                    )}
-                  >
-                    {/* Coach Cutout or Avatar - grayscale, color on hover */}
-                    {(() => {
-                      // Check for external image first
-                      const externalImg = getExternalImage(coach.display_name);
-                      const imageUrl = externalImg?.hero || coach.cutout_url || coach.avatar_url;
-                      
-                      if (externalImg?.hero) {
-                        // Use external hero image
-                        return (
-                          <div className="absolute inset-0 overflow-hidden">
-                            <img
-                              src={externalImg.hero}
-                              alt={coach.display_name || "Coach"}
-                              className="w-full h-full object-cover object-top transition-all duration-500 grayscale group-hover:grayscale-0 group-hover:scale-105"
-                            />
-                          </div>
-                        );
-                      } else if (coach.cutout_url) {
-                        return (
-                          <img
-                            src={
-                              coach.cutout_url.startsWith("/")
-                                ? `${coach.cutout_url}?v=7`
-                                : coach.cutout_url
-                            }
-                            alt={coach.display_name || "Coach"}
-                            className="w-full h-full object-contain object-bottom transition-all duration-500 drop-shadow-[0_10px_40px_rgba(0,0,0,0.6)] grayscale group-hover:grayscale-0 group-hover:scale-105"
-                          />
-                        );
-                      } else if (coach.avatar_url) {
-                        return (
-                          <div className="absolute inset-0 overflow-hidden">
-                            <img
-                              src={coach.avatar_url}
-                              alt={coach.display_name || "Coach"}
-                              className="w-full h-full object-cover object-top transition-all duration-500 grayscale group-hover:grayscale-0"
-                            />
-                          </div>
-                        );
-                      } else {
-                        return (
-                          <div className="absolute inset-0 overflow-hidden bg-gradient-to-b from-muted/40 to-muted/20 flex items-center justify-center">
-                            <span className="text-4xl font-bold text-white/50">
-                              {coach.display_name?.charAt(0) || "C"}
-                            </span>
-                          </div>
-                        );
-                      }
-                    })()}
-
-                    {/* Name tooltip on hover */}
-                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:bottom-4 transition-all duration-300 whitespace-nowrap z-20">
-                      <span className="px-3 py-1.5 bg-white text-black text-xs font-medium rounded-full shadow-lg">
-                        {coach.display_name || "Coach"}
-                      </span>
-                    </div>
-                  </Link>
-                </TiltCard>
-              </motion.div>
-            );
-          })}
-        </motion.div>
-
-        {/* View all link */}
-        <motion.div
-          className="text-center mt-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.4 }}
-        >
-          <Link
-            to="/coaching"
-            className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm font-medium transition-colors"
-          >
-            View All Coaches
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </motion.div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {featuredCoaches.map((coach) => (
+            <CoachCard
+              key={coach.id}
+              id={coach.id}
+              displayName={coach.display_name}
+              avatarUrl={coach.avatar_url}
+              headline={coach.headline}
+              specialties={coach.specialties}
+              isFeatured={coach.is_featured}
+              bio={coach.bio}
+              location={coach.location}
+              currentRole={coach.current_role}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );

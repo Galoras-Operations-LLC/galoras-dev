@@ -1,7 +1,5 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Award } from "lucide-react";
+import { Award, MapPin, ArrowRight } from "lucide-react";
 
 interface CoachCardProps {
   id: string;
@@ -11,6 +9,9 @@ interface CoachCardProps {
   specialties?: string[] | null;
   isFeatured?: boolean | null;
   isEnterpriseReady?: boolean | null;
+  bio?: string | null;
+  location?: string | null;
+  currentRole?: string | null;
 }
 
 export function CoachCard({
@@ -19,70 +20,97 @@ export function CoachCard({
   avatarUrl,
   headline,
   specialties,
-  isFeatured,
-  isEnterpriseReady,
+  bio,
+  location,
+  currentRole,
 }: CoachCardProps) {
   const name = displayName || "Coach";
-  const firstName = name.split(" ")[0];
-  const lastName = name.split(" ").slice(1).join(" ");
-  const primarySpecialty = specialties?.[0] || "Business";
+  const subtitle = currentRole || specialties?.[0] || null;
 
   return (
-    <div className="group bg-card rounded-2xl border border-border hover:border-primary/50 p-6 transition-all card-hover text-center relative">
-      {/* Top Rate Badge */}
-      {isFeatured && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-          <div className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-amber-500 to-yellow-400 text-white text-xs font-bold rounded-full shadow-lg">
-            <Award className="h-3 w-3" />
-            100% Guaranteed
-          </div>
-        </div>
-      )}
-
-      {/* Circular Avatar with Light Blue Background */}
-      <div className="relative mx-auto w-32 h-32 mb-4">
-        <div className="absolute inset-0 rounded-full bg-sky-100 dark:bg-sky-900/30" />
-        <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center">
+    <Link to={`/coaching/${id}`} className="group block">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden transition-all hover:border-primary/50 hover:shadow-lg">
+        {/* Hero Image */}
+        <div className="relative h-56 md:h-64 overflow-hidden">
           {avatarUrl ? (
             <img
               src={avatarUrl}
               alt={name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <span className="text-4xl font-bold text-primary">
-              {name.charAt(0)}
-            </span>
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <span className="text-5xl font-bold text-muted-foreground/40">
+                {name.charAt(0)}
+              </span>
+            </div>
           )}
+
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+          {/* Verified Badge */}
+          <div className="absolute top-4 left-4 px-3 py-1 text-xs font-semibold bg-primary text-primary-foreground rounded-full">
+            Verified Galoras Coach
+          </div>
+
+          {/* Portrait + Name + Role */}
+          <div className="absolute bottom-4 left-4 flex items-center gap-3">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={name}
+                className="w-14 h-14 rounded-full border-2 border-white object-cover"
+              />
+            ) : (
+              <div className="w-14 h-14 rounded-full border-2 border-white bg-muted flex items-center justify-center">
+                <span className="text-lg font-bold text-muted-foreground">
+                  {name.charAt(0)}
+                </span>
+              </div>
+            )}
+            <div className="text-white">
+              <div className="font-semibold">{name}</div>
+              {subtitle && (
+                <div className="text-sm opacity-90">{subtitle}</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="p-6 space-y-4">
+          {headline && (
+            <h3 className="text-primary font-semibold text-lg">{headline}</h3>
+          )}
+
+          {bio && (
+            <p className="text-sm text-muted-foreground line-clamp-2">{bio}</p>
+          )}
+
+          {/* Credentials */}
+          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+            {specialties?.[0] && (
+              <div className="flex items-center gap-2">
+                <Award size={16} />
+                {specialties[0]}
+              </div>
+            )}
+            {location && (
+              <div className="flex items-center gap-2">
+                <MapPin size={16} />
+                {location}
+              </div>
+            )}
+          </div>
+
+          {/* View Profile (styled span, not a link) */}
+          <div className="flex items-center gap-2 text-primary font-medium">
+            <span>View Profile</span>
+            <ArrowRight size={16} />
+          </div>
         </div>
       </div>
-
-      {/* Name */}
-      <h3 className="font-display text-xl mb-2">
-        <span className="font-medium text-primary">Coach</span>{" "}
-        <span className="font-bold">{firstName}</span>
-        {lastName && <span className="font-bold"> {lastName}</span>}
-      </h3>
-
-      {/* Top Rate Tag */}
-      <Badge 
-        variant="outline" 
-        className="mb-3 border-primary/50 text-foreground font-medium"
-      >
-        Top Rate
-      </Badge>
-
-      {/* Specialty */}
-      <p className="text-muted-foreground mb-4">{primarySpecialty}</p>
-
-      {/* View Profile Button */}
-      <Link to={`/coaching/${id}`}>
-        <Button 
-          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8"
-        >
-          View Profile
-        </Button>
-      </Link>
-    </div>
+    </Link>
   );
 }
