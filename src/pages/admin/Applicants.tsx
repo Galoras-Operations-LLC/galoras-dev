@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -11,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   CheckCircle, XCircle, Clock, Loader2, ShieldAlert, ShieldX,
-  Copy, Eye, Send, AlertTriangle, ExternalLink,
+  Copy, Eye, Send, AlertTriangle, ExternalLink, Star,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ApplicationDetailDialog } from "@/components/admin/ApplicationDetailDialog";
@@ -37,7 +38,6 @@ interface CoachApplication {
   onboarding_short_id: string | null;
   reviewed_at: string | null;
   reviewer_notes: string | null;
-  // New structured fields
   coach_background: string | null;
   coach_background_detail: string | null;
   certification_interest: string | null;
@@ -51,7 +51,6 @@ interface CoachApplication {
   excitement_note: string | null;
   pillar_specialties: string[] | null;
   coaching_philosophy: string | null;
-  // New structured intake fields
   primary_pillar: string | null;
   secondary_pillars: string[] | null;
   industry_focus: string[] | null;
@@ -64,6 +63,11 @@ interface CoachApplication {
   exec_function: string[] | null;
 }
 
+interface CoachFeaturedInfo {
+  coachId: string;
+  isFeatured: boolean;
+}
+
 export default function Applicants() {
   const { toast } = useToast();
   const [applications, setApplications] = useState<CoachApplication[]>([]);
@@ -73,6 +77,10 @@ export default function Applicants() {
   const [detailApp, setDetailApp] = useState<CoachApplication | null>(null);
   const [rejectTarget, setRejectTarget] = useState<CoachApplication | null>(null);
   const [changesTarget, setChangesTarget] = useState<CoachApplication | null>(null);
+
+  // Map: application full_name -> { coachId, isFeatured }
+  const [featuredMap, setFeaturedMap] = useState<Record<string, CoachFeaturedInfo>>({});
+  const [togglingFeatured, setTogglingFeatured] = useState<string | null>(null);
 
   useEffect(() => { checkAdminAccess(); }, []);
 
@@ -94,8 +102,52 @@ export default function Applicants() {
       toast({ title: "Error fetching applications", description: error.message, variant: "destructive" });
     } else {
       setApplications(data || []);
+      // Fetch featured status for published coaches
+      const publishedNames = (data || [])
+        .filter((a) => a.onboarding_status === "published")
+        .map((a) => a.full_name);
+      if (publishedNames.length > 0) {
+        fetchFeaturedStatus(publishedNames);
+      }
     }
     setIsLoading(false);
+  };
+
+  const fetchFeaturedStatus = async (names: string[]) => {
+    const { data: coaches } = await supabase
+      .from("coaches")
+      .select("id, display_name, is_featured")
+      .in("display_name", names);
+    if (coaches) {
+      const map: Record<string, CoachFeaturedInfo> = {};
+      for (const c of coaches) {
+        if (c.display_name) {
+          map[c.display_name] = { coachId: c.id, isFeatured: c.is_featured ?? false };
+        }
+      }
+      setFeaturedMap(map);
+    }
+  };
+
+  const toggleFeatured = async (app: CoachApplication) => {
+    const info = featuredMap[app.full_name];
+    if (!info) return;
+    setTogglingFeatured(app.id);
+    try {
+      const res = await supabase.functions.invoke("toggle-featured-coach", {
+        body: { coachId: info.coachId, isFeatured: !info.isFeatured },
+      });
+      if (res.error) throw res.error;
+      if (res.data?.error) throw new Error(res.data.error);
+      setFeaturedMap((prev) => ({
+        ...prev,
+        [app.full_name]: { ...info, isFeatured: !info.isFeatured },
+      }));
+      toast({ title: !info.isFeatured ? "Coach featured!" : "Coach unfeatured" });
+    } catch (err: any) {
+      toast({ title: "Toggle failed", description: err.message || String(err), variant: "destructive" });
+    }
+    setTogglingFeatured(null);
   };
 
   // Queues
@@ -164,15 +216,11 @@ export default function Applicants() {
   const publishCoach = async (app: CoachApplication) => {
     setUpdatingId(app.id);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
       const res = await supabase.functions.invoke("publish-coach", {
         body: { applicationId: app.id },
       });
-
       if (res.error) throw res.error;
-
       toast({ title: "Coach published!", description: `${app.full_name} is now visible in the directory.` });
-      // Refresh
       fetchApplications();
     } catch (err: any) {
       toast({ title: "Publish failed", description: err.message || String(err), variant: "destructive" });
@@ -228,6 +276,23 @@ export default function Applicants() {
     }
     navigator.clipboard.writeText(url);
     toast({ title: "Link copied!", description: "Onboarding link copied to clipboard." });
+  };
+
+  // Featured checkbox render helper
+  const renderFeaturedCheckbox = (app: CoachApplication) => {
+    if (app.onboarding_status !== "published") return null;
+    const info = featuredMap[app.full_name];
+    if (!info) return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
+    return (
+      <div className="flex items-center gap-2">
+        <Checkbox
+          checked={info.isFeatured}
+          disabled={togglingFeatured === app.id}
+          onCheckedChange={() => toggleFeatured(app)}
+        />
+        {info.isFeatured && <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" />}
+      </div>
+    );
   };
 
   // Status badges
@@ -414,6 +479,7 @@ export default function Applicants() {
                             <TableHead>Submitted</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Onboarding</TableHead>
+                            <TableHead>Featured</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
@@ -425,6 +491,7 @@ export default function Applicants() {
                               <TableCell>{format(new Date(app.created_at), "MMM d, yyyy")}</TableCell>
                               <TableCell>{statusBadge(app.status)}</TableCell>
                               <TableCell>{onboardingBadge(app.onboarding_status)}</TableCell>
+                              <TableCell>{renderFeaturedCheckbox(app)}</TableCell>
                               <TableCell className="text-right">
                                 <div className="flex justify-end gap-2">
                                   {app.status === "approved" && app.onboarding_short_id && (app.onboarding_status === "pending" || app.onboarding_status === "needs_changes") && (

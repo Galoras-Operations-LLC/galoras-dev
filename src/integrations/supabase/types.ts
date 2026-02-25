@@ -378,6 +378,8 @@ export type Database = {
           cutout_url: string | null
           display_name: string | null
           experience_years: number | null
+          featured_at: string | null
+          featured_rank: number | null
           headline: string | null
           hourly_rate: number | null
           id: string
@@ -411,6 +413,8 @@ export type Database = {
           cutout_url?: string | null
           display_name?: string | null
           experience_years?: number | null
+          featured_at?: string | null
+          featured_rank?: number | null
           headline?: string | null
           hourly_rate?: number | null
           id?: string
@@ -444,6 +448,8 @@ export type Database = {
           cutout_url?: string | null
           display_name?: string | null
           experience_years?: number | null
+          featured_at?: string | null
+          featured_rank?: number | null
           headline?: string | null
           hourly_rate?: number | null
           id?: string

@@ -36,26 +36,11 @@ export function FeaturedCoaches() {
         .select(baseSelect)
         .eq("status", "approved")
         .eq("is_featured", true)
-        .order("created_at", { ascending: true })
-        .limit(7);
+        .order("featured_at", { ascending: false });
 
       if (featuredError) throw featuredError;
 
-      if ((featured?.length ?? 0) >= 7) return featured || [];
-
-      const { data: approved, error: approvedError } = await supabase
-        .from("coaches")
-        .select(baseSelect)
-        .eq("status", "approved")
-        .order("created_at", { ascending: true })
-        .limit(25);
-
-      if (approvedError) throw approvedError;
-
-      const featuredIds = new Set((featured || []).map((c) => c.id));
-      const fillers = (approved || []).filter((c) => !featuredIds.has(c.id));
-
-      return [...(featured || []), ...fillers].slice(0, 7);
+      return featured || [];
     },
   });
 
