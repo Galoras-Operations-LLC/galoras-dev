@@ -12,6 +12,7 @@ interface CoachCardProps {
   bio?: string | null;
   location?: string | null;
   currentRole?: string | null;
+  variant?: "default" | "static";
 }
 
 export function CoachCard({
@@ -23,12 +24,12 @@ export function CoachCard({
   bio,
   location,
   currentRole,
+  variant = "default",
 }: CoachCardProps) {
   const name = displayName || "Coach";
   const subtitle = currentRole || specialties?.[0] || null;
 
-  return (
-    <Link to={`/coaching/${id}`} className="group block">
+  const cardContent = (
       <div className="rounded-2xl border border-border bg-card overflow-hidden transition-all hover:border-primary/50 hover:shadow-lg">
         {/* Hero Image */}
         <div className="relative h-56 md:h-64 overflow-hidden">
@@ -111,6 +112,15 @@ export function CoachCard({
           </div>
         </div>
       </div>
+  );
+
+  if (variant === "static") {
+    return <div className="group block">{cardContent}</div>;
+  }
+
+  return (
+    <Link to={`/coaching/${id}`} className="group block">
+      {cardContent}
     </Link>
   );
 }
