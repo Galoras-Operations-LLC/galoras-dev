@@ -137,7 +137,12 @@ export default function Applicants() {
       const res = await supabase.functions.invoke("toggle-featured-coach", {
         body: { coachId: info.coachId, isFeatured: !info.isFeatured },
       });
-      if (res.error) throw res.error;
+      if (res.error) {
+        const detail = res.data?.error || res.data?.message || res.error.message;
+        const stepInfo = res.data?.step ? ` [step: ${res.data.step}]` : "";
+        console.error("Toggle featured failed:", { error: res.error, data: res.data });
+        throw new Error(`${detail}${stepInfo}`);
+      }
       if (res.data?.error) throw new Error(res.data.error);
       setFeaturedMap((prev) => ({
         ...prev,
@@ -163,7 +168,12 @@ export default function Applicants() {
       const res = await supabase.functions.invoke("create-onboarding-link", {
         body: { applicationId: id },
       });
-      if (res.error) throw res.error;
+      if (res.error) {
+        const detail = res.data?.error || res.data?.message || res.error.message;
+        const stepInfo = res.data?.step ? ` [step: ${res.data.step}]` : "";
+        console.error("Approve failed:", { error: res.error, data: res.data });
+        throw new Error(`${detail}${stepInfo}`);
+      }
       if (res.data?.error) throw new Error(res.data.error);
       toast({ title: "Application approved", description: "Masked onboarding link created." });
       fetchApplications();
@@ -179,7 +189,12 @@ export default function Applicants() {
       const res = await supabase.functions.invoke("create-onboarding-link", {
         body: { applicationId: id },
       });
-      if (res.error) throw res.error;
+      if (res.error) {
+        const detail = res.data?.error || res.data?.message || res.error.message;
+        const stepInfo = res.data?.step ? ` [step: ${res.data.step}]` : "";
+        console.error("Regenerate failed:", { error: res.error, data: res.data });
+        throw new Error(`${detail}${stepInfo}`);
+      }
       if (res.data?.error) throw new Error(res.data.error);
       toast({ title: "Link regenerated", description: "New masked link created. Old links expired." });
       fetchApplications();
@@ -219,7 +234,12 @@ export default function Applicants() {
       const res = await supabase.functions.invoke("publish-coach", {
         body: { applicationId: app.id },
       });
-      if (res.error) throw res.error;
+      if (res.error) {
+        const detail = res.data?.error || res.data?.message || res.error.message;
+        const stepInfo = res.data?.step ? ` [step: ${res.data.step}]` : "";
+        console.error("Publish failed:", { error: res.error, data: res.data });
+        throw new Error(`${detail}${stepInfo}`);
+      }
       toast({ title: "Coach published!", description: `${app.full_name} is now visible in the directory.` });
       fetchApplications();
     } catch (err: any) {
