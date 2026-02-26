@@ -165,6 +165,10 @@ export default function Applicants() {
   const approveApplication = async (id: string) => {
     setUpdatingId(id);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error("Session expired. Please sign in again.");
+      }
       const res = await supabase.functions.invoke("create-onboarding-link", {
         body: { applicationId: id },
       });
@@ -186,6 +190,10 @@ export default function Applicants() {
   const regenerateLink = async (id: string) => {
     setUpdatingId(id);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error("Session expired. Please sign in again.");
+      }
       const res = await supabase.functions.invoke("create-onboarding-link", {
         body: { applicationId: id },
       });

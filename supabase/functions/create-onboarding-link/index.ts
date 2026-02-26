@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
   let step = "start";
 
   try {
-    // 1. Extract JWT from Authorization header
+    // 1. Extract Authorization header
     step = "auth_header";
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
@@ -42,23 +42,37 @@ Deno.serve(async (req) => {
         }
       );
     }
-    const jwt = authHeader.replace("Bearer ", "");
 
-    // 2. Create service-role client
+    // 2. Load env vars
     step = "env";
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    // 3. Get user from JWT
+    if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceKey) {
+      return new Response(
+        JSON.stringify({ step, error: "Missing Supabase env vars" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // 3. Create user client (anon key + caller JWT) for auth validation
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    // 4. Validate user
     step = "get_user";
     const {
       data: { user },
       error: userError,
-    } = await supabase.auth.getUser(jwt);
+    } = await userClient.auth.getUser();
     if (userError || !user) {
       return new Response(
-        JSON.stringify({ step, error: "Invalid token" }),
+        JSON.stringify({ step, error: "Invalid JWT" }),
         {
           status: 401,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -67,9 +81,12 @@ Deno.serve(async (req) => {
     }
     console.log("[create-onboarding-link]", { step, userId: user.id });
 
-    // 4. Admin check via direct user_roles query (service-role bypasses RLS)
+    // 5. Create service-role client for DB operations
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+
+    // 6. Admin check via direct user_roles query (service-role bypasses RLS)
     step = "admin_check";
-    const { data: roleRow, error: roleError } = await supabase
+    const { data: roleRow, error: roleError } = await adminClient
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
@@ -102,7 +119,7 @@ Deno.serve(async (req) => {
 
     // 6. Fetch current application
     step = "fetch_application";
-    const { data: app, error: appError } = await supabase
+    const { data: app, error: appError } = await adminClient
       .from("coach_applications")
       .select("status, onboarding_status")
       .eq("id", applicationId)
@@ -154,7 +171,7 @@ Deno.serve(async (req) => {
 
     // 9. Revoke old links
     step = "revoke_old_links";
-    const { error: revokeError } = await supabase
+    const { error: revokeError } = await adminClient
       .from("onboarding_links")
       .update({ expires_at: new Date().toISOString() })
       .eq("application_id", applicationId)
@@ -169,7 +186,7 @@ Deno.serve(async (req) => {
     step = "update_application";
     const newOnboardingStatus = app.onboarding_status ?? "pending";
 
-    const { error: updateError } = await supabase
+    const { error: updateError } = await adminClient
       .from("coach_applications")
       .update({
         status: "approved",
@@ -197,7 +214,7 @@ Deno.serve(async (req) => {
 
     // 11. Insert onboarding_links
     step = "insert_onboarding_link";
-    const { error: insertError } = await supabase
+    const { error: insertError } = await adminClient
       .from("onboarding_links")
       .insert({
         short_id: shortId,

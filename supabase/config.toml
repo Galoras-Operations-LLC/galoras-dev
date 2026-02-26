@@ -7,7 +7,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.create-onboarding-link]
-verify_jwt = true
+verify_jwt = false
 
 [functions.toggle-featured-coach]
 verify_jwt = false
