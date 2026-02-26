@@ -217,8 +217,8 @@ export default function CoachingDirectory() {
       <section className="section-padding bg-muted/50">
         <div className="container-wide">
           <div className="mt-12 mb-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground text-center">
-              Galoras Coaching Team
+            <h2 className="text-3xl md:text-[40px] font-bold tracking-tight text-foreground text-center">
+              Galoras <span className="text-gradient">Coaching</span> Team
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Explore our full roster of approved coaches.

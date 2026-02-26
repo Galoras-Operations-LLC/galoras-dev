@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CoachCard } from "@/components/coaching/CoachCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -50,8 +51,8 @@ export function FeaturedCoaches() {
     return (
       <section className="py-14 md:py-16">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground text-center">
-            Featured Coaches
+          <h2 className="text-3xl md:text-[42px] font-bold tracking-tight text-foreground text-center">
+            <span className="text-gradient">Featured</span> Coaches
           </h2>
           <p className="mt-2 text-sm text-muted-foreground text-center mb-10">
             Curated leaders selected by Galoras.
@@ -101,8 +102,8 @@ export function FeaturedCoaches() {
         <div className="flex items-center justify-between mb-10">
           <div className="flex-1" />
           <div className="text-center">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-              Featured Coaches
+            <h2 className="text-3xl md:text-[42px] font-bold tracking-tight text-foreground">
+              <span className="text-gradient">Featured</span> Coaches
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Curated leaders selected by Galoras.
@@ -122,7 +123,14 @@ export function FeaturedCoaches() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="flex justify-center">
+        <div className={cn(
+          "grid gap-6",
+          visibleCoaches.length === 1 && "grid-cols-1 max-w-xs",
+          visibleCoaches.length === 2 && "grid-cols-2 max-w-2xl",
+          visibleCoaches.length === 3 && "grid-cols-3 max-w-4xl",
+          visibleCoaches.length >= 4 && "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full"
+        )}>
           {visibleCoaches.map((coach, idx) => (
             <div
               key={`${coach.id}-${idx}`}
@@ -144,6 +152,7 @@ export function FeaturedCoaches() {
               )}
             </div>
           ))}
+        </div>
         </div>
 
         <div className="mx-auto mt-12 md:mt-14 h-px w-2/3 bg-white/10" />
