@@ -121,6 +121,12 @@ export default function Apply() {
     }
   };
 
+  const normalizeUrl = (url: string) => {
+    const trimmed = (url || "").trim();
+    if (!trimmed) return null;
+    return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -152,7 +158,7 @@ export default function Apply() {
       const coach_background_detail = backgroundConfig?.field === "detail" ? formData.coach_background_detail : null;
       const certification_interest = backgroundConfig?.field === "certification" ? formData.certification_interest : null;
 
-      const { error } = await supabase.from("coach_applications").insert({
+      const payload = {
         full_name: formData.full_name,
         email: formData.email,
         phone: formData.phone || null,
@@ -168,10 +174,25 @@ export default function Apply() {
         current_role: formData.current_role || null,
         coaching_experience_level: formData.coaching_experience_level,
         coaching_philosophy: formData.coaching_philosophy || null,
-        booking_url: formData.booking_url || null,
-      } as any);
+        booking_url: normalizeUrl(formData.booking_url),
+      };
+
+      const { data, error } = await supabase
+        .from("coach_applications")
+        .insert(payload as any)
+        .select("id, booking_url")
+        .single();
 
       if (error) throw error;
+
+      // Round-trip verification
+      const expected = normalizeUrl(formData.booking_url);
+      if (expected && !data?.booking_url) {
+        console.error("Booking URL not persisted:", { expected, returned: data });
+        throw new Error("Booking link was not saved. Please ensure it starts with https:// and try again.");
+      }
+
+      console.log("Saved application:", data);
 
       toast({
         title: "Application submitted!",
@@ -317,7 +338,7 @@ export default function Apply() {
                         onChange={(e) => setFormData({ ...formData, booking_url: e.target.value })}
                         placeholder="https://calendly.com/yourname"
                       />
-                      <p className="text-xs text-muted-foreground">Optional — must start with https://</p>
+                      <p className="text-xs text-muted-foreground">Optional — if you omit https:// we'll add it automatically.</p>
                     </div>
                   </div>
 
