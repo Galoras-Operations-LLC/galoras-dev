@@ -168,8 +168,8 @@ export default function Apply() {
         full_name: formData.full_name,
         email: formData.email,
         phone: formData.phone || null,
-        linkedin_url: formData.linkedin_url || null,
-        website_url: formData.website_url || null,
+        linkedin_url: normalizeUrl(formData.linkedin_url),
+        website_url: normalizeUrl(formData.website_url),
         bio: formData.bio,
         avatar_url: avatarUrl,
         coach_background: formData.coach_background,
@@ -183,22 +183,11 @@ export default function Apply() {
         booking_url: normalizedBooking,
       };
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("coach_applications")
-        .insert(payload as any)
-        .select("id, booking_url")
-        .single();
+        .insert(payload as any);
 
       if (error) throw error;
-
-      // Round-trip verification
-      const expected = normalizeUrl(formData.booking_url);
-      if (expected && !data?.booking_url) {
-        console.error("Booking URL not persisted:", { expected, returned: data });
-        throw new Error("Booking link was not saved. Please ensure it starts with https:// and try again.");
-      }
-
-      console.log("Saved application:", data);
 
       toast({
         title: "Application submitted!",
