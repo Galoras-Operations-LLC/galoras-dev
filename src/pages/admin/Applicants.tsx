@@ -61,6 +61,7 @@ interface CoachApplication {
   founder_function_strength: string[] | null;
   exec_level: string | null;
   exec_function: string[] | null;
+  user_id: string | null;
 }
 
 interface CoachFeaturedInfo {
@@ -78,7 +79,7 @@ export default function Applicants() {
   const [rejectTarget, setRejectTarget] = useState<CoachApplication | null>(null);
   const [changesTarget, setChangesTarget] = useState<CoachApplication | null>(null);
 
-  // Map: application full_name -> { coachId, isFeatured }
+  // Map: application user_id -> { coachId, isFeatured }
   const [featuredMap, setFeaturedMap] = useState<Record<string, CoachFeaturedInfo>>({});
   const [togglingFeatured, setTogglingFeatured] = useState<string | null>(null);
 
@@ -102,35 +103,34 @@ export default function Applicants() {
       toast({ title: "Error fetching applications", description: error.message, variant: "destructive" });
     } else {
       setApplications(data || []);
-      // Fetch featured status for published coaches
-      const publishedNames = (data || [])
-        .filter((a) => a.onboarding_status === "published")
-        .map((a) => a.full_name);
-      if (publishedNames.length > 0) {
-        fetchFeaturedStatus(publishedNames);
+      // Fetch featured status for published coaches by user_id
+      const publishedUserIds = (data || [])
+        .filter((a) => a.onboarding_status === "published" && a.user_id)
+        .map((a) => a.user_id as string);
+      if (publishedUserIds.length > 0) {
+        fetchFeaturedStatus(publishedUserIds);
       }
     }
     setIsLoading(false);
   };
 
-  const fetchFeaturedStatus = async (names: string[]) => {
+  const fetchFeaturedStatus = async (userIds: string[]) => {
     const { data: coaches } = await supabase
       .from("coaches")
-      .select("id, display_name, is_featured")
-      .in("display_name", names);
+      .select("id, user_id, is_featured")
+      .in("user_id", userIds);
     if (coaches) {
       const map: Record<string, CoachFeaturedInfo> = {};
       for (const c of coaches) {
-        if (c.display_name) {
-          map[c.display_name] = { coachId: c.id, isFeatured: c.is_featured ?? false };
-        }
+        map[c.user_id] = { coachId: c.id, isFeatured: c.is_featured ?? false };
       }
       setFeaturedMap(map);
     }
   };
 
   const toggleFeatured = async (app: CoachApplication) => {
-    const info = featuredMap[app.full_name];
+    if (!app.user_id) return;
+    const info = featuredMap[app.user_id];
     if (!info) return;
     setTogglingFeatured(app.id);
     try {
@@ -146,7 +146,7 @@ export default function Applicants() {
       if (res.data?.error) throw new Error(res.data.error);
       setFeaturedMap((prev) => ({
         ...prev,
-        [app.full_name]: { ...info, isFeatured: !info.isFeatured },
+        [app.user_id!]: { ...info, isFeatured: !info.isFeatured },
       }));
       toast({ title: !info.isFeatured ? "Coach featured!" : "Coach unfeatured" });
     } catch (err: any) {
@@ -309,7 +309,8 @@ export default function Applicants() {
   // Featured checkbox render helper
   const renderFeaturedCheckbox = (app: CoachApplication) => {
     if (app.onboarding_status !== "published") return null;
-    const info = featuredMap[app.full_name];
+    if (!app.user_id) return null;
+    const info = featuredMap[app.user_id];
     if (!info) return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
     return (
       <div className="flex items-center gap-2">
