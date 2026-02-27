@@ -6,6 +6,12 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+const normalizeUrl = (url: string | null | undefined) => {
+  const trimmed = (url || "").trim();
+  if (!trimmed) return null;
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -96,37 +102,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Idempotency: check if coaches row already exists for this email
-    const { data: existingCoach } = await adminClient
-      .from("coaches")
-      .select("id")
-      .eq("display_name", app.full_name)
-      .maybeSingle();
-
-    if (existingCoach) {
-      // Already published — update application status and return success
-      await adminClient
-        .from("coach_applications")
-        .update({
-          onboarding_status: "published",
-          reviewed_at: new Date().toISOString(),
-          reviewer_notes: reviewerNotes || app.reviewer_notes,
-        })
-        .eq("id", applicationId);
-
-      return new Response(
-        JSON.stringify({ success: true, coachId: existingCoach.id, alreadyExisted: true }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    // Look up or create auth user
+    // Look up or create auth user (must happen before idempotency check)
     let coachUserId = app.user_id;
 
     if (!coachUserId) {
-      // Check if auth user exists by email
       const { data: usersData } = await adminClient.auth.admin.listUsers();
       const existingUser = usersData?.users?.find(
         (u: { email?: string }) => u.email === app.email
@@ -135,7 +114,6 @@ Deno.serve(async (req) => {
       if (existingUser) {
         coachUserId = existingUser.id;
       } else {
-        // Create new auth user
         const { data: newUser, error: createError } =
           await adminClient.auth.admin.createUser({
             email: app.email,
@@ -157,11 +135,47 @@ Deno.serve(async (req) => {
         coachUserId = newUser.user.id;
       }
 
-      // Store user_id on application
       await adminClient
         .from("coach_applications")
         .update({ user_id: coachUserId })
         .eq("id", applicationId);
+    }
+
+    // Idempotency: check if coach already exists by user_id
+    const { data: existingCoach } = await adminClient
+      .from("coaches")
+      .select("id")
+      .eq("user_id", coachUserId)
+      .maybeSingle();
+
+    if (existingCoach) {
+      // Update fields (including booking_url) on re-publish
+      await adminClient
+        .from("coaches")
+        .update({
+          booking_url: normalizeUrl(app.booking_url),
+          linkedin_url: app.linkedin_url,
+          website_url: app.website_url,
+          avatar_url: app.avatar_url,
+          bio: app.bio,
+        })
+        .eq("id", existingCoach.id);
+
+      await adminClient
+        .from("coach_applications")
+        .update({
+          onboarding_status: "published",
+          reviewed_at: new Date().toISOString(),
+          reviewer_notes: reviewerNotes || app.reviewer_notes,
+        })
+        .eq("id", applicationId);
+
+      return new Response(
+        JSON.stringify({ success: true, coachId: existingCoach.id, alreadyExisted: true }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Insert coaches record
@@ -171,12 +185,12 @@ Deno.serve(async (req) => {
         user_id: coachUserId,
         display_name: app.full_name,
         bio: app.bio,
+        booking_url: normalizeUrl(app.booking_url),
         specialties: app.specialties,
         avatar_url: app.avatar_url,
         linkedin_url: app.linkedin_url,
         website_url: app.website_url,
         status: "approved",
-        // New structured fields
         coach_background: app.coach_background || null,
         coaching_experience_level: app.coaching_experience_level || null,
         leadership_experience_years: app.leadership_experience_years || null,
