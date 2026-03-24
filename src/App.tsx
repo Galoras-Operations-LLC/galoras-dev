@@ -39,7 +39,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           {/* B2C Routes */}
           <Route path="/coaching" element={<CoachingDirectory />} />
-          <Route path="/coach/:coachId" element={<CoachProfile />} />
+          <Route path="/coaching/:coachId" element={<CoachProfile />} />
           <Route path="/coach/:slug" element={<CoachProfile />} />
           <Route path="/coaching/matching" element={<CoachMatching />} />
           <Route path="/coaching/why" element={<WhyCoaching />} />
