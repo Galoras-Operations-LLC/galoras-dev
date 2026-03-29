@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { CoachingDirectory, CoachProfile, CoachMatching, WhyCoaching } from "./pages/coaching";
@@ -23,6 +25,30 @@ import CoachCutoutManager from "./pages/admin/CoachCutoutManager";
 import Applicants from "./pages/admin/Applicants";
 
 const queryClient = new QueryClient();
+
+// Route-level guard: redirects unauthenticated users to /login before rendering children.
+// For admin routes, also verifies the user holds the "admin" role.
+function ProtectedRoute({ children, requireAdmin = false }: { children: React.ReactNode; requireAdmin?: boolean }) {
+  const [state, setState] = useState<"loading" | "allowed" | "denied">("loading");
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setState("denied"); return; }
+      if (requireAdmin) {
+        const { data } = await supabase
+          .from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle();
+        setState(data ? "allowed" : "denied");
+      } else {
+        setState("allowed");
+      }
+    })();
+  }, [requireAdmin]);
+
+  if (state === "loading") return null;
+  if (state === "denied") return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
 
 function CoachOnboardingRedirect() {
   const location = useLocation();
@@ -61,13 +87,13 @@ const App = () => (
           <Route path="/login" element={<Auth />} />
           <Route path="/signup" element={<Auth />} />
           {/* Dashboard Routes */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/coach-dashboard" element={<CoachDashboard />} />
-          <Route path="/coach-dashboard/edit" element={<CoachProfileEdit />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/coach-dashboard" element={<ProtectedRoute><CoachDashboard /></ProtectedRoute>} />
+          <Route path="/coach-dashboard/edit" element={<ProtectedRoute><CoachProfileEdit /></ProtectedRoute>} />
           {/* Admin Routes */}
-          <Route path="/admin/images" element={<ImageGenerator />} />
-          <Route path="/admin/coach-cutouts" element={<CoachCutoutManager />} />
-          <Route path="/admin/applicants" element={<Applicants />} />
+          <Route path="/admin/images" element={<ProtectedRoute requireAdmin><ImageGenerator /></ProtectedRoute>} />
+          <Route path="/admin/coach-cutouts" element={<ProtectedRoute requireAdmin><CoachCutoutManager /></ProtectedRoute>} />
+          <Route path="/admin/applicants" element={<ProtectedRoute requireAdmin><Applicants /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

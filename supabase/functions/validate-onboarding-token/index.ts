@@ -49,8 +49,29 @@ serve(async (req) => {
       );
     }
 
+    // Return only the fields the onboarding form needs — never echo the token or internal fields
+    const {
+      full_name, bio, coaching_philosophy, coach_background, coach_background_detail,
+      certification_interest, coaching_experience_years, leadership_experience_years,
+      current_role, coaching_experience_level, pillar_specialties, primary_join_reason,
+      commitment_level, start_timeline, excitement_note, primary_pillar, secondary_pillars,
+      industry_focus, coaching_style, engagement_model, availability_status,
+      founder_stage_focus, founder_function_strength, exec_level, exec_function,
+      specialties, linkedin_url, avatar_url,
+    } = application;
+
     return new Response(
-      JSON.stringify({ application }),
+      JSON.stringify({
+        application: {
+          full_name, bio, coaching_philosophy, coach_background, coach_background_detail,
+          certification_interest, coaching_experience_years, leadership_experience_years,
+          current_role, coaching_experience_level, pillar_specialties, primary_join_reason,
+          commitment_level, start_timeline, excitement_note, primary_pillar, secondary_pillars,
+          industry_focus, coaching_style, engagement_model, availability_status,
+          founder_stage_focus, founder_function_strength, exec_level, exec_function,
+          specialties, linkedin_url, avatar_url,
+        },
+      }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

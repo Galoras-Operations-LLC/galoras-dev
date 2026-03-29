@@ -1,7 +1,17 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
+// Escape user-supplied values before interpolating into HTML to prevent XSS-in-email
+const escapeHtml = (str: string): string =>
+  str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -260,8 +270,39 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Require a valid Supabase JWT — prevents unauthenticated callers from sending emails
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
+  }
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } },
+  });
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
+  }
+
   try {
-    const data: BookingNotificationRequest = await req.json();
+    const raw: BookingNotificationRequest = await req.json();
+
+    // Sanitize all user-supplied string fields before use in HTML emails
+    const data: BookingNotificationRequest = {
+      ...raw,
+      coachName: escapeHtml(raw.coachName ?? ""),
+      clientName: escapeHtml(raw.clientName ?? ""),
+      scheduledDate: escapeHtml(raw.scheduledDate ?? ""),
+      scheduledTime: escapeHtml(raw.scheduledTime ?? ""),
+      notes: raw.notes ? escapeHtml(raw.notes) : undefined,
+    };
     console.log("Sending booking notification:", data.type, "for client:", data.clientEmail);
 
     const emailPromises: Promise<any>[] = [];

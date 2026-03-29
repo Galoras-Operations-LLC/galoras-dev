@@ -31,6 +31,29 @@ serve(async (req) => {
       );
     }
 
+    // Server-side URL validation — reject any non-https:// URL to prevent XSS via stored URLs
+    const assertHttpsUrl = (val: unknown, field: string): string | null => {
+      if (val == null || val === "") return null;
+      try {
+        const u = new URL(String(val));
+        if (u.protocol !== "https:") throw new Error();
+        return u.href;
+      } catch {
+        throw new Error(`${field} must be a valid https:// URL`);
+      }
+    };
+
+    try {
+      if (linkedinUrl !== undefined) assertHttpsUrl(linkedinUrl, "linkedinUrl");
+      if (avatarUrl !== undefined) assertHttpsUrl(avatarUrl, "avatarUrl");
+      if (bookingUrl !== undefined) assertHttpsUrl(bookingUrl, "bookingUrl");
+    } catch (validationError: any) {
+      return new Response(
+        JSON.stringify({ error: validationError.message }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);

@@ -103,7 +103,8 @@ export default function CoachDashboard() {
       const { error } = await supabase
         .from('session_bookings')
         .update({ status })
-        .eq('id', id);
+        .eq('id', id)
+        .eq('coach_id', coachProfile!.id);
 
       if (error) throw error;
 
