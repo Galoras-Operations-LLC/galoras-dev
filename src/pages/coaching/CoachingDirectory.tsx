@@ -99,8 +99,6 @@ export default function CoachingDirectory() {
           coach.display_name || "",
           coach.headline || "",
           coach.bio || "",
-          coach.positioning_statement || "",
-          coach.methodology || "",
         ]
           .join(" ")
           .toLowerCase();
