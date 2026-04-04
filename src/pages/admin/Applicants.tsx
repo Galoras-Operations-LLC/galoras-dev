@@ -57,17 +57,18 @@ export default function Applicants() {
   // CREATE COACH FROM APPLICATION
   // -------------------------------
   const createCoachFromApplication = async (app: CoachApplication) => {
-    const { error } = await supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+    const { error } = await (supabase
       .from("coaches")
       .insert([
         {
           display_name: app.full_name,
-          email: app.email,
-          headline: app.methodology || "",
-          status: "approved",
-          lifecycle_status: "draft",
+          headline: "",
+          status: "approved" as const,
+          user_id: user.id,
         },
-      ]);
+      ]) as any);
 
     if (error) {
       console.error("Coach creation failed:", error);
