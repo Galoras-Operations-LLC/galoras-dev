@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      bookings: {
+      articles: {
         Row: {
           amount_cents: number | null
           client_id: string | null
@@ -48,22 +48,71 @@ export type Database = {
           status?: string
           stripe_payment_intent_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "bookings_coach_id_fkey"
-            columns: ["coach_id"]
-            isOneToOne: false
-            referencedRelation: "coaches"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bookings_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "coach_products"
-            referencedColumns: ["id"]
-          },
-        ]
+        Update: {
+          coach_id?: string
+          created_at?: string
+          id?: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      brand_images: {
+        Row: {
+          generated_at: string
+          id: string
+          page_name: string
+          prompt: string
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          generated_at?: string
+          id?: string
+          page_name: string
+          prompt: string
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          generated_at?: string
+          id?: string
+          page_name?: string
+          prompt?: string
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number | null
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
       }
       coach_applications: {
         Row: {
@@ -72,45 +121,42 @@ export type Database = {
           bio: string | null
           booking_url: string | null
           certification_interest: string | null
+          certifications: string | null
           coach_background: string | null
           coach_background_detail: string | null
           coaching_experience_level: string | null
-          coaching_experience_years: number | null
+          coaching_experience_years: string | null
           coaching_philosophy: string | null
-          coaching_style: string | null
+          coaching_style: string[] | null
           commitment_level: string | null
-          converted: boolean | null
-          created_at: string | null
+          created_at: string
           current_role: string | null
           email: string
           engagement_model: string | null
           excitement_note: string | null
-          exec_function: string | null
+          exec_function: string[] | null
           exec_level: string | null
-          founder_function_strength: string | null
-          founder_stage_focus: string | null
-          full_name: string | null
+          experience_years: number | null
+          founder_function_strength: string[] | null
+          founder_stage_focus: string[] | null
+          full_name: string
           id: string
-          industry_focus: string | null
-          leadership_experience_years: number | null
+          industry_focus: string[] | null
+          leadership_experience_years: string | null
           linkedin_url: string | null
-          methodology: string | null
-          notes: string | null
-          onboarding_status: string
+          onboarding_short_id: string | null
+          onboarding_status: string | null
           onboarding_token: string | null
-          onboarding_token_expires_at: string | null
           phone: string | null
           pillar_specialties: string[] | null
           primary_join_reason: string | null
           primary_pillar: string | null
           reviewed_at: string | null
-          reviewed_by: string | null
           reviewer_notes: string | null
           secondary_pillars: string[] | null
           specialties: string[] | null
           start_timeline: string | null
-          status: string | null
-          updated_at: string | null
+          status: Database["public"]["Enums"]["coach_status"] | null
           user_id: string | null
           website_url: string | null
           why_galoras: string | null
@@ -121,45 +167,42 @@ export type Database = {
           bio?: string | null
           booking_url?: string | null
           certification_interest?: string | null
+          certifications?: string | null
           coach_background?: string | null
           coach_background_detail?: string | null
           coaching_experience_level?: string | null
-          coaching_experience_years?: number | null
+          coaching_experience_years?: string | null
           coaching_philosophy?: string | null
-          coaching_style?: string | null
+          coaching_style?: string[] | null
           commitment_level?: string | null
-          converted?: boolean | null
-          created_at?: string | null
+          created_at?: string
           current_role?: string | null
           email: string
           engagement_model?: string | null
           excitement_note?: string | null
-          exec_function?: string | null
+          exec_function?: string[] | null
           exec_level?: string | null
-          founder_function_strength?: string | null
-          founder_stage_focus?: string | null
-          full_name?: string | null
+          experience_years?: number | null
+          founder_function_strength?: string[] | null
+          founder_stage_focus?: string[] | null
+          full_name: string
           id?: string
-          industry_focus?: string | null
-          leadership_experience_years?: number | null
+          industry_focus?: string[] | null
+          leadership_experience_years?: string | null
           linkedin_url?: string | null
-          methodology?: string | null
-          notes?: string | null
-          onboarding_status?: string
+          onboarding_short_id?: string | null
+          onboarding_status?: string | null
           onboarding_token?: string | null
-          onboarding_token_expires_at?: string | null
           phone?: string | null
           pillar_specialties?: string[] | null
           primary_join_reason?: string | null
           primary_pillar?: string | null
           reviewed_at?: string | null
-          reviewed_by?: string | null
           reviewer_notes?: string | null
           secondary_pillars?: string[] | null
           specialties?: string[] | null
           start_timeline?: string | null
-          status?: string | null
-          updated_at?: string | null
+          status?: Database["public"]["Enums"]["coach_status"] | null
           user_id?: string | null
           website_url?: string | null
           why_galoras?: string | null
@@ -170,45 +213,42 @@ export type Database = {
           bio?: string | null
           booking_url?: string | null
           certification_interest?: string | null
+          certifications?: string | null
           coach_background?: string | null
           coach_background_detail?: string | null
           coaching_experience_level?: string | null
-          coaching_experience_years?: number | null
+          coaching_experience_years?: string | null
           coaching_philosophy?: string | null
-          coaching_style?: string | null
+          coaching_style?: string[] | null
           commitment_level?: string | null
-          converted?: boolean | null
-          created_at?: string | null
+          created_at?: string
           current_role?: string | null
           email?: string
           engagement_model?: string | null
           excitement_note?: string | null
-          exec_function?: string | null
+          exec_function?: string[] | null
           exec_level?: string | null
-          founder_function_strength?: string | null
-          founder_stage_focus?: string | null
-          full_name?: string | null
+          experience_years?: number | null
+          founder_function_strength?: string[] | null
+          founder_stage_focus?: string[] | null
+          full_name?: string
           id?: string
-          industry_focus?: string | null
-          leadership_experience_years?: number | null
+          industry_focus?: string[] | null
+          leadership_experience_years?: string | null
           linkedin_url?: string | null
-          methodology?: string | null
-          notes?: string | null
-          onboarding_status?: string
+          onboarding_short_id?: string | null
+          onboarding_status?: string | null
           onboarding_token?: string | null
-          onboarding_token_expires_at?: string | null
           phone?: string | null
           pillar_specialties?: string[] | null
           primary_join_reason?: string | null
           primary_pillar?: string | null
           reviewed_at?: string | null
-          reviewed_by?: string | null
           reviewer_notes?: string | null
           secondary_pillars?: string[] | null
           specialties?: string[] | null
           start_timeline?: string | null
-          status?: string | null
-          updated_at?: string | null
+          status?: Database["public"]["Enums"]["coach_status"] | null
           user_id?: string | null
           website_url?: string | null
           why_galoras?: string | null
@@ -256,70 +296,70 @@ export type Database = {
       coach_products: {
         Row: {
           coach_id: string
-          created_at: string
-          cta_label: string
-          cta_url: string | null
-          duration_label: string | null
-          duration_minutes: number | null
-          format: string | null
+          created_at: string | null
+          day_of_week: number
+          end_time: string
           id: string
-          is_active: boolean
-          price_cents: number | null
-          price_display: string | null
-          pricing_band: string | null
-          product_type: string
-          sort_order: number
-          summary: string | null
-          title: string
-          updated_at: string
-          what_you_get: string[] | null
-          who_its_for: string | null
+          is_available: boolean | null
+          start_time: string
         }
         Insert: {
           coach_id: string
-          created_at?: string
-          cta_label?: string
-          cta_url?: string | null
-          duration_label?: string | null
-          duration_minutes?: number | null
-          format?: string | null
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
           id?: string
-          is_active?: boolean
-          price_cents?: number | null
-          price_display?: string | null
-          pricing_band?: string | null
-          product_type: string
-          sort_order?: number
-          summary?: string | null
-          title: string
-          updated_at?: string
-          what_you_get?: string[] | null
-          who_its_for?: string | null
+          is_available?: boolean | null
+          start_time: string
         }
         Update: {
           coach_id?: string
-          created_at?: string
-          cta_label?: string
-          cta_url?: string | null
-          duration_label?: string | null
-          duration_minutes?: number | null
-          format?: string | null
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
           id?: string
-          is_active?: boolean
-          price_cents?: number | null
-          price_display?: string | null
-          pricing_band?: string | null
-          product_type?: string
-          sort_order?: number
-          summary?: string | null
-          title?: string
-          updated_at?: string
-          what_you_get?: string[] | null
-          who_its_for?: string | null
+          is_available?: boolean | null
+          start_time?: string
         }
         Relationships: [
           {
-            foreignKeyName: "coach_products_coach_id_fkey"
+            foreignKeyName: "coach_availability_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coach_categories: {
+        Row: {
+          category_id: string
+          coach_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          category_id: string
+          coach_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          category_id?: string
+          coach_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coach_categories_coach_id_fkey"
             columns: ["coach_id"]
             isOneToOne: false
             referencedRelation: "coaches"
@@ -329,25 +369,22 @@ export type Database = {
       }
       coaches: {
         Row: {
-          audience: string[] | null
-          availability_status: string | null
           avatar_url: string | null
           bio: string | null
           booking_url: string | null
           coach_background: string | null
-          coach_background_detail: string | null
           coaching_experience_level: string | null
           coaching_philosophy: string | null
           coaching_style: string | null
-          companies_worked: string | null
-          created_at: string | null
+          created_at: string
           current_role: string | null
           cutout_url: string | null
           display_name: string | null
-          email: string | null
-          engagement_format: string | null
-          engagement_model: string | null
+          experience_years: number | null
+          featured_at: string | null
+          featured_rank: number | null
           headline: string | null
+          hourly_rate: number | null
           id: string
           industry: string | null
           industry_focus: string | null
@@ -355,45 +392,35 @@ export type Database = {
           leadership_experience_years: number | null
           lifecycle_status: string | null
           linkedin_url: string | null
-          methodology: string | null
-          pillar: string | null
+          location: string | null
           pillar_specialties: string[] | null
-          positioning_statement: string | null
-          primary_pillar: string | null
-          profile_complete: boolean | null
-          profile_image_url: string | null
-          proof_points: Json | null
-          secondary_pillars: string[] | null
-          slug: string | null
+          rating: number | null
+          signature_framework: string | null
           specialties: string[] | null
-          status: string | null
-          sub_pillar: string | null
-          tier: string | null
-          updated_at: string | null
-          user_id: string | null
+          status: Database["public"]["Enums"]["coach_status"] | null
+          timezone: string | null
+          total_sessions: number | null
+          updated_at: string
+          user_id: string
           website_url: string | null
-          years_experience: number | null
         }
         Insert: {
-          audience?: string[] | null
-          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           booking_url?: string | null
           coach_background?: string | null
-          coach_background_detail?: string | null
           coaching_experience_level?: string | null
           coaching_philosophy?: string | null
           coaching_style?: string | null
-          companies_worked?: string | null
-          created_at?: string | null
+          created_at?: string
           current_role?: string | null
           cutout_url?: string | null
           display_name?: string | null
-          email?: string | null
-          engagement_format?: string | null
-          engagement_model?: string | null
+          experience_years?: number | null
+          featured_at?: string | null
+          featured_rank?: number | null
           headline?: string | null
+          hourly_rate?: number | null
           id?: string
           industry?: string | null
           industry_focus?: string | null
@@ -401,45 +428,35 @@ export type Database = {
           leadership_experience_years?: number | null
           lifecycle_status?: string | null
           linkedin_url?: string | null
-          methodology?: string | null
-          pillar?: string | null
+          location?: string | null
           pillar_specialties?: string[] | null
-          positioning_statement?: string | null
-          primary_pillar?: string | null
-          profile_complete?: boolean | null
-          profile_image_url?: string | null
-          proof_points?: Json | null
-          secondary_pillars?: string[] | null
-          slug?: string | null
+          rating?: number | null
+          signature_framework?: string | null
           specialties?: string[] | null
-          status?: string | null
-          sub_pillar?: string | null
-          tier?: string | null
-          updated_at?: string | null
-          user_id?: string | null
+          status?: Database["public"]["Enums"]["coach_status"] | null
+          timezone?: string | null
+          total_sessions?: number | null
+          updated_at?: string
+          user_id: string
           website_url?: string | null
-          years_experience?: number | null
         }
         Update: {
-          audience?: string[] | null
-          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           booking_url?: string | null
           coach_background?: string | null
-          coach_background_detail?: string | null
           coaching_experience_level?: string | null
           coaching_philosophy?: string | null
           coaching_style?: string | null
-          companies_worked?: string | null
-          created_at?: string | null
+          created_at?: string
           current_role?: string | null
           cutout_url?: string | null
           display_name?: string | null
-          email?: string | null
-          engagement_format?: string | null
-          engagement_model?: string | null
+          experience_years?: number | null
+          featured_at?: string | null
+          featured_rank?: number | null
           headline?: string | null
+          hourly_rate?: number | null
           id?: string
           industry?: string | null
           industry_focus?: string | null
@@ -447,24 +464,17 @@ export type Database = {
           leadership_experience_years?: number | null
           lifecycle_status?: string | null
           linkedin_url?: string | null
-          methodology?: string | null
-          pillar?: string | null
+          location?: string | null
           pillar_specialties?: string[] | null
-          positioning_statement?: string | null
-          primary_pillar?: string | null
-          profile_complete?: boolean | null
-          profile_image_url?: string | null
-          proof_points?: Json | null
-          secondary_pillars?: string[] | null
-          slug?: string | null
+          rating?: number | null
+          signature_framework?: string | null
           specialties?: string[] | null
-          status?: string | null
-          sub_pillar?: string | null
-          tier?: string | null
-          updated_at?: string | null
-          user_id?: string | null
+          status?: Database["public"]["Enums"]["coach_status"] | null
+          timezone?: string | null
+          total_sessions?: number | null
+          updated_at?: string
+          user_id?: string
           website_url?: string | null
-          years_experience?: number | null
         }
         Relationships: []
       }
@@ -603,22 +613,343 @@ export type Database = {
       }
       user_roles: {
         Row: {
-          created_at: string | null
+          created_at: string
+          current_attendees: number | null
+          description: string | null
+          end_date: string | null
+          event_type: string
           id: string
-          role: string
-          user_id: string | null
+          image_url: string | null
+          is_published: boolean | null
+          is_virtual: boolean | null
+          location: string | null
+          max_attendees: number | null
+          price: number | null
+          registration_url: string | null
+          slug: string
+          start_date: string
+          title: string
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
+          current_attendees?: number | null
+          description?: string | null
+          end_date?: string | null
+          event_type: string
           id?: string
-          role: string
-          user_id?: string | null
+          image_url?: string | null
+          is_published?: boolean | null
+          is_virtual?: boolean | null
+          location?: string | null
+          max_attendees?: number | null
+          price?: number | null
+          registration_url?: string | null
+          slug: string
+          start_date: string
+          title: string
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
+          current_attendees?: number | null
+          description?: string | null
+          end_date?: string | null
+          event_type?: string
           id?: string
-          role?: string
-          user_id?: string | null
+          image_url?: string | null
+          is_published?: boolean | null
+          is_virtual?: boolean | null
+          location?: string | null
+          max_attendees?: number | null
+          price?: number | null
+          registration_url?: string | null
+          slug?: string
+          start_date?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          company_name: string
+          company_size: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone: string | null
+          created_at: string
+          id: string
+          industry: string | null
+          interest: string[] | null
+          message: string | null
+          notes: string | null
+          source: string | null
+          status: Database["public"]["Enums"]["lead_status"] | null
+          updated_at: string
+        }
+        Insert: {
+          company_name: string
+          company_size?: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          interest?: string[] | null
+          message?: string | null
+          notes?: string | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"] | null
+          updated_at?: string
+        }
+        Update: {
+          company_name?: string
+          company_size?: string | null
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          interest?: string[] | null
+          message?: string | null
+          notes?: string | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          read_at: string | null
+          receiver_id: string
+          sender_id: string
+          status: Database["public"]["Enums"]["message_status"] | null
+          subject: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          receiver_id: string
+          sender_id: string
+          status?: Database["public"]["Enums"]["message_status"] | null
+          subject?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          receiver_id?: string
+          sender_id?: string
+          status?: Database["public"]["Enums"]["message_status"] | null
+          subject?: string | null
+        }
+        Relationships: []
+      }
+      onboarding_links: {
+        Row: {
+          application_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          onboarding_token: string
+          short_id: string
+          used_at: string | null
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          onboarding_token: string
+          short_id: string
+          used_at?: string | null
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          onboarding_token?: string
+          short_id?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_links_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "coach_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          role: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      session_bookings: {
+        Row: {
+          client_email: string
+          client_id: string
+          client_name: string
+          coach_id: string
+          created_at: string | null
+          duration_minutes: number | null
+          google_calendar_event_id: string | null
+          id: string
+          notes: string | null
+          scheduled_date: string
+          scheduled_time: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_email: string
+          client_id: string
+          client_name: string
+          coach_id: string
+          created_at?: string | null
+          duration_minutes?: number | null
+          google_calendar_event_id?: string | null
+          id?: string
+          notes?: string | null
+          scheduled_date: string
+          scheduled_time: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_email?: string
+          client_id?: string
+          client_name?: string
+          coach_id?: string
+          created_at?: string | null
+          duration_minutes?: number | null
+          google_calendar_event_id?: string | null
+          id?: string
+          notes?: string | null
+          scheduled_date?: string
+          scheduled_time?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_bookings_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      testimonials: {
+        Row: {
+          client_company: string | null
+          client_name: string
+          client_title: string | null
+          coach_id: string
+          content: string
+          created_at: string
+          id: string
+          is_featured: boolean | null
+          rating: number | null
+        }
+        Insert: {
+          client_company?: string | null
+          client_name: string
+          client_title?: string | null
+          coach_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_featured?: boolean | null
+          rating?: number | null
+        }
+        Update: {
+          client_company?: string | null
+          client_name?: string
+          client_title?: string | null
+          coach_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_featured?: boolean | null
+          rating?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "testimonials_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -627,10 +958,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "coach" | "admin"
+      coach_status: "pending" | "approved" | "rejected"
+      lead_status: "new" | "contacted" | "qualified" | "closed"
+      message_status: "sent" | "read" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -757,6 +1097,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "coach", "admin"],
+      coach_status: ["pending", "approved", "rejected"],
+      lead_status: ["new", "contacted", "qualified", "closed"],
+      message_status: ["sent", "read", "archived"],
+    },
   },
 } as const

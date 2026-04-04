@@ -34,7 +34,7 @@ export function FeaturedCoaches() {
       const baseSelect =
         "id, slug, display_name, avatar_url, headline, specialties, is_featured, bio, current_role";
 
-      const { data: featured, error: featuredError } = await supabase
+      const { data: featured, error: featuredError } = await (supabase
         .from("coaches")
         .select(baseSelect)
         .eq("lifecycle_status", "published")
@@ -43,7 +43,7 @@ export function FeaturedCoaches() {
 
       if (featuredError) throw featuredError;
 
-      return featured || [];
+      return (featured || []) as FeaturedCoach[];
     },
   });
 

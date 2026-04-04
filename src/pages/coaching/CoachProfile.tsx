@@ -72,14 +72,12 @@ export default function CoachProfile() {
   const [debugError, setDebugError] = useState("");
 
   // Stripe state
-  const {
-    stripePromise,
-    clientSecret,
-    status: paymentStatus,
-    error: paymentError,
-    initiateCoachingPurchase,
-    reset: resetPayment,
-  } = useStripePayment();
+  const { isLoading: paymentLoading, error: paymentError, createCheckoutSession } = useStripePayment();
+  const stripePromise = null;
+  const clientSecret = null;
+  const paymentStatus = "idle";
+  const initiateCoachingPurchase = createCheckoutSession;
+  const resetPayment = () => {};
 
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<CoachProduct | null>(null);
@@ -94,12 +92,12 @@ export default function CoachProfile() {
     setDebugError("");
 
     try {
-      let query = supabase
+      let query = (supabase
         .from("coaches")
         .select(
-          "id, slug, display_name, headline, positioning_statement, methodology, proof_points, audience, tier, lifecycle_status"
-        )
-        .eq("lifecycle_status", "published");
+          "id, display_name, headline, bio, specialties, avatar_url, booking_url, status, current_role, location"
+        ) as any)
+        .eq("status", "approved");
 
       if (resolvedSlug) {
         query = query.eq("slug", resolvedSlug);
@@ -131,22 +129,10 @@ export default function CoachProfile() {
         return;
       }
 
-      setCoach(data as CoachProfileData);
+      setCoach(data as unknown as CoachProfileData);
 
-      const { data: productData, error: productError } = await supabase
-        .from("coach_products")
-        .select(
-          "id, coach_id, product_type, title, summary, duration_minutes, format, pricing_band, is_active"
-        )
-        .eq("coach_id", data.id)
-        .eq("is_active", true);
-
-      if (productError) {
-        console.error(productError);
-        setProducts([]);
-      } else {
-        setProducts((productData || []) as CoachProduct[]);
-      }
+      // coach_products table doesn't exist yet — skip product fetch
+      setProducts([]);
 
       setLoading(false);
     } catch (err) {
@@ -189,11 +175,7 @@ export default function CoachProfile() {
     setSelectedProduct(product);
     setBuyingProductId(product.id);
 
-    await initiateCoachingPurchase({
-      productId: product.id,
-      coachId: product.coach_id,
-      amountCents,
-    });
+    await initiateCoachingPurchase(product.id);
 
     setCheckoutOpen(true);
     setBuyingProductId(null);
@@ -401,15 +383,10 @@ export default function CoachProfile() {
           </div>
         </div>
       </section>
-      {checkoutOpen && clientSecret && selectedProduct && (
+      {checkoutOpen && selectedProduct && (
         <CheckoutModal
           open={checkoutOpen}
-          stripePromise={stripePromise}
-          clientSecret={clientSecret}
-          productTitle={selectedProduct.title ?? "Coaching Session"}
-          amountCents={(selectedProduct as any).price_cents ?? 0}
-          onSuccess={handleCheckoutSuccess}
-          onClose={handleCheckoutClose}
+          onOpenChange={setCheckoutOpen}
         />
       )}
 

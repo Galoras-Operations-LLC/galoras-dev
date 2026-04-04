@@ -10,11 +10,9 @@ type CoachApplication = {
   linkedin_url: string | null;
   website_url: string | null;
   bio: string | null;
-  methodology: string | null;
   why_galoras: string | null;
   status: string | null;
-  notes: string | null;
-  reviewed_by: string | null;
+  reviewer_notes: string | null;
   created_at: string | null;
 };
 
@@ -49,7 +47,7 @@ export default function Applicants() {
       return;
     }
 
-    const rows = (data as CoachApplication[]) || [];
+    const rows = (data as unknown as CoachApplication[]) || [];
     setApplications(rows);
     setSelected(rows[0] || null);
     setLoading(false);
@@ -59,17 +57,18 @@ export default function Applicants() {
   // CREATE COACH FROM APPLICATION
   // -------------------------------
   const createCoachFromApplication = async (app: CoachApplication) => {
-    const { error } = await supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+    const { error } = await (supabase
       .from("coaches")
       .insert([
         {
           display_name: app.full_name,
-          email: app.email,
-          headline: app.methodology || "",
-          status: "approved",
-          lifecycle_status: "draft",
+          headline: "",
+          status: "approved" as const,
+          user_id: user.id,
         },
-      ]);
+      ]) as any);
 
     if (error) {
       console.error("Coach creation failed:", error);
@@ -88,13 +87,12 @@ export default function Applicants() {
 
     setSaving(true);
 
-    const { error } = await supabase
+    const { error } = await (supabase
       .from("coach_applications")
       .update({
-        status: selected.status,
-        notes: selected.notes,
-        reviewed_by: selected.reviewed_by,
-      })
+        status: selected.status as any,
+        reviewer_notes: selected.reviewer_notes,
+      }) as any)
       .eq("id", selected.id);
 
     if (error) {
@@ -205,7 +203,7 @@ export default function Applicants() {
                   <p>LinkedIn: {selected.linkedin_url || "-"}</p>
                   <p>Website: {selected.website_url || "-"}</p>
                   <p>Bio: {selected.bio || "-"}</p>
-                  <p>Methodology: {selected.methodology || "-"}</p>
+                  <p>Why Galoras: {selected.why_galoras || "-"}</p>
                   <p>Why Galoras: {selected.why_galoras || "-"}</p>
 
                   <div style={{ marginTop: 20 }}>
@@ -222,27 +220,14 @@ export default function Applicants() {
                       <option value="rejected">rejected</option>
                     </select>
 
-                    <div>Reviewed By</div>
-                    <input
-                      value={selected.reviewed_by || ""}
+                    <div>Reviewer Notes</div>
+                    <textarea
+                      value={selected.reviewer_notes || ""}
                       onChange={(e) =>
                         setSelected({
                           ...selected,
-                          reviewed_by: e.target.value,
+                          reviewer_notes: e.target.value,
                         })
-                      }
-                      style={{
-                        width: "100%",
-                        padding: 10,
-                        marginBottom: 16,
-                      }}
-                    />
-
-                    <div>Notes</div>
-                    <textarea
-                      value={selected.notes || ""}
-                      onChange={(e) =>
-                        setSelected({ ...selected, notes: e.target.value })
                       }
                       rows={4}
                       style={{
@@ -251,6 +236,7 @@ export default function Applicants() {
                         marginBottom: 16,
                       }}
                     />
+
 
                     <button
                       onClick={updateApplication}

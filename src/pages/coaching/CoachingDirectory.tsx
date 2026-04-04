@@ -108,11 +108,17 @@ export default function CoachingDirectory() {
               "url('https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1920&auto=format&fit=crop')",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/80 to-background" />
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/80
+  to-background"
+        />
 
         <div className="container-wide relative z-10">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border
+  border-primary/20 text-primary text-sm font-medium mb-6"
+            >
               <Users className="h-4 w-4" />
               Coaching Exchange
             </div>
@@ -137,7 +143,10 @@ export default function CoachingDirectory() {
               )}
 
               {context && (
-                <div className="inline-flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/10 px-6 py-3 text-sm text-primary">
+                <div
+                  className="inline-flex items-center gap-3 rounded-xl border border-primary/20
+  bg-primary/10 px-6 py-3 text-sm text-primary"
+                >
                   <Sparkles className="h-5 w-5" />
                   <span className="text-muted-foreground">Showing coaches for</span>
                   <span className="font-semibold text-primary">{contextLabels[context] || context}</span>
@@ -158,7 +167,10 @@ export default function CoachingDirectory() {
             </div>
           </div>
 
-          <div className="max-w-4xl mx-auto bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-4 md:p-6">
+          <div
+            className="max-w-4xl mx-auto bg-card/80 backdrop-blur-sm border border-border rounded-2xl
+  p-4 md:p-6"
+          >
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -196,7 +208,10 @@ export default function CoachingDirectory() {
                     <h3 className="text-2xl font-semibold">{coach.display_name || "Unnamed Coach"}</h3>
 
                     {context && coach.score >= 4 && (
-                      <div className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-medium text-primary shrink-0">
+                      <div
+                        className="inline-flex items-center gap-1 rounded-full bg-primary/10 border
+  border-primary/20 px-3 py-1 text-xs font-medium text-primary shrink-0"
+                      >
                         <Sparkles className="h-3.5 w-3.5" />
                         Best Match
                       </div>
@@ -220,7 +235,10 @@ export default function CoachingDirectory() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <div className="w-20 h-20 mx-auto rounded-full bg-muted flex items-center justify-center mb-6">
+              <div
+                className="w-20 h-20 mx-auto rounded-full bg-muted flex items-center justify-center
+  mb-6"
+              >
                 <Users className="h-10 w-10 text-muted-foreground" />
               </div>
               <h3 className="text-xl font-display font-semibold mb-2">No Coaches Found</h3>

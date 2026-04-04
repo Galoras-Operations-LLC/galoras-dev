@@ -1,64 +1,45 @@
 
 
-## Fix Apply Form Submission — SELECT After INSERT Fails for Anonymous Users
+## Fix All Build Errors
 
-### Root Cause
-The insert itself works fine (the RLS INSERT policy is permissive and public). The problem is on line 188-190 of `Apply.tsx`:
+### Problem
+Two categories of build errors:
+1. **7 missing page/component files** imported in `App.tsx` and elsewhere
+2. **FeaturedCoaches.tsx type errors** — `types.ts` (auto-generated, cannot edit) doesn't include `is_featured`, `featured_rank`, etc. for the `coaches` table, even though the actual DB has them
 
-```typescript
-const { data, error } = await supabase
-  .from("coach_applications")
-  .insert(payload as any)
-  .select("id, booking_url")  // <-- THIS FAILS
-  .single();                    // <-- throws because 0 rows returned
-```
+### Plan
 
-The only SELECT policy on `coach_applications` is admin-only. So the anonymous/unauthenticated user's insert succeeds, but the chained `.select().single()` returns no rows, causing `.single()` to throw a "no rows" error. The catch block then shows the generic "Failed to submit" toast.
+#### 1. Create missing page stubs (7 files)
 
-### Fix (File: `src/pages/Apply.tsx`, lines 186-199)
+Each file follows the existing pattern: default export, wrapped in `<Layout>`, minimal placeholder content.
 
-**Remove the `.select().single()` chain and the round-trip verification block.** The insert doesn't need to return data for the public form — we just need to confirm no error was thrown.
+| File | Content |
+|---|---|
+| `src/pages/Pricing.tsx` | Pricing page placeholder with heading |
+| `src/pages/BookingSuccess.tsx` | "Booking confirmed" success page |
+| `src/pages/SubscriptionSuccess.tsx` | "Subscription active" success page |
+| `src/pages/admin/Coaches.tsx` | Re-export of existing admin coaches functionality (or placeholder) |
+| `src/pages/admin/CoachesList.tsx` | Admin coaches list with query to `coaches` table |
+| `src/pages/admin/CoachEditorDetail.tsx` | Admin coach detail/edit page with `useParams` for `:id` |
+| `src/pages/admin/Bookings.tsx` | Admin bookings list querying `bookings` table |
 
-Replace:
-```typescript
-const { data, error } = await supabase
-  .from("coach_applications")
-  .insert(payload as any)
-  .select("id, booking_url")
-  .single();
+#### 2. Create missing component/hook stubs (3 files)
 
-if (error) throw error;
+| File | Content |
+|---|---|
+| `src/components/coaching/CheckoutModal.tsx` | Empty modal component export |
+| `src/components/subscription/SubscriptionPlans.tsx` | Placeholder plans component |
+| `src/hooks/useStripePayment.ts` | Hook stub returning loading/error states |
 
-// Round-trip verification
-const expected = normalizeUrl(formData.booking_url);
-if (expected && !data?.booking_url) {
-  console.error("Booking URL not persisted:", { expected, returned: data });
-  throw new Error("Booking link was not saved...");
-}
+#### 3. Fix FeaturedCoaches.tsx type errors
 
-console.log("Saved application:", data);
-```
+The `coaches` table in `types.ts` is missing `is_featured`, `featured_rank`, `featured_at`, `location`, `hourly_rate`, `rating`, etc. Since `types.ts` is auto-generated and cannot be edited, the fix is to:
 
-With:
-```typescript
-const { error } = await supabase
-  .from("coach_applications")
-  .insert(payload as any);
+- Cast the Supabase query with `as any` on the `.eq("is_featured", true)` call
+- Cast the returned data to the local `FeaturedCoach` type
+- This is a safe workaround since the actual DB columns exist
 
-if (error) throw error;
-```
+### Files changed
+- 10 new files (7 pages, 2 components, 1 hook)
+- 1 modified file (`FeaturedCoaches.tsx` — type cast fix)
 
-This removes the SELECT dependency entirely. The insert will succeed for anonymous users without needing read-back permission.
-
-### Also: Normalize linkedin_url and website_url
-
-While we're in the file, update the payload (lines 171-172) to use `normalizeUrl` for consistency:
-```typescript
-linkedin_url: normalizeUrl(formData.linkedin_url),
-website_url: normalizeUrl(formData.website_url),
-```
-
-### Summary
-- 1 file changed: `src/pages/Apply.tsx`
-- No database/RLS changes needed (the INSERT policy is correct)
-- No edge function changes needed
