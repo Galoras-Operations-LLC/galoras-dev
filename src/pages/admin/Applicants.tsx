@@ -203,7 +203,7 @@ export default function Applicants() {
                   <p>LinkedIn: {selected.linkedin_url || "-"}</p>
                   <p>Website: {selected.website_url || "-"}</p>
                   <p>Bio: {selected.bio || "-"}</p>
-                  <p>Methodology: {selected.methodology || "-"}</p>
+                  <p>Why Galoras: {selected.why_galoras || "-"}</p>
                   <p>Why Galoras: {selected.why_galoras || "-"}</p>
 
                   <div style={{ marginTop: 20 }}>
