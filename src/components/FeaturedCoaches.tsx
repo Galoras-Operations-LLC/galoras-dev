@@ -34,16 +34,16 @@ export function FeaturedCoaches() {
       const baseSelect =
         "id, display_name, avatar_url, headline, specialties, is_featured, bio, location, current_role";
 
-      const { data: featured, error: featuredError } = await supabase
+      const { data: featured, error: featuredError } = await (supabase
         .from("coaches")
-        .select(baseSelect)
+        .select(baseSelect) as any)
         .eq("status", "approved")
         .eq("is_featured", true)
         .order("featured_at", { ascending: false });
 
       if (featuredError) throw featuredError;
 
-      return featured || [];
+      return (featured || []) as FeaturedCoach[];
     },
   });
 

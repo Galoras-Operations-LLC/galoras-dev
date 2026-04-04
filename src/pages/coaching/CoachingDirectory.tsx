@@ -12,10 +12,10 @@ type PublicCoach = {
   display_name: string | null;
   headline: string | null;
   bio: string | null;
-  positioning_statement: string | null;
-  methodology: string | null;
+  specialties: string[] | null;
   status: string | null;
-  lifecycle_status: string | null;
+  avatar_url: string | null;
+  location: string | null;
 };
 
 type RankedCoach = PublicCoach & {
@@ -48,13 +48,12 @@ export default function CoachingDirectory() {
   } = useQuery({
     queryKey: ["public-coaches-simple"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase
         .from("coaches")
         .select(
-          "id, display_name, headline, bio, positioning_statement, methodology, status, lifecycle_status"
-        )
+          "id, display_name, headline, bio, specialties, status, avatar_url, location"
+        ) as any)
         .eq("status", "approved")
-        .eq("lifecycle_status", "published")
         .order("display_name", { ascending: true });
 
       if (error) throw error;
@@ -71,8 +70,6 @@ export default function CoachingDirectory() {
           coach.display_name || "",
           coach.headline || "",
           coach.bio || "",
-          coach.positioning_statement || "",
-          coach.methodology || "",
         ]
           .join(" ")
           .toLowerCase();
@@ -102,8 +99,6 @@ export default function CoachingDirectory() {
           coach.display_name || "",
           coach.headline || "",
           coach.bio || "",
-          coach.positioning_statement || "",
-          coach.methodology || "",
         ]
           .join(" ")
           .toLowerCase();
@@ -241,9 +236,7 @@ export default function CoachingDirectory() {
                   </p>
 
                   <p className="text-muted-foreground mb-4 line-clamp-4">
-                    {coach.positioning_statement ||
-                      coach.bio ||
-                      "Profile details coming soon."}
+                    {coach.bio || "Profile details coming soon."}
                   </p>
 
                   <Link to={`/coaching/${coach.id}`}>
