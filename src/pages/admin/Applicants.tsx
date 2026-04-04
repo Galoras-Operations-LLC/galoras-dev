@@ -47,7 +47,7 @@ export default function Applicants() {
       return;
     }
 
-    const rows = (data as CoachApplication[]) || [];
+    const rows = (data as unknown as CoachApplication[]) || [];
     setApplications(rows);
     setSelected(rows[0] || null);
     setLoading(false);
