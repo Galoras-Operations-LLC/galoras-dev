@@ -72,14 +72,12 @@ export default function CoachProfile() {
   const [debugError, setDebugError] = useState("");
 
   // Stripe state
-  const {
-    stripePromise,
-    clientSecret,
-    status: paymentStatus,
-    error: paymentError,
-    initiateCoachingPurchase,
-    reset: resetPayment,
-  } = useStripePayment();
+  const { isLoading: paymentLoading, error: paymentError, createCheckoutSession } = useStripePayment();
+  const stripePromise = null;
+  const clientSecret = null;
+  const paymentStatus = "idle";
+  const initiateCoachingPurchase = createCheckoutSession;
+  const resetPayment = () => {};
 
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<CoachProduct | null>(null);
