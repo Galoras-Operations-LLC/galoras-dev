@@ -9,13 +9,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 type PublicCoach = {
   id: string;
+  slug: string | null;
   display_name: string | null;
   headline: string | null;
   bio: string | null;
-  positioning_statement: string | null;
-  methodology: string | null;
+  specialties: string[] | null;
   status: string | null;
-  lifecycle_status: string | null;
+  avatar_url: string | null;
 };
 
 type RankedCoach = PublicCoach & {
@@ -50,10 +50,7 @@ export default function CoachingDirectory() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("coaches")
-        .select(
-          "id, display_name, headline, bio, positioning_statement, methodology, status, lifecycle_status"
-        )
-        .eq("status", "approved")
+        .select("id, slug, display_name, headline, bio, specialties, status, avatar_url")
         .eq("lifecycle_status", "published")
         .order("display_name", { ascending: true });
 
@@ -67,13 +64,7 @@ export default function CoachingDirectory() {
       ?.map((coach) => {
         let score = 0;
 
-        const searchableText = [
-          coach.display_name || "",
-          coach.headline || "",
-          coach.bio || "",
-          coach.positioning_statement || "",
-          coach.methodology || "",
-        ]
+        const searchableText = [coach.display_name || "", coach.headline || "", coach.bio || ""]
           .join(" ")
           .toLowerCase();
 
@@ -83,9 +74,7 @@ export default function CoachingDirectory() {
 
         if (context) {
           const keywords = contextKeywords[context] || [context];
-          const matchCount = keywords.filter((keyword) =>
-            searchableText.includes(keyword.toLowerCase())
-          ).length;
+          const matchCount = keywords.filter((keyword) => searchableText.includes(keyword.toLowerCase())).length;
 
           score += matchCount * 2;
         }
@@ -98,13 +87,7 @@ export default function CoachingDirectory() {
     rankedCoaches.filter((coach) => {
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
-        const searchableText = [
-          coach.display_name || "",
-          coach.headline || "",
-          coach.bio || "",
-          coach.positioning_statement || "",
-          coach.methodology || "",
-        ]
+        const searchableText = [coach.display_name || "", coach.headline || "", coach.bio || ""]
           .join(" ")
           .toLowerCase();
 
@@ -139,17 +122,14 @@ export default function CoachingDirectory() {
             </h1>
 
             <p className="text-lg text-muted-foreground mb-8">
-              Coaches in this exchange are surfaced based on demonstrated execution
-              experience, deployability, and real-world performance.
+              Coaches in this exchange are surfaced based on demonstrated execution experience, deployability, and
+              real-world performance.
             </p>
 
             <div className="flex flex-col items-center gap-3">
               {!context && (
                 <Link to="/coaching/matching">
-                  <Button
-                    size="lg"
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary"
-                  >
+                  <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary">
                     <Sparkles className="mr-2 h-5 w-5" />
                     Begin Performance Context Mapping
                   </Button>
@@ -159,12 +139,8 @@ export default function CoachingDirectory() {
               {context && (
                 <div className="inline-flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/10 px-6 py-3 text-sm text-primary">
                   <Sparkles className="h-5 w-5" />
-                  <span className="text-muted-foreground">
-                    Showing coaches for
-                  </span>
-                  <span className="font-semibold text-primary">
-                    {contextLabels[context] || context}
-                  </span>
+                  <span className="text-muted-foreground">Showing coaches for</span>
+                  <span className="font-semibold text-primary">{contextLabels[context] || context}</span>
                 </div>
               )}
 
@@ -205,28 +181,19 @@ export default function CoachingDirectory() {
             <h2 className="text-3xl md:text-[40px] font-bold tracking-tight text-foreground text-center">
               Published <span className="text-gradient">Coaches</span>
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Only approved and published coaches appear here.
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">Only approved and published coaches appear here.</p>
           </div>
 
           {isLoading ? (
             <div className="text-center py-12">Loading coaches...</div>
           ) : error ? (
-            <div className="text-center py-12 text-red-500">
-              Failed to load coaches.
-            </div>
+            <div className="text-center py-12 text-red-500">Failed to load coaches.</div>
           ) : filteredCoaches.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredCoaches.map((coach) => (
-                <div
-                  key={coach.id}
-                  className="bg-card rounded-2xl border border-border p-6"
-                >
+                <div key={coach.id} className="bg-card rounded-2xl border border-border p-6">
                   <div className="flex items-start justify-between gap-3 mb-2">
-                    <h3 className="text-2xl font-semibold">
-                      {coach.display_name || "Unnamed Coach"}
-                    </h3>
+                    <h3 className="text-2xl font-semibold">{coach.display_name || "Unnamed Coach"}</h3>
 
                     {context && coach.score >= 4 && (
                       <div className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-medium text-primary shrink-0">
@@ -236,17 +203,13 @@ export default function CoachingDirectory() {
                     )}
                   </div>
 
-                  <p className="text-primary font-medium mb-4">
-                    {coach.headline || "No headline yet"}
-                  </p>
+                  <p className="text-primary font-medium mb-4">{coach.headline || "No headline yet"}</p>
 
                   <p className="text-muted-foreground mb-4 line-clamp-4">
-                    {coach.positioning_statement ||
-                      coach.bio ||
-                      "Profile details coming soon."}
+                    {coach.bio || "Profile details coming soon."}
                   </p>
 
-                  <Link to={`/coaching/${coach.id}`}>
+                  <Link to={coach.slug ? `/coach/${coach.slug}` : `/coaching/${coach.id}`}>
                     <Button variant="outline" className="w-full">
                       View Profile
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -260,12 +223,8 @@ export default function CoachingDirectory() {
               <div className="w-20 h-20 mx-auto rounded-full bg-muted flex items-center justify-center mb-6">
                 <Users className="h-10 w-10 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-display font-semibold mb-2">
-                No Coaches Found
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                No approved and published coaches match the current search.
-              </p>
+              <h3 className="text-xl font-display font-semibold mb-2">No Coaches Found</h3>
+              <p className="text-muted-foreground mb-6">No approved and published coaches match the current search.</p>
               <Link to="/coaching/matching">
                 <Button>
                   <Sparkles className="mr-2 h-4 w-4" />

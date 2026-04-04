@@ -14,13 +14,13 @@ import {
 
 type FeaturedCoach = {
   id: string;
+  slug: string | null;
   display_name: string | null;
   avatar_url: string | null;
   headline: string | null;
   specialties: string[] | null;
   is_featured: boolean | null;
   bio: string | null;
-  location: string | null;
   current_role: string | null;
 };
 
@@ -32,14 +32,14 @@ export function FeaturedCoaches() {
     queryKey: ["featured-coaches"],
     queryFn: async () => {
       const baseSelect =
-        "id, display_name, avatar_url, headline, specialties, is_featured, bio, location, current_role";
+        "id, slug, display_name, avatar_url, headline, specialties, is_featured, bio, current_role";
 
       const { data: featured, error: featuredError } = await supabase
         .from("coaches")
         .select(baseSelect)
-        .eq("status", "approved")
+        .eq("lifecycle_status", "published")
         .eq("is_featured", true)
-        .order("featured_at", { ascending: false });
+        .order("display_name", { ascending: true });
 
       if (featuredError) throw featuredError;
 
@@ -179,11 +179,10 @@ export function FeaturedCoaches() {
                 specialties={selectedCoach.specialties}
                 isFeatured={selectedCoach.is_featured}
                 bio={selectedCoach.bio}
-                location={selectedCoach.location}
                 currentRole={selectedCoach.current_role}
               />
               <div className="p-4 pt-0">
-                <Link to={`/coaching/${selectedCoach.id}`} className="block">
+                <Link to={selectedCoach.slug ? `/coach/${selectedCoach.slug}` : `/coaching/${selectedCoach.id}`} className="block">
                   <Button className="w-full">View Full Profile</Button>
                 </Link>
               </div>
