@@ -100,7 +100,7 @@ export default function CoachProfile() {
         .eq("status", "approved");
 
       if (resolvedSlug) {
-        query = query.eq("id", resolvedSlug);
+        query = query.eq("slug", resolvedSlug);
       } else if (fallbackId) {
         query = query.eq("id", fallbackId);
       } else {
