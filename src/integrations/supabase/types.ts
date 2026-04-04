@@ -16,25 +16,37 @@ export type Database = {
     Tables: {
       bookings: {
         Row: {
+          amount_cents: number | null
+          client_id: string | null
           coach_id: string | null
           created_at: string
+          currency: string | null
           id: string
           product_id: string | null
           status: string
+          stripe_payment_intent_id: string | null
         }
         Insert: {
+          amount_cents?: number | null
+          client_id?: string | null
           coach_id?: string | null
           created_at?: string
+          currency?: string | null
           id?: string
           product_id?: string | null
           status?: string
+          stripe_payment_intent_id?: string | null
         }
         Update: {
+          amount_cents?: number | null
+          client_id?: string | null
           coach_id?: string | null
           created_at?: string
+          currency?: string | null
           id?: string
           product_id?: string | null
           status?: string
+          stripe_payment_intent_id?: string | null
         }
         Relationships: [
           {
@@ -203,6 +215,44 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_availability: {
+        Row: {
+          coach_id: string | null
+          created_at: string | null
+          day_of_week: number | null
+          end_time: string | null
+          id: string
+          is_available: boolean | null
+          start_time: string | null
+        }
+        Insert: {
+          coach_id?: string | null
+          created_at?: string | null
+          day_of_week?: number | null
+          end_time?: string | null
+          id?: string
+          is_available?: boolean | null
+          start_time?: string | null
+        }
+        Update: {
+          coach_id?: string | null
+          created_at?: string | null
+          day_of_week?: number | null
+          end_time?: string | null
+          id?: string
+          is_available?: boolean | null
+          start_time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_availability_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coach_products: {
         Row: {
           coach_id: string
@@ -292,6 +342,7 @@ export type Database = {
           companies_worked: string | null
           created_at: string | null
           current_role: string | null
+          cutout_url: string | null
           display_name: string | null
           email: string | null
           engagement_format: string | null
@@ -300,6 +351,7 @@ export type Database = {
           id: string
           industry: string | null
           industry_focus: string | null
+          is_featured: boolean | null
           leadership_experience_years: number | null
           lifecycle_status: string | null
           linkedin_url: string | null
@@ -336,6 +388,7 @@ export type Database = {
           companies_worked?: string | null
           created_at?: string | null
           current_role?: string | null
+          cutout_url?: string | null
           display_name?: string | null
           email?: string | null
           engagement_format?: string | null
@@ -344,6 +397,7 @@ export type Database = {
           id?: string
           industry?: string | null
           industry_focus?: string | null
+          is_featured?: boolean | null
           leadership_experience_years?: number | null
           lifecycle_status?: string | null
           linkedin_url?: string | null
@@ -380,6 +434,7 @@ export type Database = {
           companies_worked?: string | null
           created_at?: string | null
           current_role?: string | null
+          cutout_url?: string | null
           display_name?: string | null
           email?: string | null
           engagement_format?: string | null
@@ -388,6 +443,7 @@ export type Database = {
           id?: string
           industry?: string | null
           industry_focus?: string | null
+          is_featured?: boolean | null
           leadership_experience_years?: number | null
           lifecycle_status?: string | null
           linkedin_url?: string | null
@@ -411,6 +467,139 @@ export type Database = {
           years_experience?: number | null
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          coach_id: string
+          content: string
+          created_at: string | null
+          id: string
+          read_at: string | null
+          sender_email: string | null
+          sender_id: string | null
+          subject: string | null
+        }
+        Insert: {
+          coach_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          read_at?: string | null
+          sender_email?: string | null
+          sender_id?: string | null
+          subject?: string | null
+        }
+        Update: {
+          coach_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          read_at?: string | null
+          sender_email?: string | null
+          sender_id?: string | null
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          stripe_customer_id: string | null
+          subscription_current_period_end: string | null
+          subscription_id: string | null
+          subscription_status: string | null
+          subscription_tier: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          stripe_customer_id?: string | null
+          subscription_current_period_end?: string | null
+          subscription_id?: string | null
+          subscription_status?: string | null
+          subscription_tier?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          stripe_customer_id?: string | null
+          subscription_current_period_end?: string | null
+          subscription_id?: string | null
+          subscription_status?: string | null
+          subscription_tier?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      session_bookings: {
+        Row: {
+          client_email: string | null
+          client_name: string | null
+          coach_id: string | null
+          created_at: string | null
+          duration_minutes: number | null
+          id: string
+          notes: string | null
+          scheduled_date: string | null
+          scheduled_time: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_email?: string | null
+          client_name?: string | null
+          coach_id?: string | null
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          scheduled_date?: string | null
+          scheduled_time?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_email?: string | null
+          client_name?: string | null
+          coach_id?: string | null
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          scheduled_date?: string | null
+          scheduled_time?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_bookings_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -474,13 +663,13 @@ export type Tables<
     : never
   : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
         DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
+  ? (DefaultSchema["Tables"] &
+      DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+      Row: infer R
+    }
+    ? R
     : never
+  : never
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
@@ -500,12 +689,12 @@ export type TablesInsert<
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
+  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+      Insert: infer I
+    }
+    ? I
     : never
+  : never
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
@@ -525,12 +714,12 @@ export type TablesUpdate<
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
+  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+      Update: infer U
+    }
+    ? U
     : never
+  : never
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
@@ -546,8 +735,8 @@ export type Enums<
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+  ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+  : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
@@ -563,8 +752,8 @@ export type CompositeTypes<
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+  ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  : never
 
 export const Constants = {
   public: {
