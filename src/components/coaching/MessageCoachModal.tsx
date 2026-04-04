@@ -15,7 +15,7 @@ interface MessageCoachModalProps {
   onClose: () => void;
   coachId: string;
   coachName: string;
-  coachUserId: string;
+  coachUserId?: string; // kept for backward compat, no longer used for insert
 }
 
 export function MessageCoachModal({ 
@@ -54,12 +54,23 @@ export function MessageCoachModal({
     try {
       const { error } = await supabase.from("messages").insert({
         sender_id: user.id,
-        receiver_id: coachUserId,
+        sender_email: user.email,
+        coach_id: coachId,
         subject: subject || `Message from ${user.email}`,
         content,
       });
 
       if (error) throw error;
+
+      // Fire email notification to coach (non-blocking)
+      supabase.functions.invoke("send-message-notification", {
+        body: {
+          coachId,
+          subject: subject || `Message from ${user.email}`,
+          content,
+          senderEmail: user.email,
+        },
+      }).catch(console.error);
 
       toast({
         title: "Message sent!",
