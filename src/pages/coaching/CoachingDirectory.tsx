@@ -12,10 +12,10 @@ type PublicCoach = {
   display_name: string | null;
   headline: string | null;
   bio: string | null;
-  positioning_statement: string | null;
-  methodology: string | null;
+  specialties: string[] | null;
   status: string | null;
-  lifecycle_status: string | null;
+  avatar_url: string | null;
+  location: string | null;
 };
 
 type RankedCoach = PublicCoach & {
