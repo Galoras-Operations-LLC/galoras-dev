@@ -18,13 +18,7 @@ interface MessageCoachModalProps {
   coachUserId?: string; // kept for backward compat, no longer used for insert
 }
 
-export function MessageCoachModal({ 
-  isOpen, 
-  onClose, 
-  coachId, 
-  coachName,
-  coachUserId 
-}: MessageCoachModalProps) {
+export function MessageCoachModal({ isOpen, onClose, coachId, coachName, coachUserId }: MessageCoachModalProps) {
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,11 +30,11 @@ export function MessageCoachModal({
       setUser(session?.user ?? null);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -63,14 +57,16 @@ export function MessageCoachModal({
       if (error) throw error;
 
       // Fire email notification to coach (non-blocking)
-      supabase.functions.invoke("send-message-notification", {
-        body: {
-          coachId,
-          subject: subject || `Message from ${user.email}`,
-          content,
-          senderEmail: user.email,
-        },
-      }).catch(console.error);
+      supabase.functions
+        .invoke("send-message-notification", {
+          body: {
+            coachId,
+            subject: subject || `Message from ${user.email}`,
+            content,
+            senderEmail: user.email,
+          },
+        })
+        .catch(console.error);
 
       toast({
         title: "Message sent!",
@@ -96,9 +92,7 @@ export function MessageCoachModal({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Message {coachName}</DialogTitle>
-          <DialogDescription>
-            Send a direct message to this coach to discuss your goals.
-          </DialogDescription>
+          <DialogDescription>Send a direct message to this coach to discuss your goals.</DialogDescription>
         </DialogHeader>
 
         {!user ? (
@@ -154,4 +148,3 @@ export function MessageCoachModal({
     </Dialog>
   );
 }
-
