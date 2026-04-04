@@ -237,15 +237,6 @@ export default function Applicants() {
                       }}
                     />
 
-                    {/* Notes field removed — using reviewer_notes above */}
-                      }
-                      rows={4}
-                      style={{
-                        width: "100%",
-                        padding: 10,
-                        marginBottom: 16,
-                      }}
-                    />
 
                     <button
                       onClick={updateApplication}
