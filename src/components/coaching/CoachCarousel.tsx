@@ -13,7 +13,7 @@ type CarouselCoach = {
   bio: string | null;
 };
 
-const VISIBLE = 4;
+const VISIBLE = 5;
 const INTERVAL_MS = 2000;
 
 export function CoachCarousel() {
