@@ -13,7 +13,7 @@ type CarouselCoach = {
   bio: string | null;
 };
 
-const VISIBLE = 5;
+const VISIBLE = 4;
 const INTERVAL_MS = 2000;
 
 export function CoachCarousel() {
@@ -54,35 +54,34 @@ export function CoachCarousel() {
 
   if (!coaches || coaches.length === 0) return null;
 
-  // Build visible window — wraps around
   const visible = Array.from({ length: Math.min(VISIBLE, coaches.length) }, (_, i) => {
     return coaches[(index + i) % coaches.length];
   });
 
   return (
-    <section className="py-16 bg-background">
+    <section className="py-16 bg-zinc-900">
       <div className="container-wide">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-display font-bold">
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-white">
             Our <span className="text-gradient">Coaches</span>
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-zinc-400">
             Execution-ready coaches across every performance domain.
           </p>
         </div>
 
         <div
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 transition-opacity duration-300"
+          className="grid grid-cols-2 md:grid-cols-4 gap-5 transition-opacity duration-300"
           style={{ opacity: transitioning ? 0 : 1 }}
         >
           {visible.map((coach) => (
             <button
               key={coach.id}
               onClick={() => navigate(coach.slug ? `/coach/${coach.slug}` : `/coaching/${coach.id}`)}
-              className="group text-left bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-primary/50 transition-all duration-300 cursor-pointer focus:outline-none"
+              className="group text-left bg-zinc-800 rounded-2xl overflow-hidden border border-zinc-700 hover:border-primary/50 transition-all duration-300 cursor-pointer focus:outline-none"
             >
               {/* Photo */}
-              <div className="aspect-square overflow-hidden bg-zinc-800">
+              <div className="overflow-hidden bg-zinc-700" style={{ height: "220px" }}>
                 {coach.avatar_url ? (
                   <img
                     src={coach.avatar_url}
@@ -91,7 +90,7 @@ export function CoachCarousel() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-5xl font-bold text-zinc-600">
+                    <span className="text-5xl font-bold text-zinc-500">
                       {(coach.display_name || "C").charAt(0)}
                     </span>
                   </div>
@@ -100,14 +99,14 @@ export function CoachCarousel() {
 
               {/* Info */}
               <div className="p-4">
-                <p className="font-semibold text-white text-sm leading-tight">
+                <p className="font-bold text-white text-base leading-tight">
                   {coach.display_name || "Coach"}
                 </p>
                 <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1">
                   {coach.current_role || coach.headline || "Coach"}
                 </p>
                 {(coach.bio || coach.headline) && (
-                  <p className="mt-2 text-xs text-zinc-500 line-clamp-3 leading-relaxed">
+                  <p className="mt-3 text-xs text-zinc-500 line-clamp-4 leading-relaxed border-t border-zinc-700 pt-3">
                     &ldquo;{coach.bio || coach.headline}&rdquo;
                   </p>
                 )}
