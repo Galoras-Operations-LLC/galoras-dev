@@ -92,12 +92,11 @@ const App = () => (
 
           {/* B2C Routes */}
           <Route path="/coaching" element={<CoachingDirectory />} />
-          <Route path="/coaching/:coachId" element={<CoachProfile />} />
-          <Route path="/coach/:slug" element={<CoachProfile />} />
-          <Route path="/coach/:coachId" element={<CoachProfile />} />
           <Route path="/coaching/matching" element={<CoachMatching />} />
           <Route path="/coaching/why" element={<WhyCoaching />} />
           <Route path="/coaching/onboarding" element={<CoachOnboarding />} />
+          <Route path="/coaching/:coachId" element={<CoachProfile />} />
+          <Route path="/coach/:slug" element={<CoachProfile />} />
           <Route path="/coach/onboarding" element={<CoachOnboardingRedirect />} />
           <Route path="/onboard/:shortId" element={<OnboardRedirect />} />
 
