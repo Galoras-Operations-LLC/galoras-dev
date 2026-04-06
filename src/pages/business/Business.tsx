@@ -196,12 +196,12 @@ export default function Business() {
         <div className="container-wide">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                A Proven Performance Methodology — Not Guesswork
+              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4 text-center">
+                A Proven Performance Methodology. Not Guesswork.
               </h2>
               <p className="text-muted-foreground text-lg mb-6">
                 Powered by a data-driven team performance methodology used by enterprise leadership teams globally.
-                This methodology underpins Leadership Labs, executive coaching, and enterprise engagements — delivering measurable improvements in speed, clarity, and accountability.
+                This methodology underpins Leadership Labs, executive coaching, and enterprise engagements and delivers measurable improvements in speed, clarity, and accountability.
               </p>
               <ul className="space-y-4">
                 {[

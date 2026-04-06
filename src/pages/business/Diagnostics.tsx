@@ -30,7 +30,7 @@ const diagnostics = [
     icon: Brain,
     title: "Decision Quality Assessment",
     description:
-      "Measures how your team makes decisions — speed, quality, who's involved, and where decisions stall. Identifies the specific patterns that slow execution.",
+      "Measures how your team makes decisions: speed, quality, who's involved, and where decisions stall. Identifies the specific patterns that slow execution.",
     deliverables: [
       "Decision velocity analysis",
       "Bottleneck identification",
@@ -54,7 +54,7 @@ const diagnostics = [
     icon: Users,
     title: "Leadership Team Effectiveness",
     description:
-      "A comprehensive assessment of how your senior team functions as a unit — trust, candour, collective accountability, and operating discipline.",
+      "A comprehensive assessment of how your senior team functions as a unit: trust, candour, collective accountability, and operating discipline.",
     deliverables: [
       "Team dynamics assessment",
       "Candour and trust index",
@@ -66,7 +66,7 @@ const diagnostics = [
     icon: Search,
     title: "Leadership 360",
     description:
-      "Multi-rater feedback for individual leaders — structured around execution capability, not just behavioural competencies. Paired with coaching to turn insight into action.",
+      "Multi-rater feedback for individual leaders, structured around execution capability and not just behavioural competencies. Paired with coaching to turn insight into action.",
     deliverables: [
       "Structured 360 feedback",
       "Execution capability profile",
@@ -78,7 +78,7 @@ const diagnostics = [
     icon: TrendingUp,
     title: "Organisational Performance Scan",
     description:
-      "A broader view of where the organisation is gaining or losing performance — across teams, functions, and leadership layers. Used to prioritise where to intervene.",
+      "A broader view of where the organisation is gaining or losing performance across teams, functions, and leadership layers. Used to prioritise where to intervene.",
     deliverables: [
       "Cross-team performance mapping",
       "Bottleneck identification",
@@ -93,19 +93,19 @@ const process = [
     step: 1,
     title: "Scope & Context",
     description:
-      "We start with a conversation about what's actually happening — not just what the diagnostic is. Understanding the context determines what we measure and how.",
+      "We start with a conversation about what's actually happening and not just what the diagnostic is. Understanding the context determines what we measure and how.",
   },
   {
     step: 2,
     title: "Data Collection",
     description:
-      "Structured surveys, stakeholder interviews, and direct observation — calibrated to surface what's really going on, not what people say in front of their managers.",
+      "Structured surveys, stakeholder interviews, and direct observation, calibrated to surface what's really going on and not what people say in front of their managers.",
   },
   {
     step: 3,
     title: "Analysis",
     description:
-      "We identify patterns, gaps, and the underlying causes — not just symptoms. The analysis is done by people who have led organisations, not just measured them.",
+      "We identify patterns, gaps, and the underlying causes and not just symptoms. The analysis is done by people who have led organisations, not just measured them.",
   },
   {
     step: 4,
@@ -117,7 +117,7 @@ const process = [
     step: 5,
     title: "Action & Follow-Through",
     description:
-      "We don't hand over a report and leave. We work with you to sequence and implement the interventions — and track whether they're working.",
+      "We don't hand over a report and leave. We work with you to sequence and implement the interventions and track whether they're working.",
   },
 ];
 
@@ -143,10 +143,10 @@ export default function Diagnostics() {
               <span className="text-primary">Diagnostics</span>
             </h1>
             <p className="text-zinc-300 text-lg md:text-xl max-w-2xl mx-auto mb-4">
-              You can't fix what you haven't properly diagnosed. Galoras diagnostics reveal the specific execution gaps — alignment, decision-making, accountability — that are limiting your organisation's performance.
+              You can't fix what you haven't properly diagnosed. Galoras diagnostics reveal the specific execution gaps — alignment, decision-making, and accountability — that are limiting your organisation's performance.
             </p>
             <p className="text-zinc-500 text-base max-w-xl mx-auto mb-10">
-              Evidence-based. Grounded in real operating experience. Designed to drive action — not produce reports that sit on a shelf.
+              Evidence-based. Grounded in real operating experience. Designed to drive action and not produce reports that sit on a shelf.
             </p>
             <Link to="/contact">
               <Button size="lg" className="bg-primary text-zinc-950 hover:bg-primary/90 font-bold">
@@ -185,7 +185,7 @@ export default function Diagnostics() {
               {
                 icon: Zap,
                 title: "Drive Action",
-                description: "Findings are sequenced and prioritised — so you know what to address first.",
+                description: "Findings are sequenced and prioritised so you know what to address first.",
               },
             ].map((item, i) => (
               <div key={i} className="text-center">
@@ -208,7 +208,7 @@ export default function Diagnostics() {
               Our Diagnostics
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Each diagnostic is focused on execution capability — not generic culture or engagement metrics.
+              Each diagnostic is focused on execution capability and not generic culture or engagement metrics.
             </p>
           </div>
 

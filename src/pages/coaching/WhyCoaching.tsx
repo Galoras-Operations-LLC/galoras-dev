@@ -127,7 +127,7 @@ export default function WhyCoaching() {
               The Galoras Coaching Advantage
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Coaching at Galoras is designed to improve execution — not just insight. The advantage comes from selecting coaches who have already performed in environments similar to yours.
+              Coaching at Galoras is designed to improve execution and not just insight. The advantage comes from selecting coaches who have already performed in environments similar to yours.
             </p>
           </div>
 
@@ -252,7 +252,7 @@ export default function WhyCoaching() {
               How Galoras Works
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Galoras is designed to improve signal quality — so real coaching capability becomes visible and deployable.
+              Galoras is designed to improve signal quality so that real coaching capability becomes visible and deployable.
             </p>
           </div>
 
@@ -263,7 +263,7 @@ export default function WhyCoaching() {
                   step: 1,
                   icon: Lightbulb,
                   title: "Define Your Operating Context",
-                  description: "Clarify the environment, pressure, and outcomes you're navigating — not just aspirations.",
+                  description: "Clarify the environment, pressure, and outcomes you're navigating and not just aspirations.",
                 },
                 {
                   step: 2,
@@ -275,7 +275,7 @@ export default function WhyCoaching() {
                   step: 3,
                   icon: Zap,
                   title: "Deploy Coaching in Real Conditions",
-                  description: "Coaching is applied where decisions, accountability, and results matter — not in theory.",
+                  description: "Coaching is applied where decisions, accountability, and results matter, not in theory.",
                 },
               ].map((item, index) => (
                 <div key={index} className="text-center">
