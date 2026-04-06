@@ -65,7 +65,7 @@ export function FeaturedCoaches() {
                     className="w-full h-[420px] object-cover transition-all duration-500 grayscale group-hover:grayscale-0 group-hover:scale-105"
                     style={
                       coach.display_name === "Barnes Lam"
-                        ? { objectPosition: "center 96px", transform: "scale(1.2)", transformOrigin: "top center" }
+                        ? { objectPosition: "top", transform: "scale(1.2)", transformOrigin: "top center" }
                         : { objectPosition: "top", transform: "scale(1.2)", transformOrigin: "top center" }
                     }
                   />
