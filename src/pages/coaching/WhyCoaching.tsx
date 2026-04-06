@@ -319,7 +319,7 @@ export default function WhyCoaching() {
             </Link>
             <Link to="/coaching/matching">
               <Button size="lg" variant="outline" className="border-primary/50 hover:bg-primary/10">
-                Understand How Selection Works
+                How Matching Works
               </Button>
             </Link>
           </div>
