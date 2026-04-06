@@ -11,8 +11,8 @@ type FeaturedCoach = {
   current_role: string | null;
 };
 
-const IMG_HEIGHT = 500; // px — every coach rendered at exactly this height
-const OVERLAP = 120;    // px — how much adjacent coaches overlap
+const SECTION_H = 680;  // px — section height
+const OVERLAP   = 160;  // px — how much each coach overlaps the previous
 
 export function FeaturedCoaches() {
   const navigate = useNavigate();
@@ -49,25 +49,29 @@ export function FeaturedCoaches() {
         </h2>
       </div>
 
-      {/* Coach strip */}
+      {/* Strip — each coach gets an equal-width slot, overlapping */}
       <div
         className="flex items-end justify-center overflow-hidden"
-        style={{ height: `${IMG_HEIGHT + 40}px`, paddingBottom: 0 }}
+        style={{ height: `${SECTION_H}px` }}
       >
         {coaches.map((coach, i) => {
           const mid = (n - 1) / 2;
           const dist = Math.abs(i - mid);
-          const zIndex = Math.round(n * 3 - dist * 2);
+          const zIndex = Math.round(n * 4 - dist * 2);
 
           return (
             <button
               key={coach.id}
-              onClick={() => navigate(coach.slug ? `/coach/${coach.slug}` : `/coaching/${coach.id}`)}
+              onClick={() =>
+                navigate(coach.slug ? `/coach/${coach.slug}` : `/coaching/${coach.id}`)
+              }
               className="group relative flex-shrink-0 cursor-pointer focus:outline-none"
               style={{
+                // All slots exactly the same width → equal frame for every coach
+                width: `calc(${100 / n}% + ${(OVERLAP * (n - 1)) / n}px)`,
+                height: `${SECTION_H}px`,
                 marginLeft: i > 0 ? `-${OVERLAP}px` : 0,
                 zIndex,
-                height: `${IMG_HEIGHT}px`,
               }}
               aria-label={`View ${coach.display_name || "coach"} profile`}
             >
@@ -75,25 +79,22 @@ export function FeaturedCoaches() {
                 <img
                   src={coach.avatar_url}
                   alt={coach.display_name || "Coach"}
+                  className="w-full h-full"
                   style={{
-                    height: `${IMG_HEIGHT}px`,
-                    width: "auto",
-                    display: "block",
+                    objectFit: "contain",
+                    objectPosition: "bottom center",
                     filter: "grayscale(1)",
                     transition: "filter 0.4s ease",
                   }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.filter = "grayscale(0)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.filter = "grayscale(1)";
-                  }}
+                  onMouseEnter={(e) =>
+                    ((e.currentTarget as HTMLImageElement).style.filter = "grayscale(0)")
+                  }
+                  onMouseLeave={(e) =>
+                    ((e.currentTarget as HTMLImageElement).style.filter = "grayscale(1)")
+                  }
                 />
               ) : (
-                <div
-                  style={{ height: `${IMG_HEIGHT}px`, width: "200px" }}
-                  className="bg-zinc-700 flex items-center justify-center"
-                >
+                <div className="w-full h-full flex items-end justify-center pb-12">
                   <span className="text-7xl font-bold text-zinc-500">
                     {(coach.display_name || "C").charAt(0)}
                   </span>
@@ -104,13 +105,13 @@ export function FeaturedCoaches() {
               <div
                 className="absolute inset-x-0 bottom-0 pointer-events-none"
                 style={{
-                  height: "100px",
+                  height: "120px",
                   background: "linear-gradient(to top, #1e1e1e 0%, transparent 100%)",
                 }}
               />
 
               {/* Name on hover */}
-              <div className="absolute bottom-6 left-0 right-0 text-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-none px-2">
+              <div className="absolute bottom-8 left-0 right-0 text-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-none px-3">
                 <p className="text-white font-semibold text-sm drop-shadow-lg">
                   {coach.display_name}
                 </p>
@@ -126,8 +127,7 @@ export function FeaturedCoaches() {
         })}
       </div>
 
-      {/* Spacer that fades into next section */}
-      <div style={{ height: "40px", background: "linear-gradient(to bottom, #1e1e1e, #1e1e1e)" }} />
+      <div style={{ height: "40px", background: "#1e1e1e" }} />
     </section>
   );
 }
