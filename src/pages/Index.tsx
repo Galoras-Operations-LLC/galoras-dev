@@ -146,7 +146,7 @@ export default function Index() {
         <div className="container-wide text-center">
           <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Stop Navigating It Alone</h2>
           <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
-            Every high-performer has blind spots. Galoras connects you with a coach who's been in the room — to help you lead with more clarity, confidence, and impact.
+            Every high-performer has blind spots. Galoras connects you with a coach who's been in the room and help you lead with more clarity, confidence, and impact.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/coaching">
