@@ -50,7 +50,7 @@ export function FeaturedCoaches() {
           backgroundImage: `url("https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1920&q=80&auto=format&fit=crop")`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          opacity: 0.25,
+          opacity: 0.35,
         }}
       />
       {/* Edge vignette */}
