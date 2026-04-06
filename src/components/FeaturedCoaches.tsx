@@ -16,7 +16,7 @@ const OVERLAP   = 210;  // px — how much each coach overlaps the previous
 
 // Per-coach image overrides to compensate for different photo crops
 const COACH_OVERRIDES: Record<string, { scale: number; translateY: string }> = {
-  "Barnes Lam": { scale: 2.0, translateY: "-25%" },
+  "Barnes Lam": { scale: 2.0, translateY: "-10%" },
 };
 
 export function FeaturedCoaches() {
