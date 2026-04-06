@@ -144,9 +144,9 @@ export default function Index() {
       {/* CTA Section */}
       <section className="section-padding hero-gradient">
         <div className="container-wide text-center">
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Ready for Proven Execution Support?</h2>
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Stop Navigating It Alone</h2>
           <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
-            Whether you're an individual navigating complexity or an organization operating under scale and pressure, Galoras is designed to surface coaching capability that performs in real conditions.
+            Every high-performer has blind spots. Galoras connects you with a coach who's been in the room — to help you lead with more clarity, confidence, and impact.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/coaching">
