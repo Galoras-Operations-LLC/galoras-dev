@@ -5,55 +5,78 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
-import { Stripe } from "@stripe/stripe-js";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Loader2, XCircle, Sparkles } from "lucide-react";
+import { CheckCircle2, Loader2, XCircle, Sparkles, Minus } from "lucide-react";
 import { useStripePayment } from "@/hooks/useStripePayment";
 
-type Plan = "b2c_monthly" | "b2c_annual" | "enterprise";
+type Plan = "pro" | "elite" | "master";
 
 const PLANS = [
   {
-    key: "b2c_monthly" as Plan,
-    name: "Individual",
+    key: "pro" as Plan,
+    name: "Pro",
+    tagline: "Get seen. Get started.",
     price: "$49",
     period: "/month",
-    description: "Access Galoras coaches and book sessions on your schedule.",
+    trial: "Start free for 3 months",
+    description: "Entry-level visibility for coaches ready to build their practice on the Galoras platform.",
     features: [
-      "Unlimited coach browsing",
-      "Book any coach session",
-      "Session history & notes",
-      "Galoras Compass matching",
+      "Verified profile listing",
+      "Session booking via platform",
+      "Stripe payment integration",
+      "In-platform Zoom meetings",
+      "AI session summaries",
+      "Shared action boards",
+      "Community access",
     ],
   },
   {
-    key: "b2c_annual" as Plan,
-    name: "Individual Annual",
-    price: "$449",
-    period: "/year",
-    badge: "Save 23%",
-    description: "Everything in Individual, billed annually.",
+    key: "elite" as Plan,
+    name: "Elite",
+    tagline: "Train like a pro. Show up like one.",
+    price: "$99",
+    period: "/month",
+    badge: "Most Popular",
+    description: "For active coaches seeking structure, credibility, and a validated framework to deliver real results.",
     features: [
-      "Everything in Individual",
-      "2 months free",
-      "Priority booking",
-      "Early access to new coaches",
+      "Everything in Pro",
+      "Enhanced profile & priority exposure",
+      "Leadership Labs access",
+      "Exclusive content & resources",
+      "Webinar & teaching roles",
+      "Priority community access",
+      "Sport of Business™ Foundations",
     ],
     highlighted: true,
   },
   {
-    key: "enterprise" as Plan,
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    description: "Coaching programs for teams and organizations.",
+    key: "master" as Plan,
+    name: "Master",
+    tagline: "We don't list you. We back you.",
+    price: "$197",
+    period: "/month",
+    cta: "Apply for Master",
+    description: "For established coaches and ex-executives ready for enterprise delivery and featured placement.",
     features: [
-      "Team dashboard",
-      "Bulk session credits",
-      "Dedicated account manager",
-      "Custom reporting & analytics",
+      "Everything in Elite",
+      "Featured placement & promotion",
+      "Advanced Sport of Business™ cert.",
+      "Eligible for B2B enterprise delivery",
+      "Direct leadership access",
+      "Published thought leadership",
+      "Enterprise coaching opportunities",
     ],
   },
+];
+
+const COMPARISON_ROWS = [
+  { label: "Profile & Visibility",    pro: "Verified listing",          elite: "Enhanced + priority",         master: "Featured & promoted" },
+  { label: "Booking & Payments",      pro: "Full Stripe flow",           elite: "Full Stripe flow",            master: "Full Stripe flow" },
+  { label: "Platform Tools",          pro: "Zoom + AI + action boards",  elite: "Zoom + AI + action boards",   master: "Zoom + AI + action boards" },
+  { label: "Community",               pro: "Standard access",            elite: "Priority + exclusive",        master: "Direct leadership access" },
+  { label: "Training",                pro: null,                         elite: "Sport of Business™ Foundations", master: "Advanced certification" },
+  { label: "Teaching Roles",          pro: null,                         elite: "Webinars & Leadership Labs",  master: "Thought leadership & publishing" },
+  { label: "Enterprise Delivery",     pro: null,                         elite: null,                          master: "Deliver Sport of Business™" },
 ];
 
 interface SubscribeFormProps {
@@ -158,8 +181,8 @@ export function SubscriptionPlans({ onSuccess }: SubscriptionPlansProps) {
   } = useStripePayment();
 
   const handleSelectPlan = async (plan: Plan) => {
-    if (plan === "enterprise") {
-      window.location.href = "/contact";
+    if (plan === "master") {
+      window.location.href = "/apply";
       return;
     }
     setSelectedPlan(plan);
@@ -230,7 +253,7 @@ export function SubscriptionPlans({ onSuccess }: SubscriptionPlansProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       {error && (
         <div className="flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
           <XCircle className="h-4 w-4 shrink-0" />
@@ -238,63 +261,103 @@ export function SubscriptionPlans({ onSuccess }: SubscriptionPlansProps) {
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-3">
+      {/* Tier cards */}
+      <div className="grid gap-6 md:grid-cols-3 items-start">
         {PLANS.map((plan) => (
           <div
             key={plan.key}
-            className={`relative rounded-2xl border p-6 flex flex-col gap-4 ${
+            className={`relative rounded-2xl border flex flex-col overflow-hidden ${
               plan.highlighted
-                ? "border-primary bg-primary/5 shadow-lg"
+                ? "border-primary shadow-lg shadow-primary/10"
                 : "border-border bg-card"
             }`}
           >
             {plan.badge && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
+              <div className="bg-primary text-primary-foreground text-xs font-bold text-center py-1.5 tracking-wider uppercase">
                 {plan.badge}
-              </span>
+              </div>
             )}
 
-            <div>
-              <h3 className="text-lg font-semibold">{plan.name}</h3>
-              <p className="text-3xl font-bold mt-1">
-                {plan.price}
-                <span className="text-base font-normal text-muted-foreground">
-                  {plan.period}
-                </span>
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                {plan.description}
-              </p>
+            <div className={`p-6 border-b border-border ${plan.highlighted ? "bg-primary/5" : ""}`}>
+              <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">{plan.name}</p>
+              <p className="text-sm text-muted-foreground italic mb-3">"{plan.tagline}"</p>
+              <div className="flex items-end gap-1 mb-1">
+                <span className="text-4xl font-black">{plan.price}</span>
+                <span className="text-muted-foreground text-sm mb-1.5">{plan.period}</span>
+              </div>
+              {plan.trial && (
+                <p className="text-xs text-primary font-medium">{plan.trial}</p>
+              )}
+              <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{plan.description}</p>
             </div>
 
-            <ul className="space-y-2 flex-1">
-              {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                  {f}
-                </li>
-              ))}
-            </ul>
+            <div className="p-6 flex flex-col flex-1 gap-5">
+              <ul className="space-y-2.5 flex-1">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
 
-            <Button
-              className="w-full"
-              variant={plan.highlighted ? "default" : "outline"}
-              disabled={status === "loading" && selectedPlan === plan.key}
-              onClick={() => handleSelectPlan(plan.key)}
-            >
-              {status === "loading" && selectedPlan === plan.key ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Loading...
-                </>
-              ) : plan.key === "enterprise" ? (
-                "Contact Sales"
-              ) : (
-                "Get Started"
-              )}
-            </Button>
+              <Button
+                className={`w-full ${plan.highlighted ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}`}
+                variant={plan.highlighted ? "default" : "outline"}
+                disabled={status === "loading" && selectedPlan === plan.key}
+                onClick={() => handleSelectPlan(plan.key)}
+              >
+                {status === "loading" && selectedPlan === plan.key ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Loading...</>
+                ) : plan.key === "master" ? (
+                  "Apply for Master →"
+                ) : plan.key === "pro" ? (
+                  "Start free for 3 months →"
+                ) : (
+                  "Upgrade to Elite →"
+                )}
+              </Button>
+            </div>
           </div>
         ))}
+      </div>
+
+      {/* Comparison table */}
+      <div className="rounded-2xl border border-border overflow-hidden">
+        <div className="bg-muted/40 px-6 py-4 border-b border-border">
+          <h3 className="font-semibold text-sm">What each tier unlocks</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left px-6 py-3 text-muted-foreground font-medium w-1/4">Feature</th>
+                <th className="px-4 py-3 text-center font-semibold text-foreground">Pro<span className="block text-xs text-muted-foreground font-normal">$49/mo</span></th>
+                <th className="px-4 py-3 text-center font-semibold text-primary">Elite<span className="block text-xs text-primary/70 font-normal">$99/mo</span></th>
+                <th className="px-4 py-3 text-center font-semibold text-foreground">Master<span className="block text-xs text-muted-foreground font-normal">$197/mo</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARISON_ROWS.map((row, i) => (
+                <tr key={row.label} className={`border-b border-border last:border-0 ${i % 2 === 0 ? "" : "bg-muted/20"}`}>
+                  <td className="px-6 py-3 text-muted-foreground font-medium">{row.label}</td>
+                  <td className="px-4 py-3 text-center">
+                    {row.pro ? <span className="text-foreground">{row.pro}</span> : <Minus className="h-4 w-4 text-muted-foreground/40 mx-auto" />}
+                  </td>
+                  <td className="px-4 py-3 text-center bg-primary/5">
+                    {row.elite ? <span className="text-foreground">{row.elite}</span> : <Minus className="h-4 w-4 text-muted-foreground/40 mx-auto" />}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {row.master ? <span className="text-foreground">{row.master}</span> : <Minus className="h-4 w-4 text-muted-foreground/40 mx-auto" />}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="bg-muted/20 px-6 py-3 text-xs text-muted-foreground border-t border-border">
+          All plans include the Galoras platform, Zoom integration, AI session tools, and community access.
+        </div>
       </div>
     </div>
   );
