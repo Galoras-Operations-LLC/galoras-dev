@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,8 @@ const STEP_INDEX: Record<Step, number> = { info: 0, otp: 1, password: 2 };
 
 export default function CoachSignup() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const tierParam = searchParams.get("tier");
   const { toast } = useToast();
   const [step, setStep] = useState<Step>("info");
   const [isLoading, setIsLoading] = useState(false);
@@ -42,9 +44,9 @@ export default function CoachSignup() {
   // Redirect if already logged in
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) navigate("/pricing");
+      if (session?.user) navigate(tierParam ? `/pricing?tier=${tierParam}` : "/pricing");
     });
-  }, [navigate]);
+  }, [navigate, tierParam]);
 
   // ── STEP 1: send OTP ────────────────────────────────────────────────────────
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -121,7 +123,7 @@ export default function CoachSignup() {
         title: "Account created!",
         description: "Now choose your coach tier to get started.",
       });
-      navigate("/pricing");
+      navigate(tierParam ? `/pricing?tier=${tierParam}` : "/pricing");
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {

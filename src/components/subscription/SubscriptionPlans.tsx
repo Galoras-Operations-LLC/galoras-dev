@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Minus } from "lucide-react";
 import { CoachTierPayment } from "@/components/coaching/CoachTierPayment";
@@ -75,12 +75,22 @@ const COMPARISON_ROWS = [
 
 export function SubscriptionPlans() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [activeTier, setActiveTier] = useState<Plan | null>(null);
+
+  // If returning from coach-signup with ?tier=, auto-open payment modal
+  useEffect(() => {
+    const tierParam = searchParams.get("tier") as Plan | null;
+    if (!tierParam || !["pro", "elite", "master"].includes(tierParam)) return;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setActiveTier(tierParam);
+    });
+  }, [searchParams]);
 
   const handleJoin = async (tier: Plan) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      navigate(`/login?redirect=/pricing`);
+      navigate(`/coach-signup?tier=${tier}`);
       return;
     }
     setActiveTier(tier);
@@ -137,9 +147,9 @@ export function SubscriptionPlans() {
                   className={`w-full font-semibold ${
                     plan.highlighted
                       ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "border-zinc-600 text-zinc-200 hover:bg-zinc-800"
+                      : "bg-zinc-700 text-white hover:bg-zinc-600"
                   }`}
-                  variant={plan.highlighted ? "default" : "outline"}
+                  variant="default"
                   onClick={() => handleJoin(plan.key)}
                 >
                   Join Galoras →
