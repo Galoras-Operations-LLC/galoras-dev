@@ -23,22 +23,17 @@ export default function Auth() {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
-        // Redirect to home if logged in
-        if (session?.user) {
-          // New signups go to onboarding; returning logins go home
-          if (event === "SIGNED_IN") {
-            // Check if they've completed onboarding
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("onboarding_complete")
-              .eq("id", session.user.id)
-              .maybeSingle();
-            navigate(profile?.onboarding_complete ? "/" : "/onboarding");
-          }
+
+        if (session?.user && event === "SIGNED_IN") {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("onboarding_complete")
+            .eq("id", session.user.id)
+            .maybeSingle();
+          navigate(profile?.onboarding_complete ? "/" : "/onboarding");
         }
       }
     );
