@@ -48,12 +48,13 @@ export function FeaturedCoaches() {
           </p>
         </div>
 
-        <div className="flex items-end justify-center gap-1">
-          {coaches.map((coach) => (
+        <div className="flex items-end justify-center gap-0">
+          {coaches.map((coach, i) => (
             <button
               key={coach.id}
               onClick={() => handleClick(coach)}
               className="group relative flex-1 max-w-[280px] min-w-[160px] cursor-pointer focus:outline-none"
+              style={{ marginLeft: i > 0 ? "-96px" : 0 }}
               aria-label={`View ${coach.display_name || "coach"} profile`}
             >
               <div className="relative overflow-hidden">
@@ -62,7 +63,6 @@ export function FeaturedCoaches() {
                     src={coach.avatar_url}
                     alt={coach.display_name || "Coach"}
                     className="w-full h-[420px] object-cover object-top transition-all duration-500 grayscale group-hover:grayscale-0 group-hover:scale-105"
-                    style={coach.display_name === "Barnes Lam" ? { transform: "scale(0.8) translateY(-144px)", transformOrigin: "bottom center" } : undefined}
                   />
                 ) : (
                   <div className="w-full h-[420px] bg-zinc-800 flex items-center justify-center">
