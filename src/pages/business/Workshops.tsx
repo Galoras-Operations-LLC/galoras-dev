@@ -7,9 +7,9 @@ import {
   Target,
   MessageCircle,
   Zap,
-  Users,
+  Bot,
   Brain,
-  TrendingUp,
+  Globe,
   FlaskConical
 } from "lucide-react";
 
@@ -18,6 +18,7 @@ const labs = [
     icon: Target,
     title: "Alignment Under Pressure",
     duration: "Full-day",
+    highlight: undefined,
     description:
       "Teams that are misaligned on priorities execute slowly and disagree at the wrong moments. This Lab surfaces and resolves alignment gaps — fast.",
     outcomes: [
@@ -30,6 +31,7 @@ const labs = [
     icon: Brain,
     title: "Decision Velocity",
     duration: "Half-day",
+    highlight: undefined,
     description:
       "Most leadership teams make decisions too slowly, too often, and by the wrong people. This Lab installs the structures that accelerate decision quality without sacrificing speed.",
     outcomes: [
@@ -42,6 +44,7 @@ const labs = [
     icon: Zap,
     title: "Execution Discipline",
     duration: "Full-day",
+    highlight: undefined,
     description:
       "Strategy fails in the gap between decision and delivery. This Lab closes that gap by building the accountability structures your team will actually use.",
     outcomes: [
@@ -54,6 +57,7 @@ const labs = [
     icon: MessageCircle,
     title: "Executive Communication",
     duration: "Half-day",
+    highlight: undefined,
     description:
       "How leaders communicate determines how organisations move. This Lab develops the clarity, directness, and precision that high-performance environments demand.",
     outcomes: [
@@ -63,28 +67,30 @@ const labs = [
     ],
   },
   {
-    icon: Users,
-    title: "High-Performance Team Dynamics",
-    duration: "Full-day",
+    icon: Bot,
+    title: "AI for Executives",
+    duration: "1:1 Private",
     description:
-      "The gap between a group of talented individuals and a high-performing team is specific and closeable. This Lab identifies and addresses what's getting in the way.",
+      "Most executives are making AI decisions without truly understanding the technology. This private session gives you the clarity to lead AI conversations, evaluate tools, and ask the right questions of your teams — no technical background required.",
     outcomes: [
-      "Trust and candour",
-      "Role clarity",
-      "Collective accountability",
+      "AI fundamentals for non-technical leaders",
+      "How to evaluate AI tools and vendors",
+      "Asking the right questions of your team",
     ],
+    highlight: "private",
   },
   {
-    icon: TrendingUp,
-    title: "Leading Through Change",
-    duration: "Two-day",
+    icon: Globe,
+    title: "Digital Presence",
+    duration: "Free · 1 Hour",
     description:
-      "Transformation fails when leaders can't hold the organisation steady during disruption. This Lab builds the personal and operational disciplines that keep teams executing through change.",
+      "Exclusively for Galoras coaches at Elite tier and above. A complimentary private session covering LinkedIn positioning, personal website strategy, and social media — so you attract the right clients and build your coaching practice with confidence.",
     outcomes: [
-      "Stability under pressure",
-      "Stakeholder management",
-      "Change communication",
+      "LinkedIn profile and content strategy",
+      "Personal website and brand positioning",
+      "Social media approach for coaches",
     ],
+    highlight: "free",
   },
 ];
 
@@ -160,13 +166,30 @@ export default function Workshops() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {labs.map((lab, i) => (
-              <Card key={i} className="group hover:border-primary/50 transition-all card-hover">
+              <Card
+                key={i}
+                className={`group transition-all card-hover ${
+                  lab.highlight === "free"
+                    ? "border-green-500/40 hover:border-green-500/70 bg-green-500/5"
+                    : lab.highlight === "private"
+                    ? "border-primary/40 hover:border-primary/70"
+                    : "hover:border-primary/50"
+                }`}
+              >
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <lab.icon className="h-6 w-6 text-primary" />
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform ${
+                      lab.highlight === "free" ? "bg-green-500/10" : "bg-primary/10"
+                    }`}>
+                      <lab.icon className={`h-6 w-6 ${lab.highlight === "free" ? "text-green-500" : "text-primary"}`} />
                     </div>
-                    <span className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                      lab.highlight === "free"
+                        ? "text-green-600 bg-green-500/15 border border-green-500/30"
+                        : lab.highlight === "private"
+                        ? "text-primary bg-primary/10 border border-primary/20"
+                        : "text-muted-foreground bg-muted"
+                    }`}>
                       {lab.duration}
                     </span>
                   </div>
@@ -176,7 +199,7 @@ export default function Workshops() {
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Outcomes</p>
                     {lab.outcomes.map((outcome, j) => (
                       <div key={j} className="flex items-center gap-2 text-sm">
-                        <Zap className="h-3 w-3 text-primary shrink-0" />
+                        <Zap className={`h-3 w-3 shrink-0 ${lab.highlight === "free" ? "text-green-500" : "text-primary"}`} />
                         {outcome}
                       </div>
                     ))}
