@@ -81,8 +81,8 @@ export function FeaturedCoaches() {
               onClick={() => handleClick(coach)}
               className="group relative flex-1 max-w-[280px] min-w-[160px] cursor-pointer focus:outline-none"
               style={{
-                marginLeft: coach.display_name === "Mitesh Kapadia" ? "-160px" : i > 0 ? "-96px" : 0,
-                zIndex: i === 1 ? 3 : i === 0 ? 2 : 1, // Conor front, Barnes mid, Mitesh back
+                marginLeft: i > 0 ? "-80px" : 0,
+                zIndex: i === 1 ? 3 : i === 0 ? 2 : 1,
               }}
               aria-label={`View ${coach.display_name || "coach"} profile`}
             >
@@ -93,7 +93,7 @@ export function FeaturedCoaches() {
                     alt={coach.display_name || "Coach"}
                     className="w-full h-[420px] object-cover object-top transition-all duration-500 grayscale group-hover:grayscale-0 group-hover:scale-105"
                     style={{
-                      transform: coach.display_name === "Barnes Lam" ? "scale(0.88)" : "scale(1)",
+                      transform: coach.display_name === "Barnes Lam" ? "scale(0.88)" : coach.display_name === "Mitesh Kapadia" ? "scale(1.05)" : "scale(1)",
                       transformOrigin: "top center",
                     }}
                   />
