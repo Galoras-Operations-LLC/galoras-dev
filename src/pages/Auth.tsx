@@ -1,146 +1,146 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Session } from "@supabase/supabase-js";
-import { Zap, Mail, Lock, User as UserIcon } from "lucide-react";
+import { Zap, Mail, Lock, User as UserIcon, KeyRound, ArrowRight, CheckCircle2 } from "lucide-react";
+
+type SignupStep = "email" | "otp" | "complete";
 
 export default function Auth() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const defaultTab = searchParams.get("tab") === "signup" ? "signup" : "login";
+  const [tab, setTab] = useState<"login" | "signup">(defaultTab as "login" | "signup");
   const [isLoading, setIsLoading] = useState(false);
-  const [loginData, setLoginData] = useState({ email: "", password: "" });
-  const [signupData, setSignupData] = useState({ email: "", password: "", fullName: "" });
 
+  // Login state
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
+  // Signup multi-step state
+  const [signupStep, setSignupStep] = useState<SignupStep>("email");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [password, setPassword] = useState("");
+
+  // Redirect already-logged-in users
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        if (session?.user && event === "SIGNED_IN") {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("onboarding_complete")
-            .eq("id", session.user.id)
-            .maybeSingle();
-          navigate(profile?.onboarding_complete ? "/" : "/onboarding");
-        }
-      }
-    );
-
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        navigate("/");
-      }
+      if (session?.user) navigate("/");
     });
-
-    return () => subscription.unsubscribe();
   }, [navigate]);
 
+  // ── LOGIN ──────────────────────────────────────────────────────────────────
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: loginData.email,
-        password: loginData.password,
+        email: loginEmail,
+        password: loginPassword,
       });
+      if (error) throw error;
 
-      if (error) {
-        if (error.message.includes("Invalid login credentials")) {
-          throw new Error("Invalid email or password. Please try again.");
-        }
-        throw error;
-      }
-
-      const userName = data.user?.user_metadata?.full_name || data.user?.email?.split('@')[0] || 'there';
-      toast({
-        title: `Welcome back, ${userName}!`,
-        description: "You've been successfully logged in.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      const name = data.user?.user_metadata?.full_name || data.user?.email?.split("@")[0] || "there";
+      toast({ title: `Welcome back, ${name}!` });
+      navigate("/");
+    } catch (err: any) {
+      toast({ title: "Login failed", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  // ── SIGNUP STEP 1 — send OTP ───────────────────────────────────────────────
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    if (signupData.password.length < 6) {
-      toast({
-        title: "Password too short",
-        description: "Password must be at least 6 characters.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { error } = await supabase.auth.signUp({
-        email: signupData.email,
-        password: signupData.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            full_name: signupData.fullName,
-          },
-        },
+      const { error } = await supabase.auth.signInWithOtp({
+        email: signupEmail,
+        options: { shouldCreateUser: true },
       });
-
-      if (error) {
-        if (error.message.includes("already registered")) {
-          throw new Error("This email is already registered. Please log in instead.");
-        }
-        throw error;
-      }
-
-      toast({
-        title: "Account created!",
-        description: "Welcome to Galoras. You're now logged in.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Signup failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      if (error) throw error;
+      toast({ title: "Code sent!", description: `Check ${signupEmail} for your 6-digit code.` });
+      setSignupStep("otp");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
+
+  // ── SIGNUP STEP 2 — verify OTP ────────────────────────────────────────────
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: signupEmail,
+        token: otpCode,
+        type: "email",
+      });
+      if (error) throw error;
+      toast({ title: "Email verified!", description: "Now complete your account setup." });
+      setSignupStep("complete");
+    } catch (err: any) {
+      toast({ title: "Invalid code", description: "Please check the code and try again.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ── SIGNUP STEP 3 — set name + password ───────────────────────────────────
+  const handleComplete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password.length < 6) {
+      toast({ title: "Password too short", description: "Must be at least 6 characters.", variant: "destructive" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password,
+        data: { full_name: fullName },
+      });
+      if (error) throw error;
+
+      // Update profile with full name
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("profiles").update({ full_name: fullName }).eq("id", user.id);
+      }
+
+      toast({ title: "Account created!", description: "Welcome to Galoras." });
+      navigate("/onboarding");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const stepLabels: Record<SignupStep, string> = {
+    email: "Enter your email",
+    otp: "Verify your email",
+    complete: "Complete your account",
+  };
+
+  const stepIndex: Record<SignupStep, number> = { email: 0, otp: 1, complete: 2 };
 
   return (
     <Layout>
       <section className="relative min-h-[calc(100vh-80px)] flex items-center overflow-hidden">
-        {/* Split-screen layout */}
         <div className="container-wide relative z-10 py-12 lg:py-0">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center min-h-[calc(100vh-80px)]">
-            {/* Left side - Form */}
+
+            {/* ── Form side ── */}
             <div className="order-2 lg:order-1 max-w-md mx-auto lg:mx-0 w-full">
               <div className="text-center lg:text-left mb-8">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-4">
@@ -148,135 +148,158 @@ export default function Auth() {
                   Welcome to Galoras
                 </div>
                 <h1 className="text-3xl font-display font-bold mb-2">
-                  Your Journey Starts Here
+                  {tab === "login" ? "Welcome back" : stepLabels[signupStep]}
                 </h1>
-                <p className="text-muted-foreground">
-                  Sign in to access your coaching dashboard
+                <p className="text-muted-foreground text-sm">
+                  {tab === "login"
+                    ? "Sign in to access your coaching dashboard"
+                    : signupStep === "email"
+                    ? "We'll send a verification code to confirm it's you"
+                    : signupStep === "otp"
+                    ? `Enter the 6-digit code we sent to ${signupEmail}`
+                    : "Set your name and a secure password to finish"}
                 </p>
               </div>
 
-              <Card>
-                <CardContent className="p-6">
-                  <Tabs defaultValue="login" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 mb-6">
-                      <TabsTrigger value="login">Log In</TabsTrigger>
-                      <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                    </TabsList>
+              {/* Tab toggle */}
+              <div className="flex rounded-xl border border-border bg-muted/30 p-1 mb-6">
+                {(["login", "signup"] as const).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => { setTab(t); setSignupStep("email"); }}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      tab === t
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {t === "login" ? "Log In" : "Sign Up"}
+                  </button>
+                ))}
+              </div>
 
-                    <TabsContent value="login">
-                      <form onSubmit={handleLogin} className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="login-email">Email</Label>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              id="login-email"
-                              type="email"
-                              required
-                              className="pl-10"
-                              placeholder="you@example.com"
-                              value={loginData.email}
-                              onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="login-password">Password</Label>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              id="login-password"
-                              type="password"
-                              required
-                              className="pl-10"
-                              placeholder="••••••••"
-                              value={loginData.password}
-                              onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                            />
-                          </div>
-                        </div>
-                        <Button 
-                          type="submit" 
-                          className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                          disabled={isLoading}
-                        >
-                          {isLoading ? "Logging in..." : "Log In"}
-                        </Button>
-                      </form>
-                    </TabsContent>
+              {/* ── LOGIN FORM ── */}
+              {tab === "login" && (
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div>
+                    <Label htmlFor="login-email" className="mb-1.5 block">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input id="login-email" type="email" required className="pl-10" placeholder="you@example.com"
+                        value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="login-password" className="mb-1.5 block">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input id="login-password" type="password" required className="pl-10" placeholder="••••••••"
+                        value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} />
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isLoading}>
+                    {isLoading ? "Signing in..." : "Log In"}
+                  </Button>
+                </form>
+              )}
 
-                    <TabsContent value="signup">
-                      <form onSubmit={handleSignup} className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="signup-name">Full Name</Label>
-                          <div className="relative">
-                            <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              id="signup-name"
-                              type="text"
-                              required
-                              className="pl-10"
-                              placeholder="Jane Doe"
-                              value={signupData.fullName}
-                              onChange={(e) => setSignupData({ ...signupData, fullName: e.target.value })}
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="signup-email">Email</Label>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              id="signup-email"
-                              type="email"
-                              required
-                              className="pl-10"
-                              placeholder="you@example.com"
-                              value={signupData.email}
-                              onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="signup-password">Password</Label>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              id="signup-password"
-                              type="password"
-                              required
-                              className="pl-10"
-                              placeholder="••••••••"
-                              minLength={6}
-                              value={signupData.password}
-                              onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-                            />
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            Must be at least 6 characters
-                          </p>
-                        </div>
-                        <Button 
-                          type="submit" 
-                          className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                          disabled={isLoading}
-                        >
-                          {isLoading ? "Creating account..." : "Create Account"}
-                        </Button>
-                      </form>
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </Card>
+              {/* ── SIGNUP STEP 1: email ── */}
+              {tab === "signup" && signupStep === "email" && (
+                <form onSubmit={handleSendOtp} className="space-y-4">
+                  <div>
+                    <Label htmlFor="signup-email" className="mb-1.5 block">Email address</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input id="signup-email" type="email" required className="pl-10" placeholder="you@example.com"
+                        value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} />
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isLoading}>
+                    {isLoading ? "Sending code..." : <>Send verification code <ArrowRight className="ml-2 h-4 w-4" /></>}
+                  </Button>
+                </form>
+              )}
+
+              {/* ── SIGNUP STEP 2: OTP ── */}
+              {tab === "signup" && signupStep === "otp" && (
+                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                  <div>
+                    <Label htmlFor="otp-code" className="mb-1.5 block">Verification code</Label>
+                    <div className="relative">
+                      <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="otp-code"
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        required
+                        className="pl-10 tracking-widest text-lg font-mono text-center"
+                        placeholder="000000"
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      Didn't receive it?{" "}
+                      <button type="button" className="text-primary hover:underline" onClick={() => setSignupStep("email")}>
+                        Try again
+                      </button>
+                    </p>
+                  </div>
+                  <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                    disabled={isLoading || otpCode.length < 6}>
+                    {isLoading ? "Verifying..." : <>Verify email <ArrowRight className="ml-2 h-4 w-4" /></>}
+                  </Button>
+                </form>
+              )}
+
+              {/* ── SIGNUP STEP 3: complete ── */}
+              {tab === "signup" && signupStep === "complete" && (
+                <form onSubmit={handleComplete} className="space-y-4">
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 mb-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                    <p className="text-xs text-emerald-400">{signupEmail} verified</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="full-name" className="mb-1.5 block">Full name</Label>
+                    <div className="relative">
+                      <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input id="full-name" type="text" required className="pl-10" placeholder="Jane Smith"
+                        value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="password" className="mb-1.5 block">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input id="password" type="password" required className="pl-10" placeholder="At least 6 characters" minLength={6}
+                        value={password} onChange={(e) => setPassword(e.target.value)} />
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isLoading}>
+                    {isLoading ? "Creating account..." : "Create account & get started"}
+                  </Button>
+                </form>
+              )}
+
+              {/* Signup progress dots */}
+              {tab === "signup" && (
+                <div className="flex items-center justify-center gap-2 mt-6">
+                  {(["email", "otp", "complete"] as SignupStep[]).map((s, i) => (
+                    <div key={s} className={`rounded-full transition-all ${
+                      stepIndex[signupStep] > i ? "w-2 h-2 bg-primary" :
+                      signupStep === s ? "w-4 h-2 bg-primary" : "w-2 h-2 bg-zinc-700"
+                    }`} />
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Right side - Image */}
+            {/* ── Image side ── */}
             <div className="order-1 lg:order-2 relative hidden lg:block">
               <div className="relative h-[600px] rounded-2xl overflow-hidden">
-                <div 
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80')" }}
-                />
+                <div className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80')" }} />
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-primary/60 to-background/90" />
                 <div className="absolute inset-0 flex flex-col justify-end p-8">
                   <blockquote className="text-white">
@@ -284,9 +307,7 @@ export default function Auth() {
                       "Galoras helped me unlock potential I didn't know I had. The coaching experience transformed both my career and personal growth."
                     </p>
                     <footer className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold">
-                        SK
-                      </div>
+                      <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold">SK</div>
                       <div>
                         <cite className="not-italic font-semibold text-white">Sarah Kim</cite>
                         <p className="text-white/80 text-sm">VP of Engineering, TechCorp</p>
@@ -296,6 +317,7 @@ export default function Auth() {
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>

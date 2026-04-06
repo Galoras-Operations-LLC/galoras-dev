@@ -52,6 +52,7 @@ const navItems = [
     ],
   },
   { name: "Compass", href: "/compass" },
+  { name: "Offerings", href: "/offerings" },
 ];
 
 export function Navbar() {

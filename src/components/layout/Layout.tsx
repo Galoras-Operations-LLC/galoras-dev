@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
+import { IdlePopup } from "@/components/IdlePopup";
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,6 +17,7 @@ export function Layout({ children, hideNavbar = false, hideFooter = false }: Lay
         {children}
       </main>
       {!hideFooter && <Footer />}
+      <IdlePopup />
     </div>
   );
 }
