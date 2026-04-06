@@ -17,7 +17,7 @@ const OVERLAP   = 210;  // px — how much each coach overlaps the previous
 // Per-coach image scale overrides to compensate for different photo crops
 // (e.g. Barnes is a portrait/chest-up shot, Conor/Mitesh are full-body standing)
 const SCALE_OVERRIDES: Record<string, number> = {
-  "Barnes Lam": 0.5,
+  "Barnes Lam": 1.0,
 };
 
 export function FeaturedCoaches() {
