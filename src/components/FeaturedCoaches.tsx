@@ -94,18 +94,13 @@ export function FeaturedCoaches() {
                 <img
                   src={coach.avatar_url}
                   alt={coach.display_name || "Coach"}
-                  className="w-full h-full object-cover object-top transition-all duration-500"
-                  style={{
-                    filter: "grayscale(1)",
-                    mixBlendMode: "multiply",
-                  }}
+                  className="w-full h-full object-contain object-bottom transition-all duration-500 group-hover:grayscale-0"
+                  style={{ filter: "grayscale(1)" }}
                   onMouseEnter={(e) => {
                     (e.currentTarget as HTMLImageElement).style.filter = "grayscale(0)";
-                    (e.currentTarget as HTMLImageElement).style.mixBlendMode = "normal";
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLImageElement).style.filter = "grayscale(1)";
-                    (e.currentTarget as HTMLImageElement).style.mixBlendMode = "multiply";
                   }}
                 />
               ) : (
