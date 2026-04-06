@@ -64,7 +64,7 @@ export function FeaturedCoaches() {
           return (
             <button
               key={coach.id}
-              onClick={() => navigate("/coaching")}
+              onClick={() => navigate(coach.slug ? `/coach/${coach.slug}` : `/coaching/${coach.id}`)}
               className="group relative cursor-pointer focus:outline-none flex-shrink-0"
               style={{
                 width: `calc(${100 / n}%)`,
