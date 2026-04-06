@@ -90,7 +90,7 @@ export function FeaturedCoaches() {
                     alt={coach.display_name || "Coach"}
                     className="w-full h-[420px] object-cover object-top transition-all duration-500 grayscale group-hover:grayscale-0 group-hover:scale-105"
                     style={{
-                      transform: coach.display_name === "Barnes Lam" ? "scale(0.88)" : coach.display_name === "Mitesh Kapadia" ? "scale(1.2)" : "scale(1)",
+                      transform: coach.display_name === "Barnes Lam" ? "scale(0.88)" : coach.display_name === "Mitesh Kapadia" ? "scale(1.2) translateY(-12%)" : "scale(1)",
                       transformOrigin: "top center",
                     }}
                   />
