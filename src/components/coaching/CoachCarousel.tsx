@@ -124,7 +124,7 @@ export function CoachCarousel() {
                   </button>
                   <button
                     onClick={() => openContact(coach)}
-                    className="flex items-center justify-center w-9 h-9 rounded-lg border border-zinc-600 hover:border-primary hover:text-primary text-zinc-400 transition-colors"
+                    className="flex items-center justify-center w-9 h-9 rounded-lg border border-primary/50 text-primary hover:bg-primary/10 transition-colors"
                     title="Send a message"
                   >
                     <MessageCircle className="h-4 w-4" />

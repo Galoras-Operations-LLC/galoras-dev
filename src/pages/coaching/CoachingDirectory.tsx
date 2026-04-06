@@ -199,7 +199,7 @@ export default function CoachingDirectory() {
                         onClick={() =>
                           setContactCoach({ id: coach.id, name: coach.display_name || "Coach" })
                         }
-                        className="flex items-center justify-center w-8 h-8 rounded-lg border border-zinc-700 hover:border-primary hover:text-primary text-zinc-500 transition-colors"
+                        className="flex items-center justify-center w-8 h-8 rounded-lg border border-primary/50 text-primary hover:bg-primary/10 transition-colors"
                         title="Send a message"
                       >
                         <MessageCircle className="h-3.5 w-3.5" />
