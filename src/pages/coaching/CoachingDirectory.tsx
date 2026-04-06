@@ -138,12 +138,12 @@ export default function CoachingDirectory() {
                   className="bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 flex flex-col"
                 >
                   {/* Photo */}
-                  <div className="relative" style={{ height: "260px" }}>
+                  <div className="relative bg-zinc-800 flex items-center justify-center" style={{ height: "260px" }}>
                     {coach.avatar_url ? (
                       <img
                         src={coach.avatar_url}
                         alt={coach.display_name || "Coach"}
-                        className="w-full h-full object-cover object-top"
+                        className="w-full h-full object-contain object-center"
                       />
                     ) : (
                       <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
