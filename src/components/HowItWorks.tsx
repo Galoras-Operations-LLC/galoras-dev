@@ -75,19 +75,13 @@ export function HowItWorks() {
 
               {/* Content */}
               <div className="relative z-10 p-6 flex flex-col items-center">
-                {/* Title — visible by default, grays out on hover */}
-                <h3
-                  className={`text-xl md:text-2xl font-black uppercase leading-tight whitespace-pre-line transition-colors duration-300 ${
-                    pillar.accent
-                      ? "text-primary group-hover:text-primary/40"
-                      : "text-white group-hover:text-zinc-500"
-                  }`}
-                >
+                {/* Title — primary colour, grays out on hover */}
+                <h3 className="text-xl md:text-2xl font-black uppercase leading-tight whitespace-pre-line transition-colors duration-300 text-primary group-hover:text-primary/40">
                   {pillar.title}
                 </h3>
 
                 {/* Body — hidden by default, appears on hover */}
-                <p className="text-sm text-zinc-200 leading-relaxed mt-4 max-w-[220px] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                <p className="text-sm text-white leading-relaxed mt-4 max-w-[220px] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
                   {pillar.body}
                 </p>
 
@@ -99,24 +93,6 @@ export function HowItWorks() {
           ))}
         </div>
 
-        {/* Step indicators */}
-        <div className="flex items-center justify-center gap-0 mt-10">
-          {pillars.map((pillar, i) => (
-            <div key={pillar.number} className="flex items-center">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold bg-primary text-primary-foreground shadow-lg shadow-primary/30">
-                {pillar.number}
-              </div>
-              {i < pillars.length - 1 && (
-                <div className="w-16 md:w-24 h-0.5 bg-primary/40" />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Bottom label */}
-        <p className="text-center text-zinc-600 text-xs mt-5 uppercase tracking-widest">
-          Unshackle the Mind. Execute in the Real World.
-        </p>
 
       </div>
     </section>
