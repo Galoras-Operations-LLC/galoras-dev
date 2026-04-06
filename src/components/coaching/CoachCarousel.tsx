@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { MessageCircle } from "lucide-react";
 
 type CarouselCoach = {
   id: string;
@@ -11,10 +12,11 @@ type CarouselCoach = {
   current_role: string | null;
   headline: string | null;
   bio: string | null;
+  booking_url: string | null;
 };
 
 const VISIBLE = 4;
-const INTERVAL_MS = 2000;
+const INTERVAL_MS = 3000;
 
 export function CoachCarousel() {
   const navigate = useNavigate();
@@ -27,7 +29,7 @@ export function CoachCarousel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("coaches")
-        .select("id, slug, display_name, avatar_url, current_role, headline, bio")
+        .select("id, slug, display_name, avatar_url, current_role, headline, bio, booking_url")
         .eq("lifecycle_status", "published")
         .order("display_name", { ascending: true });
 
@@ -75,43 +77,62 @@ export function CoachCarousel() {
           style={{ opacity: transitioning ? 0 : 1 }}
         >
           {visible.map((coach) => (
-            <button
+            <div
               key={coach.id}
-              onClick={() => navigate(coach.slug ? `/coach/${coach.slug}` : `/coaching/${coach.id}`)}
-              className="group text-left bg-zinc-800 rounded-2xl overflow-hidden border border-zinc-700 hover:border-primary/50 transition-all duration-300 cursor-pointer focus:outline-none"
+              className="bg-zinc-800 rounded-2xl overflow-hidden border border-zinc-700 flex flex-col"
             >
-              {/* Photo */}
-              <div className="overflow-hidden bg-zinc-700" style={{ height: "220px" }}>
-                {coach.avatar_url ? (
-                  <img
-                    src={coach.avatar_url}
-                    alt={coach.display_name || "Coach"}
-                    className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
+              {/* Square photo — centered, proportional */}
+              <div className="relative w-full bg-zinc-700" style={{ paddingBottom: "100%" }}>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {coach.avatar_url ? (
+                    <img
+                      src={coach.avatar_url}
+                      alt={coach.display_name || "Coach"}
+                      className="w-full h-full object-contain object-center"
+                    />
+                  ) : (
                     <span className="text-5xl font-bold text-zinc-500">
                       {(coach.display_name || "C").charAt(0)}
                     </span>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
               {/* Info */}
-              <div className="p-4">
+              <div className="p-4 flex flex-col flex-1">
                 <p className="font-bold text-white text-base leading-tight">
                   {coach.display_name || "Coach"}
                 </p>
-                <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1">
+                <p className="text-xs text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
                   {coach.current_role || coach.headline || "Coach"}
                 </p>
-                {(coach.bio || coach.headline) && (
-                  <p className="mt-3 text-xs text-zinc-500 line-clamp-4 leading-relaxed border-t border-zinc-700 pt-3">
-                    &ldquo;{coach.bio || coach.headline}&rdquo;
-                  </p>
-                )}
+
+                {/* Buttons */}
+                <div className="flex gap-2 mt-4 pt-3 border-t border-zinc-700">
+                  <button
+                    onClick={() => navigate(coach.slug ? `/coach/${coach.slug}` : `/coaching/${coach.id}`)}
+                    className="flex-1 text-xs font-semibold bg-primary text-primary-foreground rounded-lg py-2 hover:bg-primary/90 transition-colors"
+                  >
+                    View Profile
+                  </button>
+                  {coach.booking_url ? (
+                    <a
+                      href={coach.booking_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center w-9 h-9 rounded-lg border border-zinc-600 hover:border-primary hover:text-primary text-zinc-400 transition-colors"
+                      title="Book a session"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </a>
+                  ) : (
+                    <div className="flex items-center justify-center w-9 h-9 rounded-lg border border-zinc-700 text-zinc-600">
+                      <MessageCircle className="h-4 w-4" />
+                    </div>
+                  )}
+                </div>
               </div>
-            </button>
+            </div>
           ))}
         </div>
       </div>
