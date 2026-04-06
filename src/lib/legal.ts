@@ -15,6 +15,7 @@ export type AgreementType =
 export type AgreementContext =
   | "user_signup"
   | "coach_signup"
+  | "onboarding"
   | "coach_tier_payment"
   | "session_checkout"
   | "cookie_banner";

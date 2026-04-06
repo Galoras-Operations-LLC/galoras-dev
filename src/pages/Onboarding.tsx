@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { LegalConsentCheckboxes } from "@/components/legal/LegalConsentCheckboxes";
+import { recordAgreements } from "@/lib/legal";
 import { Linkedin, ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 
 const GOAL_OPTIONS = [
@@ -58,6 +60,14 @@ export default function Onboarding() {
   // Step 3
   const [challenges, setChallenges] = useState("");
 
+  // Legal consent (step 3)
+  const [consentValid, setConsentValid] = useState(false);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
+  const handleConsentChange = useCallback((valid: boolean, marketing: boolean) => {
+    setConsentValid(valid);
+    setMarketingOptIn(marketing);
+  }, []);
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session?.user) {
@@ -99,6 +109,11 @@ export default function Onboarding() {
       toast({ title: "Error saving profile", description: error.message, variant: "destructive" });
       return;
     }
+
+    // Record legal agreements
+    const types: import("@/lib/legal").AgreementType[] = ["terms_of_service", "privacy_policy"];
+    if (marketingOptIn) types.push("marketing_opt_in");
+    await recordAgreements({ context: "onboarding", agreementTypes: types, marketingOptIn });
 
     toast({ title: "Profile complete!", description: "We'll match you with the right coaches." });
     navigate("/coaching");
@@ -224,15 +239,24 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* Step 3 — Challenges */}
+            {/* Step 3 — Challenges + Legal consent */}
             {step === 3 && (
-              <Textarea
-                value={challenges}
-                onChange={(e) => setChallenges(e.target.value)}
-                placeholder="e.g. I'm transitioning from an individual contributor to a people manager and struggling to build credibility with my new team..."
-                rows={5}
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:ring-primary resize-none"
-              />
+              <div className="space-y-5">
+                <Textarea
+                  value={challenges}
+                  onChange={(e) => setChallenges(e.target.value)}
+                  placeholder="e.g. I'm transitioning from an individual contributor to a people manager and struggling to build credibility with my new team..."
+                  rows={4}
+                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:ring-primary resize-none"
+                />
+                <div className="border-t border-zinc-700 pt-4">
+                  <LegalConsentCheckboxes
+                    context="onboarding"
+                    onChange={handleConsentChange}
+                    variant="dark"
+                  />
+                </div>
+              </div>
             )}
 
             {/* Navigation */}
@@ -265,7 +289,7 @@ export default function Onboarding() {
               ) : (
                 <Button
                   onClick={handleSave}
-                  disabled={saving}
+                  disabled={saving || !consentValid}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {saving ? "Saving..." : "See my matches"}

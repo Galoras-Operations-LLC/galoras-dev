@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 export type ConsentContext =
   | "user_signup"
   | "coach_signup"
+  | "onboarding"
   | "coach_tier_payment"
   | "session_checkout";
 
@@ -51,7 +52,7 @@ export function LegalConsentCheckboxes({
   // Derive validity per context
   useEffect(() => {
     let valid = false;
-    if (context === "user_signup" || context === "coach_signup") {
+    if (context === "user_signup" || context === "coach_signup" || context === "onboarding") {
       valid = state.termsAndPrivacy;
     } else if (context === "coach_tier_payment") {
       valid = state.termsAndPrivacy && state.paymentsRefunds && state.coolingOff && state.coachAgreement;

@@ -14,7 +14,7 @@ type FeaturedCoach = {
 export function FeaturedCoaches() {
   const navigate = useNavigate();
 
-  const { data: coaches, isLoading } = useQuery({
+  const { data: coaches, isLoading, isError } = useQuery({
     queryKey: ["featured-coaches"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -27,9 +27,11 @@ export function FeaturedCoaches() {
       if (error) throw error;
       return (data || []) as FeaturedCoach[];
     },
+    retry: 1,
   });
 
-  if (isLoading || !coaches || coaches.length === 0) return null;
+  if (isLoading) return null;
+  if (isError || !coaches || coaches.length === 0) return null;
 
   const handleClick = (coach: FeaturedCoach) => {
     const path = coach.slug ? `/coach/${coach.slug}` : `/coaching/${coach.id}`;
