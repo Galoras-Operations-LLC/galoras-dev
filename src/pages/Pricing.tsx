@@ -1,8 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { SubscriptionPlans } from "@/components/subscription/SubscriptionPlans";
-import { ArrowRight } from "lucide-react";
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -30,14 +28,6 @@ export default function Pricing() {
             </div>
 
             <SubscriptionPlans onSuccess={() => navigate("/subscription-success")} />
-
-            {/* Not a coach note */}
-            <p className="text-center text-zinc-600 text-sm mt-12">
-              Looking for individual or group coaching as a client?{" "}
-              <Link to="/offerings" className="text-primary hover:underline">
-                See customer offerings →
-              </Link>
-            </p>
           </div>
         </div>
       </section>
