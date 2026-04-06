@@ -62,7 +62,7 @@ export function FeaturedCoaches() {
                     src={coach.avatar_url}
                     alt={coach.display_name || "Coach"}
                     className="w-full h-[420px] object-cover object-top transition-all duration-500 grayscale group-hover:grayscale-0 group-hover:scale-105"
-                    style={coach.display_name === "Barnes Lam" ? { transform: "scale(0.8)", transformOrigin: "bottom center" } : undefined}
+                    style={coach.display_name === "Barnes Lam" ? { transform: "scale(0.8) translateY(-144px)", transformOrigin: "bottom center" } : undefined}
                   />
                 ) : (
                   <div className="w-full h-[420px] bg-zinc-800 flex items-center justify-center">
