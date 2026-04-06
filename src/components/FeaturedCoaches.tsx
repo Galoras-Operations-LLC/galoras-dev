@@ -37,8 +37,31 @@ export function FeaturedCoaches() {
   };
 
   return (
-    <section className="py-16 bg-zinc-950">
-      <div className="container-wide">
+    <section
+      className="py-16 relative overflow-hidden"
+      style={{
+        background: "radial-gradient(ellipse at 50% 60%, #1e2024 0%, #111316 45%, #060708 100%)",
+      }}
+    >
+      {/* Subtle dark arena texture overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url("https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1920&q=20&auto=format&fit=crop")`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          opacity: 0.06,
+        }}
+      />
+      {/* Edge vignette */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.75) 100%)",
+        }}
+      />
+
+      <div className="container-wide relative z-10">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-white">
             Featured <span className="text-gradient">Coaches</span>
