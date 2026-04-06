@@ -81,7 +81,7 @@ export function FeaturedCoaches() {
               onClick={() => handleClick(coach)}
               className="group relative flex-1 max-w-[280px] min-w-[160px] cursor-pointer focus:outline-none"
               style={{
-                marginLeft: coach.display_name === "Mitesh Kapadia" ? "-293px" : i > 0 ? "-80px" : 0,
+                marginLeft: i > 0 ? "-80px" : 0,
                 zIndex: i === 0 ? 1 : 2,
               }}
               aria-label={`View ${coach.display_name || "coach"} profile`}
