@@ -16,6 +16,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const redirectParam = searchParams.get("redirect") || "";
   const defaultTab = searchParams.get("tab") === "signup" ? "signup" : "login";
   const [tab, setTab] = useState<"login" | "signup">(defaultTab as "login" | "signup");
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +60,7 @@ export default function Auth() {
 
       const name = data.user?.user_metadata?.full_name || data.user?.email?.split("@")[0] || "there";
       toast({ title: `Welcome back, ${name}!` });
-      navigate("/");
+      navigate(redirectParam || "/");
     } catch (err: any) {
       toast({ title: "Login failed", description: err.message, variant: "destructive" });
     } finally {
@@ -133,7 +134,7 @@ export default function Auth() {
       await recordAgreements({ context: "user_signup", agreementTypes: types, marketingOptIn, email: signupEmail });
 
       toast({ title: "Account created!", description: "Welcome to Galoras." });
-      navigate("/onboarding");
+      navigate(redirectParam ? `/onboarding?redirect=${encodeURIComponent(redirectParam)}` : "/onboarding");
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {

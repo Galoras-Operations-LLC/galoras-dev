@@ -142,7 +142,7 @@ export default function CoachMatching() {
             <p className="text-sm text-zinc-500 mb-3">
               Don't have a profile yet? Create one free — it only takes two minutes and unlocks personalised matches.
             </p>
-            <Link to="/signup">
+            <Link to="/signup?redirect=/coaching/matching">
               <Button size="sm" className="bg-primary text-zinc-950 hover:bg-primary/90 font-bold">
                 Create Your Free Profile
                 <ArrowRight className="ml-2 h-3.5 w-3.5" />

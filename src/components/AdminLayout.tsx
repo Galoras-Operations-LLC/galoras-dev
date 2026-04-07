@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutGrid, Users, BookOpen, Settings, LogOut, ChevronRight } from "lucide-react";
+import { LayoutGrid, Users, BookOpen, LogOut, ChevronRight } from "lucide-react";
 
 const NAV = [
-  { label: "Applicants",  href: "/admin/applicants", icon: Users },
-  { label: "Coaches",     href: "/admin/coaches",    icon: LayoutGrid },
-  { label: "Bookings",    href: "/admin/bookings",   icon: BookOpen },
-  { label: "Settings",    href: "/admin",             icon: Settings },
+  { label: "Applicants", href: "/admin/applicants", icon: Users },
+  { label: "Coaches",    href: "/admin/coaches",    icon: LayoutGrid },
+  { label: "Bookings",   href: "/admin/bookings",   icon: BookOpen },
 ];
 
 interface AdminLayoutProps {

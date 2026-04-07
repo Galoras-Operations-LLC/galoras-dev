@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,8 @@ const INDUSTRY_OPTIONS = [
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectAfter = searchParams.get("redirect") || "/coaching";
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
@@ -116,7 +118,7 @@ export default function Onboarding() {
     await recordAgreements({ context: "onboarding", agreementTypes: types, marketingOptIn });
 
     toast({ title: "Profile complete!", description: "We'll match you with the right coaches." });
-    navigate("/coaching");
+    navigate(redirectAfter);
   };
 
   const totalSteps = 3;
