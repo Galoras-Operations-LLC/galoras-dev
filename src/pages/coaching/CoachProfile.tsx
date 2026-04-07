@@ -3,10 +3,15 @@ import { Link, useParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Sparkles, Calendar, MessageCircle } from "lucide-react";
+import { ArrowLeft, Sparkles, Calendar, MessageCircle, Package } from "lucide-react";
 import { AuthGate } from "@/components/AuthGate";
 import { useAuth } from "@/hooks/useAuth";
 import { ContactModal } from "@/components/coaching/ContactModal";
+import { ProductCard, CoachProduct } from "@/components/coaching/ProductCard";
+import { CheckoutModal } from "@/components/coaching/CheckoutModal";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? "");
 
 type CoachProfileData = {
   id: string;
@@ -55,9 +60,61 @@ export default function CoachProfile() {
   const [showContact, setShowContact] = useState(false);
   const { isLoggedIn } = useAuth();
 
+  // Products
+  const [products, setProducts] = useState<CoachProduct[]>([]);
+
+  // Checkout
+  const [checkoutProduct, setCheckoutProduct] = useState<CoachProduct | null>(null);
+  const [checkoutSecret, setCheckoutSecret] = useState("");
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
   useEffect(() => {
     fetchCoach();
   }, [resolvedSlug, fallbackId]);
+
+  useEffect(() => {
+    if (coach?.id) fetchProducts(coach.id);
+  }, [coach?.id]);
+
+  const fetchProducts = async (coachId: string) => {
+    const { data } = await supabase
+      .from("coach_products")
+      .select("id, product_type, title, summary, what_you_get, who_its_for, duration_label, format, pricing_band, price_display, price_cents, cta_label, cta_url, sort_order")
+      .eq("coach_id", coachId)
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+    setProducts((data as CoachProduct[]) || []);
+  };
+
+  const handleProductCta = async (product: CoachProduct) => {
+    // Has a fixed price and a logged-in user → Stripe checkout
+    if (product.price_cents && isLoggedIn) {
+      setCheckoutLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const res = await supabase.functions.invoke("create-payment-intent", {
+        body: {
+          productId: product.id,
+          coachId: coach!.id,
+          amountCents: product.price_cents,
+          currency: "cad",
+        },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      setCheckoutLoading(false);
+      if (res.data?.clientSecret) {
+        setCheckoutProduct(product);
+        setCheckoutSecret(res.data.clientSecret);
+      }
+      return;
+    }
+    // Has a fixed price but not logged in → prompt sign-in
+    if (product.price_cents && !isLoggedIn) {
+      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+      return;
+    }
+    // Enquiry / external URL → ProductCard handles it natively via its own onClick
+  };
 
   const fetchCoach = async () => {
     setLoading(true);
@@ -229,6 +286,35 @@ export default function CoachProfile() {
                 </div>
 
                 <div className="grid gap-6">
+
+                  {/* ── Products / Sessions ── */}
+                  {products.length > 0 && (
+                    <section className="rounded-2xl border border-border bg-card p-8">
+                      <div className="flex items-center gap-3 mb-6">
+                        <Package className="h-5 w-5 text-primary" />
+                        <h2 className="text-2xl font-semibold">Sessions & Engagements</h2>
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {products.map((product) =>
+                          product.price_cents ? (
+                            // Fixed-price → intercept CTA and open Stripe checkout
+                            <div key={product.id} onClick={() => handleProductCta(product)} className="cursor-pointer">
+                              <ProductCard product={product} coachName={coach.display_name || ""} />
+                            </div>
+                          ) : (
+                            // Enquiry / external URL → ProductCard handles its own CTA
+                            <ProductCard key={product.id} product={product} coachName={coach.display_name || ""} />
+                          )
+                        )}
+                      </div>
+                      {checkoutLoading && (
+                        <p className="text-sm text-muted-foreground text-center mt-4">
+                          Preparing checkout…
+                        </p>
+                      )}
+                    </section>
+                  )}
+
                   <section className="rounded-2xl border border-border bg-card p-8">
                     <h2 className="text-2xl font-semibold mb-4">Methodology</h2>
                     <p className="text-muted-foreground leading-7 whitespace-pre-wrap">
@@ -281,6 +367,25 @@ export default function CoachProfile() {
                     coachId={coach.id}
                     coachName={coach.display_name || "Coach"}
                     onClose={() => setShowContact(false)}
+                  />
+                )}
+
+                {checkoutProduct && checkoutSecret && (
+                  <CheckoutModal
+                    open={!!checkoutSecret}
+                    stripePromise={stripePromise}
+                    clientSecret={checkoutSecret}
+                    productTitle={checkoutProduct.title}
+                    amountCents={checkoutProduct.price_cents!}
+                    currency="cad"
+                    onSuccess={() => {
+                      setCheckoutProduct(null);
+                      setCheckoutSecret("");
+                    }}
+                    onClose={() => {
+                      setCheckoutProduct(null);
+                      setCheckoutSecret("");
+                    }}
                   />
                 )}
               </>
