@@ -17,18 +17,13 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: "es2020",
-    minify: "terser",
+    minify: "esbuild",
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ["react", "react-dom"],
           ui: ["@radix-ui/react-slot", "@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu"],
         },
-      },
-    },
-    terserOptions: {
-      compress: {
-        drop_console: true,
       },
     },
   },
