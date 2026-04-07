@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 // Coaching
 import { CoachingDirectory, CoachProfile, WhyCoaching } from "./pages/coaching";
 import CoachMatching from "./pages/coaching/CoachMatching";
+import CoachCompare from "./pages/coaching/CoachCompare";
 import CoachDashboard from "./pages/coaching/CoachDashboard";
 import CoachProfileEdit from "./pages/coaching/CoachProfileEdit";
 import CoachOnboarding from "./pages/coaching/CoachOnboarding";
@@ -102,6 +103,7 @@ const App = () => (
           {/* B2C Routes — static routes MUST come before dynamic :coachId */}
           <Route path="/coaching" element={<CoachingDirectory />} />
           <Route path="/coaching/matching" element={<CoachMatching />} />
+          <Route path="/coaching/compare" element={<CoachCompare />} />
           <Route path="/coaching/why" element={<WhyCoaching />} />
           <Route path="/coaching/onboarding" element={<CoachOnboarding />} />
           <Route path="/coaching/:coachId" element={<CoachProfile />} />

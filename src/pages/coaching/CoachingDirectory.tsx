@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
-import { Search, MessageCircle, Sparkles, UserCircle2, ArrowRight, CalendarCheck } from "lucide-react";
+import { Search, MessageCircle, Sparkles, UserCircle2, ArrowRight, CalendarCheck, GitCompareArrows, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,8 +46,17 @@ export default function CoachingDirectory() {
     filterParam && goalFilters.some(f => f.value === filterParam) ? filterParam : FILTER_ALL
   );
   const [contactCoach, setContactCoach] = useState<{ id: string; name: string } | null>(null);
+  const [compareList, setCompareList] = useState<string[]>([]);
   const { isLoggedIn, profile } = useAuth();
   const navigate = useNavigate();
+
+  const toggleCompare = (id: string) => {
+    setCompareList((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.length >= 3) return prev; // max 3
+      return [...prev, id];
+    });
+  };
 
   const { data: coaches, isLoading, error } = useQuery({
     queryKey: ["public-coaches-directory"],
@@ -308,6 +317,18 @@ export default function CoachingDirectory() {
                           </Button>
                         </Link>
 
+                        <button
+                          onClick={() => toggleCompare(coach.id)}
+                          title={compareList.includes(coach.id) ? "Remove from compare" : "Add to compare"}
+                          className={`flex items-center justify-center w-9 h-9 rounded-lg border transition-colors ${
+                            compareList.includes(coach.id)
+                              ? "border-amber-500 bg-amber-500/10 text-amber-400"
+                              : "border-zinc-700 text-zinc-400 hover:border-amber-500/50 hover:text-amber-400"
+                          }`}
+                        >
+                          <GitCompareArrows className="h-3.5 w-3.5" />
+                        </button>
+
                         <AuthGate isLoggedIn={isLoggedIn} message="Sign in to message coaches">
                           <button
                             onClick={() =>
@@ -335,6 +356,37 @@ export default function CoachingDirectory() {
           coachName={contactCoach.name}
           onClose={() => setContactCoach(null)}
         />
+      )}
+
+      {/* ── Floating Compare Tray ── */}
+      {compareList.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-300">
+          <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-[#0a1628] border border-amber-500/40 shadow-2xl shadow-black/60 backdrop-blur-sm">
+            <GitCompareArrows className="h-4 w-4 text-amber-400 shrink-0" />
+            <span className="text-sm text-slate-300 font-medium">
+              {compareList.length} coach{compareList.length !== 1 ? "es" : ""} selected
+              {compareList.length < 2 && (
+                <span className="text-slate-500 ml-1">(select at least 2)</span>
+              )}
+            </span>
+
+            <button
+              onClick={() => navigate(`/coaching/compare?ids=${compareList.join(",")}`)}
+              disabled={compareList.length < 2}
+              className="ml-2 px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Compare
+            </button>
+
+            <button
+              onClick={() => setCompareList([])}
+              className="p-1 text-slate-500 hover:text-slate-300 transition-colors"
+              title="Clear"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
       )}
     </Layout>
   );
