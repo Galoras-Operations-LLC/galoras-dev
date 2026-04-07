@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Layout } from "@/components/layout";
+import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -238,19 +238,15 @@ export default function Applicants() {
   const totalCoaches = portfolio.reduce((s, p) => s + p.count, 0);
 
   return (
-    <Layout>
-      <section className="min-h-screen bg-zinc-950 pt-24 pb-12 px-4">
+    <AdminLayout title="Coach Approval">
+      <section className="p-6">
         <div className="max-w-7xl mx-auto">
 
-          {/* Header */}
-          <div className="mb-8">
-            <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">
-              Admin · Coach Approval
-            </p>
-            <h1 className="text-3xl font-display font-black text-white uppercase tracking-tight">
+          <div className="mb-6">
+            <h2 className="text-xl font-display font-black text-white uppercase tracking-tight">
               Coach Approval Dashboard
-            </h1>
-            <p className="text-zinc-500 text-sm mt-1">
+            </h2>
+            <p className="text-zinc-500 text-sm mt-0.5">
               Intelligent selection for the Galoras performance network.
             </p>
           </div>
@@ -582,6 +578,6 @@ export default function Applicants() {
           )}
         </div>
       </section>
-    </Layout>
+    </AdminLayout>
   );
 }
