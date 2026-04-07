@@ -58,6 +58,13 @@ export default function CoachesList() {
     setLoading(false);
   };
 
+  const setTier = async (id: string, tier: string) => {
+    setSavingId(id);
+    await supabase.from("coaches").update({ tier: tier || null }).eq("id", id);
+    setSavingId(null);
+    fetchCoaches();
+  };
+
   const setLifecycle = async (id: string, lifecycle_status: string) => {
     setSavingId(id);
     const now = new Date().toISOString();
@@ -169,13 +176,17 @@ export default function CoachesList() {
                         {coach.headline || <span className="text-slate-600 italic">—</span>}
                       </td>
                       <td className="px-4 py-3">
-                        {coach.tier ? (
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize ${tierColor}`}>
-                            {coach.tier}
-                          </span>
-                        ) : (
-                          <span className="text-slate-600 text-xs">—</span>
-                        )}
+                        <select
+                          value={coach.tier || ""}
+                          onChange={(e) => setTier(coach.id, e.target.value)}
+                          disabled={isSaving}
+                          className={`text-xs font-semibold rounded-lg border px-2 py-1 bg-transparent cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500/50 disabled:opacity-40 ${tierColor}`}
+                        >
+                          <option value="">— unset —</option>
+                          <option value="pro">Pro</option>
+                          <option value="elite">Elite</option>
+                          <option value="master">Master</option>
+                        </select>
                       </td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${badge.color}`}>
