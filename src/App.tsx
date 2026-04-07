@@ -43,6 +43,7 @@ import Applicants from "./pages/admin/Applicants";
 import CoachesList from "./pages/admin/CoachesList";
 import CoachEditorDetail from "./pages/admin/CoachEditorDetail";
 import Bookings from "@/pages/admin/Bookings";
+import ProductManager from "@/pages/admin/ProductManager";
 import CompleteRegistration from "./pages/CompleteRegistration";
 
 // Legal pages
@@ -211,6 +212,14 @@ const App = () => (
             element={
               <ProtectedRoute requireAdmin>
                 <Bookings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <ProtectedRoute requireAdmin>
+                <ProductManager />
               </ProtectedRoute>
             }
           />
