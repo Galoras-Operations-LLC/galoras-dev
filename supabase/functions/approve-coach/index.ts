@@ -301,6 +301,18 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Auto-tag coach from profile text (fills gaps if application tags were incomplete)
+    try {
+      const coachRow2 = await supabase.from("coaches").select("id").eq("user_id", coachUserId).single();
+      if (coachRow2.data?.id) {
+        await supabase.functions.invoke("auto-tag-coach", {
+          body: { coachId: coachRow2.data.id },
+        });
+      }
+    } catch (autoTagErr: any) {
+      console.error("auto-tag-coach call failed (non-blocking):", autoTagErr);
+    }
+
     return new Response(
       JSON.stringify({ success: true, chargeResult }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
