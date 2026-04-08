@@ -47,20 +47,53 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Verify the product exists and is active
-    const { data: product, error: productError } = await supabase
-      .from("coach_products")
-      .select("id, title, coach_id, is_active")
-      .eq("id", productId)
-      .eq("coach_id", coachId)
-      .eq("is_active", true)
-      .single();
+    // ── Galoras Platform Products (not stored in coach_products) ──
+    const PLATFORM_PRODUCTS: Record<string, { title: string; amountCents: number }> = {
+      "galoras-discovery": { title: "Discovery Session", amountCents: 25000 },
+      "galoras-workshop":  { title: "Strategic Initiative Workshop", amountCents: 45000 },
+    };
 
-    if (productError || !product) {
-      return new Response(JSON.stringify({ error: "Product not found or inactive" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
+    const platformProduct = PLATFORM_PRODUCTS[productId];
+    let productTitle: string;
+
+    if (platformProduct) {
+      // Validate amount matches platform price
+      if (amountCents !== platformProduct.amountCents) {
+        return new Response(JSON.stringify({ error: "Invalid amount for platform product" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
+      // Verify coach exists
+      const { data: coach } = await supabase
+        .from("coaches")
+        .select("id")
+        .eq("id", coachId)
+        .single();
+      if (!coach) {
+        return new Response(JSON.stringify({ error: "Coach not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
+      productTitle = platformProduct.title;
+    } else {
+      // Verify the product exists and is active in coach_products
+      const { data: product, error: productError } = await supabase
+        .from("coach_products")
+        .select("id, title, coach_id, is_active")
+        .eq("id", productId)
+        .eq("coach_id", coachId)
+        .eq("is_active", true)
+        .single();
+
+      if (productError || !product) {
+        return new Response(JSON.stringify({ error: "Product not found or inactive" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
+      productTitle = product.title ?? "";
     }
 
     // Get user profile for metadata
@@ -71,11 +104,12 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     // Create a pending booking record
+    // For platform products, product_id is null (not in coach_products table)
     const { data: booking, error: bookingError } = await supabase
       .from("bookings")
       .insert({
         coach_id: coachId,
-        product_id: productId,
+        product_id: platformProduct ? null : productId,
         client_id: user.id,
         status: "pending_payment",
         amount_cents: amountCents,
@@ -104,7 +138,7 @@ Deno.serve(async (req) => {
         userId: user.id,
         userEmail: user.email ?? "",
         userName: profile?.full_name ?? "",
-        productTitle: product.title ?? "",
+        productTitle,
       },
     });
 

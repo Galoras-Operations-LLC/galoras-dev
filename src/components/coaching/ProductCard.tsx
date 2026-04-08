@@ -41,9 +41,11 @@ interface ProductCardProps {
   /** booking_url from the coach record — used for enquiry mode */
   bookingUrl?:    string | null;
   getTypeConfig?: (slug: string) => { label: string; className: string };
+  /** Override CTA — used for Stripe checkout on platform products */
+  onCtaClick?:    () => void;
 }
 
-export function ProductCard({ product, coachName, bookingUrl, getTypeConfig }: ProductCardProps) {
+export function ProductCard({ product, coachName, bookingUrl, getTypeConfig, onCtaClick }: ProductCardProps) {
   const typeCfg = getTypeConfig
     ? getTypeConfig(product.product_type)
     : { label: product.product_type, className: "bg-zinc-500/10 border-zinc-500/30 text-zinc-400" };
@@ -63,23 +65,22 @@ export function ProductCard({ product, coachName, bookingUrl, getTypeConfig }: P
     product.duration_weeks ? `${product.duration_weeks} week${product.duration_weeks > 1 ? "s" : ""}` : null,
   ].filter(Boolean).join(" · ");
 
-  // CTA: "Book Now" when coach has a booking URL, "Enquire" as fallback
+  // CTA logic
+  const hasStripeOverride = !!onCtaClick;
   const hasBookingLink = !!bookingUrl;
-  const ctaLabel = product.booking_mode === "stripe"
+  const ctaLabel = hasStripeOverride
     ? "Book Now"
     : hasBookingLink ? "Book Now" : "Enquire";
-  const isBookNow = hasBookingLink || product.booking_mode === "stripe";
+  const isBookNow = hasStripeOverride || hasBookingLink;
 
   const handleCta = () => {
-    if (product.booking_mode === "enquiry") {
-      if (bookingUrl) {
-        window.open(bookingUrl, "_blank", "noopener,noreferrer");
-      } else {
-        const subject = encodeURIComponent(`Enquiry: ${product.title}${coachName ? ` — ${coachName}` : ""}`);
-        window.location.href = `mailto:hello@galoras.com?subject=${subject}`;
-      }
+    if (onCtaClick) { onCtaClick(); return; }
+    if (bookingUrl) {
+      window.open(bookingUrl, "_blank", "noopener,noreferrer");
+    } else {
+      const subject = encodeURIComponent(`Enquiry: ${product.title}${coachName ? ` — ${coachName}` : ""}`);
+      window.location.href = `mailto:hello@galoras.com?subject=${subject}`;
     }
-    // stripe mode will be handled later when payments are re-enabled
   };
 
   return (

@@ -9,6 +9,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { ContactModal } from "@/components/coaching/ContactModal";
 import { ProductCard, CoachProduct } from "@/components/coaching/ProductCard";
 import { useProductTypes } from "@/hooks/useProductTypes";
+import { CheckoutModal } from "@/components/coaching/CheckoutModal";
+import { loadStripe } from "@stripe/stripe-js";
+import { useToast } from "@/hooks/use-toast";
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? "");
 
 // ── Galoras Platform Sessions ─────────────────────────────────────────────────
 // Standard offerings available on every qualified coach's profile.
@@ -105,9 +110,53 @@ export default function CoachProfile() {
   const [showContact, setShowContact] = useState(false);
   const { isLoggedIn } = useAuth();
   const { getConfig: getTypeConfig } = useProductTypes();
+  const { toast } = useToast();
 
   // Products
   const [products, setProducts] = useState<CoachProduct[]>([]);
+
+  // Stripe checkout for platform products
+  const [checkoutProduct, setCheckoutProduct] = useState<CoachProduct | null>(null);
+  const [checkoutSecret, setCheckoutSecret] = useState("");
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handlePlatformCheckout = async (product: CoachProduct) => {
+    if (!isLoggedIn) {
+      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+      return;
+    }
+    if (!coach || !product.price_amount) return;
+
+    setCheckoutLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const res = await supabase.functions.invoke("create-payment-intent", {
+        body: {
+          productId: product.id,
+          coachId: coach.id,
+          amountCents: product.price_amount,
+          currency: "cad",
+        },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      setCheckoutLoading(false);
+      if (res.error) {
+        toast({ title: "Checkout error", description: res.error.message, variant: "destructive" });
+        return;
+      }
+      if (res.data?.clientSecret) {
+        setCheckoutProduct(product);
+        setCheckoutSecret(res.data.clientSecret);
+      } else {
+        toast({ title: "Checkout error", description: res.data?.error ?? "Could not start checkout.", variant: "destructive" });
+      }
+    } catch (err: unknown) {
+      setCheckoutLoading(false);
+      const msg = err instanceof Error ? err.message : "Unexpected error";
+      toast({ title: "Checkout error", description: msg, variant: "destructive" });
+    }
+  };
 
   useEffect(() => {
     fetchCoach();
@@ -314,11 +363,16 @@ export default function CoachProfile() {
                           key={product.id}
                           product={product}
                           coachName={coach.display_name || ""}
-                          bookingUrl={coach.booking_url}
                           getTypeConfig={getTypeConfig}
+                          onCtaClick={() => handlePlatformCheckout(product)}
                         />
                       ))}
                     </div>
+                    {checkoutLoading && (
+                      <p className="text-sm text-muted-foreground text-center mt-4">
+                        Preparing checkout…
+                      </p>
+                    )}
                   </section>
 
                   {/* ── Coach's Own Products ── */}
@@ -397,6 +451,25 @@ export default function CoachProfile() {
                     coachId={coach.id}
                     coachName={coach.display_name || "Coach"}
                     onClose={() => setShowContact(false)}
+                  />
+                )}
+
+                {checkoutProduct && checkoutSecret && (
+                  <CheckoutModal
+                    open={!!checkoutSecret}
+                    stripePromise={stripePromise}
+                    clientSecret={checkoutSecret}
+                    productTitle={checkoutProduct.title}
+                    amountCents={checkoutProduct.price_amount!}
+                    currency="cad"
+                    onSuccess={() => {
+                      setCheckoutProduct(null);
+                      setCheckoutSecret("");
+                    }}
+                    onClose={() => {
+                      setCheckoutProduct(null);
+                      setCheckoutSecret("");
+                    }}
                   />
                 )}
               </>
