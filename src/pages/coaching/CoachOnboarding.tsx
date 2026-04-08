@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Select,
@@ -16,85 +15,90 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, CheckCircle, AlertCircle, Linkedin, Image, Calendar } from "lucide-react";
-import {
-  JOIN_REASON_OPTIONS,
-  COMMITMENT_LEVEL_OPTIONS,
-  START_TIMELINE_OPTIONS,
-  PILLAR_SPECIALTIES,
-  PRIMARY_PILLAR_OPTIONS,
-  INDUSTRY_FOCUS_OPTIONS,
-  COACHING_STYLE_OPTIONS,
-  ENGAGEMENT_MODEL_OPTIONS,
-  AVAILABILITY_STATUS_OPTIONS,
-  FOUNDER_STAGE_OPTIONS,
-  FOUNDER_FUNCTION_OPTIONS,
-  EXEC_LEVEL_OPTIONS,
-  EXEC_FUNCTION_OPTIONS,
-  isFounderBackground,
-  isExecutiveBackground,
-} from "@/lib/coaching-constants";
+import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { useTags } from "@/hooks/useTags";
+import { useProductTypes } from "@/hooks/useProductTypes";
 
-interface CoachApplication {
-  id: string;
-  full_name: string;
-  email: string;
-  bio: string | null;
-  specialties: string[] | null;
-  linkedin_url: string | null;
-  avatar_url: string | null;
-  coach_background: string | null;
-  coach_background_detail: string | null;
-  coaching_experience_years: string | null;
-  coaching_experience_level: string | null;
-  leadership_experience_years: string | null;
-  current_role: string | null;
-  coaching_philosophy: string | null;
+// ── Tag pill component ────────────────────────────────────────────────────────
+function TagPills({ family, selected, onChange, single = false }: {
+  family: string; selected: string[]; onChange: (v: string[]) => void; single?: boolean;
+}) {
+  const { getTagsByFamily } = useTags();
+  const items = getTagsByFamily(family);
+  const toggle = (key: string) => {
+    if (single) { onChange(selected[0] === key ? [] : [key]); return; }
+    onChange(selected.includes(key) ? selected.filter(k => k !== key) : [...selected, key]);
+  };
+  return (
+    <div className="flex flex-wrap gap-2 mt-2">
+      {items.map(t => (
+        <button key={t.tag_key} type="button" onClick={() => toggle(t.tag_key)}
+          className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+            selected.includes(t.tag_key)
+              ? "bg-primary text-primary-foreground border-primary"
+              : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+          }`}>
+          {t.tag_label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface PendingProduct {
+  product_type: string;
+  title: string;
+  outcome_statement: string;
+  price_type: "enquiry" | "fixed" | "range";
+  price_cents: number | null;
+  price_display: string;
+  outcome_tags: string[];
+  audience_tags: string[];
+  format_tags: string[];
 }
 
 export default function CoachOnboarding() {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  // Token is passed via router state (not query string) to keep it out of browser history and logs
   const token = (location.state as { token?: string } | null)?.token ?? null;
 
   const [state, setState] = useState<"loading" | "invalid" | "form" | "submitting" | "success">("loading");
-  const [application, setApplication] = useState<CoachApplication | null>(null);
+  const [step, setStep] = useState(1);
 
-  // Read-only from Step 1
+  // Step 1
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
-
-  // Editable profile fields
+  const [currentRole, setCurrentRole] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
   const [bookingUrl, setBookingUrl] = useState("");
 
-  // Step-2 fields
-  const [pillarSpecialties, setPillarSpecialties] = useState<string[]>([]);
-  const [primaryJoinReason, setPrimaryJoinReason] = useState("");
-  const [commitmentLevel, setCommitmentLevel] = useState("");
-  const [startTimeline, setStartTimeline] = useState("");
-  const [excitementNote, setExcitementNote] = useState("");
-  const [primaryPillar, setPrimaryPillar] = useState("");
-  const [secondaryPillars, setSecondaryPillars] = useState<string[]>([]);
-  const [industryFocus, setIndustryFocus] = useState<string[]>([]);
-  const [coachingStyle, setCoachingStyle] = useState<string[]>([]);
-  const [engagementModel, setEngagementModel] = useState("");
-  const [availabilityStatus, setAvailabilityStatus] = useState("");
-  const [founderStageFocus, setFounderStageFocus] = useState<string[]>([]);
-  const [founderFunctionStrength, setFounderFunctionStrength] = useState<string[]>([]);
-  const [execLevel, setExecLevel] = useState("");
-  const [execFunction, setExecFunction] = useState<string[]>([]);
+  // Step 2 — tag keys
+  const [specialtyTags, setSpecialtyTags] = useState<string[]>([]);
+  const [audienceTags, setAudienceTags] = useState<string[]>([]);
+  const [styleTags, setStyleTags] = useState<string[]>([]);
+  const [industryTags, setIndustryTags] = useState<string[]>([]);
 
-  const handlePillarChange = (specialty: string, checked: boolean) => {
-    setPillarSpecialties(prev => checked ? [...prev, specialty] : prev.filter(s => s !== specialty));
-  };
+  // Step 3
+  const [availabilityTag, setAvailabilityTag] = useState<string[]>([]);
+  const [enterpriseTags, setEnterpriseTags] = useState<string[]>([]);
+  const [credentialTags, setCredentialTags] = useState<string[]>([]);
 
-  const toggleArray = (setter: React.Dispatch<React.SetStateAction<string[]>>, value: string, checked: boolean) => {
-    setter(prev => checked ? [...prev, value] : prev.filter(v => v !== value));
-  };
+  // Step 4 — pending product
+  const [pendingProduct, setPendingProduct] = useState<PendingProduct>({
+    product_type: "",
+    title: "",
+    outcome_statement: "",
+    price_type: "enquiry",
+    price_cents: null,
+    price_display: "",
+    outcome_tags: [],
+    audience_tags: [],
+    format_tags: [],
+  });
+
+  const { types: productTypes } = useProductTypes();
 
   useEffect(() => {
     if (!token) { setState("invalid"); return; }
@@ -106,51 +110,75 @@ export default function CoachOnboarding() {
       const { data, error } = await supabase.functions.invoke("validate-onboarding-token", { body: { token } });
       if (error || data?.error) { setState("invalid"); return; }
       const app = data.application;
-      setApplication(app);
       setFullName(app.full_name || "");
       setBio(app.bio || "");
       setLinkedinUrl(app.linkedin_url || "");
-      setAvatarUrl(app.avatar_url || "");
+      setCurrentRole(app.current_role || "");
       setState("form");
     } catch {
       setState("invalid");
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!primaryPillar || !primaryJoinReason || !commitmentLevel || !startTimeline) {
-      toast({ title: "Missing required fields", description: "Please fill in all required fields.", variant: "destructive" });
-      return;
+  // ── Validation per step ──────────────────────────────────────────────────────
+  const validateStep = (): boolean => {
+    if (step === 1) {
+      if (!fullName.trim()) {
+        toast({ title: "Full name is required", variant: "destructive" }); return false;
+      }
     }
+    if (step === 2) {
+      if (specialtyTags.length < 2) {
+        toast({ title: "Select at least 2 specialty tags", variant: "destructive" }); return false;
+      }
+      if (audienceTags.length < 1) {
+        toast({ title: "Select at least 1 audience tag", variant: "destructive" }); return false;
+      }
+    }
+    if (step === 4) {
+      if (!pendingProduct.product_type) {
+        toast({ title: "Select a product type", variant: "destructive" }); return false;
+      }
+      if (!pendingProduct.title.trim()) {
+        toast({ title: "Product title is required", variant: "destructive" }); return false;
+      }
+      if (pendingProduct.outcome_tags.length < 1) {
+        toast({ title: "Select at least 1 outcome tag", variant: "destructive" }); return false;
+      }
+      if (pendingProduct.audience_tags.length < 1) {
+        toast({ title: "Select at least 1 audience tag for the product", variant: "destructive" }); return false;
+      }
+      if (pendingProduct.format_tags.length < 1) {
+        toast({ title: "Select at least 1 format tag", variant: "destructive" }); return false;
+      }
+    }
+    return true;
+  };
 
+  const handleNext = () => {
+    if (!validateStep()) return;
+    setStep(s => s + 1);
+  };
+
+  const handleSubmit = async () => {
     setState("submitting");
     try {
-      const coachBackground = application?.coach_background || "";
       const { data, error } = await supabase.functions.invoke("complete-onboarding", {
         body: {
           token,
           fullName: fullName.trim(),
           bio: bio.trim(),
-          coachingFocus: pillarSpecialties.join(", "),
           linkedinUrl: linkedinUrl.trim() || null,
-          avatarUrl: avatarUrl.trim() || null,
-          pillarSpecialties,
-          primaryJoinReason,
-          commitmentLevel,
-          startTimeline,
-          excitementNote: excitementNote.trim() || null,
-          primaryPillar,
-          secondaryPillars: secondaryPillars.length > 0 ? secondaryPillars : null,
-          industryFocus: industryFocus.length > 0 ? industryFocus : null,
-          coachingStyle: coachingStyle.length > 0 ? coachingStyle : null,
-          engagementModel: engagementModel || null,
-          availabilityStatus: availabilityStatus || null,
-          founderStageFocus: isFounderBackground(coachBackground) && founderStageFocus.length > 0 ? founderStageFocus : null,
-          founderFunctionStrength: isFounderBackground(coachBackground) && founderFunctionStrength.length > 0 ? founderFunctionStrength : null,
-          execLevel: isExecutiveBackground(coachBackground) ? execLevel || null : null,
-          execFunction: isExecutiveBackground(coachBackground) && execFunction.length > 0 ? execFunction : null,
+          currentRole: currentRole.trim() || null,
           bookingUrl: bookingUrl.trim() || null,
+          specialtyTags,
+          audienceTags,
+          styleTags,
+          industryTags,
+          availabilityTag: availabilityTag[0] || null,
+          enterpriseTags,
+          credentialTags,
+          pendingProduct,
         },
       });
       if (error || data?.error) throw new Error(data?.error || "Failed to complete onboarding");
@@ -163,6 +191,7 @@ export default function CoachOnboarding() {
     }
   };
 
+  // ── Loading / error / success states ────────────────────────────────────────
   if (state === "loading") {
     return (
       <Layout>
@@ -226,286 +255,234 @@ export default function CoachOnboarding() {
     );
   }
 
-  const coachBackground = application?.coach_background || "";
+  // ── Form ─────────────────────────────────────────────────────────────────────
+  const pp = pendingProduct;
+  const setPP = (patch: Partial<PendingProduct>) => setPendingProduct(prev => ({ ...prev, ...patch }));
+
+  const stepTitles = [
+    "Coach Identity",
+    "Positioning",
+    "Commercial Readiness",
+    "Your First Product",
+    "Review & Submit",
+  ];
 
   return (
     <Layout>
       <section className="py-16">
         <div className="container-wide max-w-2xl mx-auto">
+          {/* Header & progress */}
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold">Complete Your Coach Profile</h1>
-            <p className="text-muted-foreground mt-2">Step 2 of 2: Complete your coach profile (pillars, preferences, motivation).</p>
+            <p className="text-muted-foreground mt-2">Step {step} of 5 — {stepTitles[step - 1]}</p>
           </div>
-
-          {/* Read-only Step 1 Summary */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Your Application Summary</CardTitle>
-              <CardDescription>This information was submitted in Step 1 and cannot be edited here.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Name</span>
-                  <span className="font-medium">{application?.full_name}</span>
-                </div>
-                {application?.bio && (
-                  <div>
-                    <span className="text-muted-foreground">Bio</span>
-                    <p className="mt-1 text-foreground">{application.bio}</p>
-                  </div>
-                )}
-                {application?.coach_background && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Background</span>
-                    <span className="font-medium">{application.coach_background}</span>
-                  </div>
-                )}
-                {application?.coaching_experience_years && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Coaching Experience</span>
-                    <span className="font-medium">{application.coaching_experience_years}</span>
-                  </div>
-                )}
-                {application?.coaching_experience_level && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Experience Level</span>
-                    <span className="font-medium">{application.coaching_experience_level}</span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex gap-1 mb-8">
+            {[1, 2, 3, 4, 5].map(n => (
+              <div key={n} className={`h-1.5 flex-1 rounded-full transition-colors ${n <= step ? "bg-primary" : "bg-muted"}`} />
+            ))}
+          </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>Profile Details</CardTitle>
-              <CardDescription>Complete your coaching profile to get started with Galoras.</CardDescription>
+              <CardTitle>{stepTitles[step - 1]}</CardTitle>
+              {step === 4 && <CardDescription>Add your first coaching product. You can add more from your dashboard.</CardDescription>}
             </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <CardContent className="space-y-5">
 
-                {/* Conditional Founder fields (based on Step 1 background) */}
-                {isFounderBackground(coachBackground) && (
-                  <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
-                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Founder Details</h4>
-                    <div className="space-y-2">
-                      <Label>Founder Stage Focus</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {FOUNDER_STAGE_OPTIONS.map((opt) => (
-                          <div key={opt} className="flex items-center space-x-2">
-                            <Checkbox id={`onb-fs-${opt}`} checked={founderStageFocus.includes(opt)} onCheckedChange={(c) => toggleArray(setFounderStageFocus, opt, c as boolean)} />
-                            <Label htmlFor={`onb-fs-${opt}`} className="text-sm cursor-pointer">{opt}</Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Functional Strengths</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {FOUNDER_FUNCTION_OPTIONS.map((opt) => (
-                          <div key={opt} className="flex items-center space-x-2">
-                            <Checkbox id={`onb-ff-${opt}`} checked={founderFunctionStrength.includes(opt)} onCheckedChange={(c) => toggleArray(setFounderFunctionStrength, opt, c as boolean)} />
-                            <Label htmlFor={`onb-ff-${opt}`} className="text-sm cursor-pointer">{opt}</Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Conditional Executive fields */}
-                {isExecutiveBackground(coachBackground) && (
-                  <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
-                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Executive Details</h4>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Executive Level</Label>
-                        <Select value={execLevel} onValueChange={setExecLevel}>
-                          <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
-                          <SelectContent>
-                            {EXEC_LEVEL_OPTIONS.map((opt) => (
-                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Executive Functions</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {EXEC_FUNCTION_OPTIONS.map((opt) => (
-                          <div key={opt} className="flex items-center space-x-2">
-                            <Checkbox id={`onb-ef-${opt}`} checked={execFunction.includes(opt)} onCheckedChange={(c) => toggleArray(setExecFunction, opt, c as boolean)} />
-                            <Label htmlFor={`onb-ef-${opt}`} className="text-sm cursor-pointer">{opt}</Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Primary Pillar Taxonomy */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Coaching Pillar</h3>
-                  <p className="text-sm text-muted-foreground">Select your primary coaching pillar and any secondary areas.</p>
+              {/* ── Step 1 ── */}
+              {step === 1 && (
+                <>
                   <div className="space-y-2">
-                    <Label>Primary Pillar *</Label>
-                    <Select value={primaryPillar} onValueChange={(v) => { setPrimaryPillar(v); setSecondaryPillars(prev => prev.filter(p => p !== v)); }}>
-                      <SelectTrigger><SelectValue placeholder="Select primary pillar" /></SelectTrigger>
-                      <SelectContent>
-                        {PRIMARY_PILLAR_OPTIONS.map((opt) => (
-                          <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="fullName">Full Name *</Label>
+                    <Input id="fullName" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" required />
                   </div>
                   <div className="space-y-2">
-                    <Label>Secondary Pillars</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                      {PRIMARY_PILLAR_OPTIONS.filter(p => p !== primaryPillar).map((opt) => (
-                        <div key={opt} className="flex items-center space-x-2">
-                          <Checkbox id={`onb-sp-${opt}`} checked={secondaryPillars.includes(opt)} onCheckedChange={(c) => toggleArray(setSecondaryPillars, opt, c as boolean)} />
-                          <Label htmlFor={`onb-sp-${opt}`} className="text-sm cursor-pointer">{opt}</Label>
-                        </div>
-                      ))}
-                    </div>
+                    <Label htmlFor="bio">Bio / Positioning Statement</Label>
+                    <Textarea id="bio" rows={4} value={bio} onChange={e => setBio(e.target.value)} placeholder="Describe your coaching approach..." />
                   </div>
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="currentRole">Current Role</Label>
+                    <Input id="currentRole" value={currentRole} onChange={e => setCurrentRole(e.target.value)} placeholder="e.g. Executive Coach" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
+                    <Input id="linkedinUrl" type="url" value={linkedinUrl} onChange={e => setLinkedinUrl(e.target.value)} placeholder="https://linkedin.com/in/yourprofile" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bookingUrl">Booking URL (optional)</Label>
+                    <Input id="bookingUrl" type="url" value={bookingUrl} onChange={e => setBookingUrl(e.target.value)} placeholder="https://calendly.com/yourname" />
+                  </div>
+                </>
+              )}
 
-                {/* Coaching Preferences */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Coaching Preferences</h3>
-                  <div className="space-y-2">
-                    <Label>Industry Focus</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                      {INDUSTRY_FOCUS_OPTIONS.map((opt) => (
-                        <div key={opt} className="flex items-center space-x-2">
-                          <Checkbox id={`onb-if-${opt}`} checked={industryFocus.includes(opt)} onCheckedChange={(c) => toggleArray(setIndustryFocus, opt, c as boolean)} />
-                          <Label htmlFor={`onb-if-${opt}`} className="text-sm cursor-pointer">{opt}</Label>
-                        </div>
-                      ))}
-                    </div>
+              {/* ── Step 2 ── */}
+              {step === 2 && (
+                <>
+                  <div className="space-y-1">
+                    <Label>Specialty Tags <span className="text-muted-foreground text-xs">(min 2)</span></Label>
+                    <TagPills family="specialty" selected={specialtyTags} onChange={setSpecialtyTags} />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1">
+                    <Label>Audience Tags <span className="text-muted-foreground text-xs">(min 1)</span></Label>
+                    <TagPills family="audience" selected={audienceTags} onChange={setAudienceTags} />
+                  </div>
+                  <div className="space-y-1">
                     <Label>Coaching Style</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                      {COACHING_STYLE_OPTIONS.map((opt) => (
-                        <div key={opt} className="flex items-center space-x-2">
-                          <Checkbox id={`onb-cs-${opt}`} checked={coachingStyle.includes(opt)} onCheckedChange={(c) => toggleArray(setCoachingStyle, opt, c as boolean)} />
-                          <Label htmlFor={`onb-cs-${opt}`} className="text-sm cursor-pointer">{opt}</Label>
-                        </div>
+                    <TagPills family="style" selected={styleTags} onChange={setStyleTags} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Industry Focus</Label>
+                    <TagPills family="industry" selected={industryTags} onChange={setIndustryTags} />
+                  </div>
+                </>
+              )}
+
+              {/* ── Step 3 ── */}
+              {step === 3 && (
+                <>
+                  <div className="space-y-1">
+                    <Label>Availability</Label>
+                    <TagPills family="availability" selected={availabilityTag} onChange={setAvailabilityTag} single />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Enterprise</Label>
+                    <TagPills family="enterprise" selected={enterpriseTags} onChange={setEnterpriseTags} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Credentials</Label>
+                    <TagPills family="credential" selected={credentialTags} onChange={setCredentialTags} />
+                  </div>
+                </>
+              )}
+
+              {/* ── Step 4 ── */}
+              {step === 4 && (
+                <>
+                  <div className="space-y-2">
+                    <Label>Product Type *</Label>
+                    <Select value={pp.product_type} onValueChange={v => setPP({ product_type: v })}>
+                      <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                      <SelectContent>
+                        {productTypes.map(t => <SelectItem key={t.slug} value={t.slug}>{t.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="prodTitle">Title *</Label>
+                    <Input id="prodTitle" value={pp.title} onChange={e => setPP({ title: e.target.value })} placeholder="e.g. 90-day Leadership Intensive" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="outcomeStatement">Outcome Statement</Label>
+                    <Textarea id="outcomeStatement" rows={3} value={pp.outcome_statement} onChange={e => setPP({ outcome_statement: e.target.value })} placeholder="What will the client achieve?" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Outcome Tags <span className="text-muted-foreground text-xs">(min 1)</span></Label>
+                    <TagPills family="outcome" selected={pp.outcome_tags} onChange={v => setPP({ outcome_tags: v })} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Audience Tags <span className="text-muted-foreground text-xs">(min 1)</span></Label>
+                    <TagPills family="audience" selected={pp.audience_tags} onChange={v => setPP({ audience_tags: v })} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Format Tags <span className="text-muted-foreground text-xs">(min 1)</span></Label>
+                    <TagPills family="format" selected={pp.format_tags} onChange={v => setPP({ format_tags: v })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Price Type</Label>
+                    <div className="flex gap-3">
+                      {(["enquiry", "fixed", "range"] as const).map(pt => (
+                        <button key={pt} type="button"
+                          onClick={() => setPP({ price_type: pt, price_cents: null, price_display: "" })}
+                          className={`px-4 py-2 rounded-full border text-sm capitalize transition-colors ${
+                            pp.price_type === pt
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "border-border text-muted-foreground hover:border-primary/50"
+                          }`}>
+                          {pt === "enquiry" ? "Enquiry" : pt === "fixed" ? "Fixed" : "Price Range"}
+                        </button>
                       ))}
                     </div>
                   </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Engagement Model</Label>
-                      <Select value={engagementModel} onValueChange={setEngagementModel}>
-                        <SelectTrigger><SelectValue placeholder="Select model" /></SelectTrigger>
-                        <SelectContent>
-                          {ENGAGEMENT_MODEL_OPTIONS.map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Availability</Label>
-                      <Select value={availabilityStatus} onValueChange={setAvailabilityStatus}>
-                        <SelectTrigger><SelectValue placeholder="Select availability" /></SelectTrigger>
-                        <SelectContent>
-                          {AVAILABILITY_STATUS_OPTIONS.map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Detailed Specialties */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Detailed Specialties (Optional)</h3>
-                  <p className="text-sm text-muted-foreground">Select specific areas of expertise</p>
-                  <div className="space-y-4">
-                    {Object.entries(PILLAR_SPECIALTIES).map(([pillar, specialties]) => (
-                      <div key={pillar}>
-                        <p className="text-sm font-semibold text-muted-foreground mb-2">{pillar}</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {specialties.map((s) => (
-                            <div key={s} className="flex items-center space-x-2">
-                              <Checkbox id={`onb-${s}`} checked={pillarSpecialties.includes(s)} onCheckedChange={(c) => handlePillarChange(s, c as boolean)} />
-                              <Label htmlFor={`onb-${s}`} className="text-sm cursor-pointer">{s}</Label>
-                            </div>
-                          ))}
-                        </div>
+                  {pp.price_type === "fixed" && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="priceDollars">Price (USD)</Label>
+                        <Input id="priceDollars" type="number" min={0} placeholder="0"
+                          value={pp.price_cents !== null ? pp.price_cents / 100 : ""}
+                          onChange={e => setPP({ price_cents: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null })} />
                       </div>
-                    ))}
-                  </div>
-                </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="priceDisplay">Display Text</Label>
+                        <Input id="priceDisplay" value={pp.price_display} onChange={e => setPP({ price_display: e.target.value })} placeholder="e.g. $2,500" />
+                      </div>
+                    </div>
+                  )}
+                  {pp.price_type === "range" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="rangeDisplay">Price Range Display</Label>
+                      <Input id="rangeDisplay" value={pp.price_display} onChange={e => setPP({ price_display: e.target.value })} placeholder="e.g. $2,000 – $5,000" />
+                    </div>
+                  )}
+                </>
+              )}
 
-                {/* Motivation */}
+              {/* ── Step 5 — Review ── */}
+              {step === 5 && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Motivation</h3>
-                  <div className="space-y-2">
-                    <Label>Primary Reason for Joining *</Label>
-                    <Select value={primaryJoinReason} onValueChange={setPrimaryJoinReason}>
-                      <SelectTrigger><SelectValue placeholder="Select reason" /></SelectTrigger>
-                      <SelectContent>
-                        {JOIN_REASON_OPTIONS.map((opt) => (<SelectItem key={opt} value={opt}>{opt}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
+                  <div className="rounded-lg border border-border p-4 space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Name</span>
+                      <span className="font-medium">{fullName}</span>
+                    </div>
+                    {currentRole && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Role</span>
+                        <span className="font-medium">{currentRole}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Specialties</span>
+                      <span className="font-medium">{specialtyTags.length} selected</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Audience tags</span>
+                      <span className="font-medium">{audienceTags.length} selected</span>
+                    </div>
+                    {pp.title && (
+                      <>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Product</span>
+                          <span className="font-medium">{pp.title}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Product type</span>
+                          <span className="font-medium">{pp.product_type}</span>
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <div className="space-y-2">
-                    <Label>Coaching Commitment Level *</Label>
-                    <Select value={commitmentLevel} onValueChange={setCommitmentLevel}>
-                      <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
-                      <SelectContent>
-                        {COMMITMENT_LEVEL_OPTIONS.map((opt) => (<SelectItem key={opt} value={opt}>{opt}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>When Would You Like to Begin? *</Label>
-                    <Select value={startTimeline} onValueChange={setStartTimeline}>
-                      <SelectTrigger><SelectValue placeholder="Select timeline" /></SelectTrigger>
-                      <SelectContent>
-                        {START_TIMELINE_OPTIONS.map((opt) => (<SelectItem key={opt} value={opt}>{opt}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="excitement">What excites you most about coaching?</Label>
-                    <Textarea id="excitement" rows={2} maxLength={200} value={excitementNote} onChange={(e) => setExcitementNote(e.target.value)} placeholder="Optional — max 200 characters" />
-                    <p className="text-xs text-muted-foreground text-right">{excitementNote.length}/200</p>
-                  </div>
+                  <p className="text-sm text-muted-foreground">Review your details above. Click Submit to complete your profile.</p>
                 </div>
+              )}
 
-                {/* LinkedIn URL */}
-                <div className="space-y-2">
-                  <Label htmlFor="linkedinUrl" className="flex items-center gap-2"><Linkedin className="h-4 w-4" />LinkedIn URL</Label>
-                  <Input id="linkedinUrl" type="url" value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} placeholder="https://linkedin.com/in/yourprofile" />
-                </div>
+              {/* ── Navigation ── */}
+              <div className="flex gap-3 pt-2">
+                {step > 1 && (
+                  <Button type="button" variant="outline" onClick={() => setStep(s => s - 1)} className="flex-1">
+                    Back
+                  </Button>
+                )}
+                {step < 5 ? (
+                  <Button type="button" onClick={handleNext} className="flex-1">
+                    Next
+                  </Button>
+                ) : (
+                  <Button type="button" onClick={handleSubmit} className="flex-1" disabled={state === "submitting"}>
+                    {state === "submitting" ? (<><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving...</>) : "Submit"}
+                  </Button>
+                )}
+              </div>
 
-                {/* Profile Image URL */}
-                <div className="space-y-2">
-                  <Label htmlFor="avatarUrl" className="flex items-center gap-2"><Image className="h-4 w-4" />Profile Image URL</Label>
-                  <Input id="avatarUrl" type="url" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} placeholder="https://example.com/your-photo.jpg" />
-                  <p className="text-sm text-muted-foreground">Enter a URL to your professional photo (optional).</p>
-                </div>
-
-                {/* Booking URL */}
-                <div className="space-y-2">
-                  <Label htmlFor="bookingUrl" className="flex items-center gap-2"><Calendar className="h-4 w-4" />Booking Link (e.g., Calendly)</Label>
-                  <Input id="bookingUrl" type="url" value={bookingUrl} onChange={(e) => setBookingUrl(e.target.value)} placeholder="https://calendly.com/yourname" />
-                  <p className="text-sm text-muted-foreground">Optional — must start with https://</p>
-                </div>
-
-                <Button type="submit" className="w-full" disabled={state === "submitting"}>
-                  {state === "submitting" ? (<><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving...</>) : "Complete Profile"}
-                </Button>
-              </form>
             </CardContent>
           </Card>
         </div>

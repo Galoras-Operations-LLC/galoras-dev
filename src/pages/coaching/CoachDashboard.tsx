@@ -11,18 +11,20 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Calendar, 
-  Clock, 
-  User, 
-  CheckCircle, 
+import {
+  Calendar,
+  Clock,
+  User,
+  CheckCircle,
   XCircle,
   Mail,
   FileText,
   TrendingUp,
   Users,
-  ImageIcon
+  ImageIcon,
+  Package
 } from 'lucide-react';
+import { CoachProductsTab } from '@/components/coaching/CoachProductsTab';
 import { useNavigate } from 'react-router-dom';
 
 const DAYS_OF_WEEK = [
@@ -283,6 +285,10 @@ export default function CoachDashboard() {
           <TabsList className="mb-6">
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
             <TabsTrigger value="availability">Availability</TabsTrigger>
+            <TabsTrigger value="products">
+              <Package className="h-4 w-4 mr-1.5" />
+              Products & Programs
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="bookings">
@@ -461,6 +467,10 @@ export default function CoachDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="products">
+            <CoachProductsTab coachProfile={coachProfile} />
           </TabsContent>
         </Tabs>
       </div>

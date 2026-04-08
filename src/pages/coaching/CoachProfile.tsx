@@ -9,10 +9,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { ContactModal } from "@/components/coaching/ContactModal";
 import { ProductCard, CoachProduct } from "@/components/coaching/ProductCard";
 import { useProductTypes } from "@/hooks/useProductTypes";
-import { CheckoutModal } from "@/components/coaching/CheckoutModal";
-import { loadStripe } from "@stripe/stripe-js";
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? "");
 
 type CoachProfileData = {
   id: string;
@@ -65,11 +61,6 @@ export default function CoachProfile() {
   // Products
   const [products, setProducts] = useState<CoachProduct[]>([]);
 
-  // Checkout
-  const [checkoutProduct, setCheckoutProduct] = useState<CoachProduct | null>(null);
-  const [checkoutSecret, setCheckoutSecret] = useState("");
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-
   useEffect(() => {
     fetchCoach();
   }, [resolvedSlug, fallbackId]);
@@ -81,41 +72,12 @@ export default function CoachProfile() {
   const fetchProducts = async (coachId: string) => {
     const { data } = await supabase
       .from("coach_products")
-      .select("id, product_type, title, summary, what_you_get, who_its_for, duration_label, format, pricing_band, price_display, price_cents, cta_label, cta_url, sort_order")
+      .select("id, product_type, title, outcome_statement, target_audience, delivery_format, session_count, duration_minutes, duration_weeks, price_type, price_amount, price_range_min, price_range_max, enterprise_ready, booking_mode, visibility_scope, is_active, sort_order")
       .eq("coach_id", coachId)
       .eq("is_active", true)
+      .eq("visibility_scope", "public")
       .order("sort_order", { ascending: true });
     setProducts((data as CoachProduct[]) || []);
-  };
-
-  const handleProductCta = async (product: CoachProduct) => {
-    // Has a fixed price and a logged-in user → Stripe checkout
-    if (product.price_cents && isLoggedIn) {
-      setCheckoutLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
-      const res = await supabase.functions.invoke("create-payment-intent", {
-        body: {
-          productId: product.id,
-          coachId: coach!.id,
-          amountCents: product.price_cents,
-          currency: "cad",
-        },
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      setCheckoutLoading(false);
-      if (res.data?.clientSecret) {
-        setCheckoutProduct(product);
-        setCheckoutSecret(res.data.clientSecret);
-      }
-      return;
-    }
-    // Has a fixed price but not logged in → prompt sign-in
-    if (product.price_cents && !isLoggedIn) {
-      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
-      return;
-    }
-    // Enquiry / external URL → ProductCard handles it natively via its own onClick
   };
 
   const fetchCoach = async () => {
@@ -302,16 +264,11 @@ export default function CoachProfile() {
                             key={product.id}
                             product={product}
                             coachName={coach.display_name || ""}
+                            bookingUrl={coach.booking_url}
                             getTypeConfig={getTypeConfig}
-                            onCtaClick={product.price_cents ? () => handleProductCta(product) : undefined}
                           />
                         ))}
                       </div>
-                      {checkoutLoading && (
-                        <p className="text-sm text-muted-foreground text-center mt-4">
-                          Preparing checkout…
-                        </p>
-                      )}
                     </section>
                   )}
 
@@ -367,25 +324,6 @@ export default function CoachProfile() {
                     coachId={coach.id}
                     coachName={coach.display_name || "Coach"}
                     onClose={() => setShowContact(false)}
-                  />
-                )}
-
-                {checkoutProduct && checkoutSecret && (
-                  <CheckoutModal
-                    open={!!checkoutSecret}
-                    stripePromise={stripePromise}
-                    clientSecret={checkoutSecret}
-                    productTitle={checkoutProduct.title}
-                    amountCents={checkoutProduct.price_cents!}
-                    currency="cad"
-                    onSuccess={() => {
-                      setCheckoutProduct(null);
-                      setCheckoutSecret("");
-                    }}
-                    onClose={() => {
-                      setCheckoutProduct(null);
-                      setCheckoutSecret("");
-                    }}
                   />
                 )}
               </>

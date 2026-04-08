@@ -22,6 +22,8 @@ serve(async (req) => {
       engagementModel, availabilityStatus,
       founderStageFocus, founderFunctionStrength, execLevel, execFunction,
       bookingUrl,
+      specialtyTags, audienceTags, styleTags, industryTags,
+      availabilityTag, enterpriseTags, credentialTags, pendingProduct,
     } = await req.json();
 
     if (!token) {
@@ -110,6 +112,14 @@ serve(async (req) => {
       ...(execLevel !== undefined && { exec_level: execLevel || null }),
       ...(execFunction !== undefined && { exec_function: execFunction || null }),
       ...(bookingUrl !== undefined && { booking_url: bookingUrl || null }),
+      ...(specialtyTags !== undefined && { specialty_tags: specialtyTags || null }),
+      ...(audienceTags !== undefined && { audience_tags: audienceTags || null }),
+      ...(styleTags !== undefined && { style_tags: styleTags || null }),
+      ...(industryTags !== undefined && { industry_tags: industryTags || null }),
+      ...(availabilityTag !== undefined && { availability_tag: availabilityTag || null }),
+      ...(enterpriseTags !== undefined && { enterprise_tags: enterpriseTags || null }),
+      ...(credentialTags !== undefined && { credential_tags: credentialTags || null }),
+      ...(pendingProduct !== undefined && { pending_product: pendingProduct || null }),
     };
 
     const { error: updateError } = await supabase

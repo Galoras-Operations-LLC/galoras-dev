@@ -151,6 +151,98 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Write tag mappings and create pending product from application data
+    try {
+      const { data: appData } = await supabase
+        .from("coach_applications")
+        .select("specialty_tags, audience_tags, style_tags, industry_tags, availability_tag, enterprise_tags, credential_tags, pending_product")
+        .eq("user_id", coachUserId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const { data: coachRow } = await supabase
+        .from("coaches")
+        .select("id")
+        .eq("user_id", coachUserId)
+        .single();
+      const coachId = coachRow?.id;
+
+      if (coachId && appData) {
+        // Collect all tag keys across all families
+        const allTagKeys: string[] = [
+          ...(appData.specialty_tags || []),
+          ...(appData.audience_tags || []),
+          ...(appData.style_tags || []),
+          ...(appData.industry_tags || []),
+          ...(appData.availability_tag ? [appData.availability_tag] : []),
+          ...(appData.enterprise_tags || []),
+          ...(appData.credential_tags || []),
+        ];
+
+        if (allTagKeys.length > 0) {
+          // Look up tag IDs
+          const { data: tagRows } = await supabase
+            .from("tags")
+            .select("id, tag_key")
+            .in("tag_key", allTagKeys);
+
+          if (tagRows && tagRows.length > 0) {
+            const tagMapRows = tagRows.map((t: any) => ({ coach_id: coachId, tag_id: t.id }));
+            await supabase
+              .from("coach_tag_map")
+              .upsert(tagMapRows, { onConflict: "coach_id,tag_id", ignoreDuplicates: true });
+          }
+        }
+
+        // If there's a pending product, create it
+        if (appData.pending_product && (appData.pending_product as any).title) {
+          const pp = appData.pending_product as any;
+          const { data: productRow } = await supabase
+            .from("coach_products")
+            .insert({
+              coach_id: coachId,
+              product_type: pp.product_type || "single_session",
+              title: pp.title,
+              outcome_statement: pp.outcome_statement || null,
+              price_type: pp.price_type || "enquiry",
+              price_cents: pp.price_cents || null,
+              price_display: pp.price_display || null,
+              cta_label: "Book Now",
+              is_active: true,
+              sort_order: 0,
+            })
+            .select("id")
+            .single();
+
+          if (productRow?.id) {
+            // Build product tag keys
+            const productTagKeys: string[] = [
+              ...(pp.outcome_tags || []),
+              ...(pp.audience_tags || []),
+              ...(pp.format_tags || []),
+              ...(pp.product_type ? [pp.product_type] : []),
+            ];
+
+            if (productTagKeys.length > 0) {
+              const { data: productTagRows } = await supabase
+                .from("tags")
+                .select("id, tag_key")
+                .in("tag_key", productTagKeys);
+
+              if (productTagRows && productTagRows.length > 0) {
+                await supabase
+                  .from("product_tag_map")
+                  .insert(productTagRows.map((t: any) => ({ product_id: productRow.id, tag_id: t.id })));
+              }
+            }
+          }
+        }
+      }
+    } catch (tagErr: any) {
+      console.error("approve-coach tag/product sync error (non-blocking):", tagErr);
+    }
+
     // Update application
     await supabase
       .from("coach_applications")

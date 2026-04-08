@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ContactModal } from "@/components/coaching/ContactModal";
 import { AuthGate } from "@/components/AuthGate";
 import { useAuth } from "@/hooks/useAuth";
+import { useProductTypes } from "@/hooks/useProductTypes";
+import { useTags } from "@/hooks/useTags";
 
 type PublicCoach = {
   id: string;
@@ -21,6 +23,7 @@ type PublicCoach = {
   avatar_url: string | null;
   booking_url: string | null;
   tier: string | null;
+  coach_products?: { product_type: string }[] | null;
 };
 
 const FILTER_ALL = "All";
@@ -45,10 +48,15 @@ export default function CoachingDirectory() {
   const [activeFilter, setActiveFilter] = useState(
     filterParam && goalFilters.some(f => f.value === filterParam) ? filterParam : FILTER_ALL
   );
+  const [activeProductTypeFilter, setActiveProductTypeFilter] = useState("");
+  const [activeTagFilter, setActiveTagFilter] = useState("");
   const [contactCoach, setContactCoach] = useState<{ id: string; name: string } | null>(null);
   const [compareList, setCompareList] = useState<string[]>([]);
   const { isLoggedIn, profile } = useAuth();
   const navigate = useNavigate();
+  const { types: productTypes, getConfig } = useProductTypes();
+  const { getTagsByFamily } = useTags();
+  const specialtyTags = getTagsByFamily("specialty");
 
   const toggleCompare = (id: string) => {
     setCompareList((prev) => {
@@ -63,7 +71,7 @@ export default function CoachingDirectory() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("coaches")
-        .select("id, slug, display_name, headline, bio, specialties, audience, avatar_url, booking_url, tier")
+        .select("id, slug, display_name, headline, bio, specialties, audience, avatar_url, booking_url, tier, coach_products(product_type)")
         .eq("lifecycle_status", "published")
         .order("display_name", { ascending: true });
 
@@ -71,6 +79,25 @@ export default function CoachingDirectory() {
       return (data || []) as PublicCoach[];
     },
   });
+
+  const { data: coachTagData } = useQuery({
+    queryKey: ["coach-tag-map-directory"],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("coach_tag_map")
+        .select("coach_id, tags(tag_key, tag_label, tag_family)");
+      return data || [];
+    },
+  });
+
+  const coachTagLookup = useMemo(() => {
+    const map: Record<string, { tag_key: string; tag_label: string; tag_family: string }[]> = {};
+    (coachTagData || []).forEach((row: any) => {
+      if (!map[row.coach_id]) map[row.coach_id] = [];
+      if (row.tags) map[row.coach_id].push(row.tags);
+    });
+    return map;
+  }, [coachTagData]);
 
   const matchScore = (coach: PublicCoach): number => {
     if (!profile?.coaching_areas || profile.coaching_areas.length === 0) return 0;
@@ -94,7 +121,13 @@ export default function CoachingDirectory() {
         (coach.specialties || []).some((s) =>
           s.toLowerCase().includes(categoryParam.toLowerCase())
         );
-      return matchesSearch && matchesFilter && matchesCategory;
+      const matchesProductType =
+        !activeProductTypeFilter ||
+        (coach.coach_products || []).some((p) => p.product_type === activeProductTypeFilter);
+      const matchesTagFilter =
+        !activeTagFilter ||
+        (coachTagLookup[coach.id] || []).some(t => t.tag_family === "specialty" && t.tag_key === activeTagFilter);
+      return matchesSearch && matchesFilter && matchesCategory && matchesProductType && matchesTagFilter;
     })
     .sort((a, b) => matchScore(b) - matchScore(a));
 
@@ -200,7 +233,7 @@ export default function CoachingDirectory() {
           )}
 
           {/* Goal filters */}
-          <div className="flex flex-wrap gap-2 mb-10">
+          <div className="flex flex-wrap gap-2 mb-4">
             {goalFilters.map((f) => (
               <button
                 key={f.value}
@@ -215,6 +248,70 @@ export default function CoachingDirectory() {
               </button>
             ))}
           </div>
+
+          {/* Product type filters */}
+          {productTypes.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 mb-10">
+              <span className="text-xs text-zinc-500 font-medium mr-1">Offering type:</span>
+              <button
+                onClick={() => setActiveProductTypeFilter("")}
+                className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                  activeProductTypeFilter === ""
+                    ? "bg-primary border-primary text-zinc-950"
+                    : "border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-white"
+                }`}
+              >
+                All
+              </button>
+              {productTypes.map((pt) => {
+                const { label, className } = getConfig(pt.slug);
+                const isActive = activeProductTypeFilter === pt.slug;
+                return (
+                  <button
+                    key={pt.slug}
+                    onClick={() => setActiveProductTypeFilter(isActive ? "" : pt.slug)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                      isActive
+                        ? "bg-primary border-primary text-zinc-950"
+                        : "border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-white"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Specialty tag filters */}
+          {specialtyTags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-8 items-center">
+              <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mr-1">Speciality:</span>
+              <button
+                onClick={() => setActiveTagFilter("")}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                  !activeTagFilter
+                    ? "bg-primary border-primary text-zinc-950"
+                    : "border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-white"
+                }`}
+              >
+                All
+              </button>
+              {specialtyTags.map(t => (
+                <button
+                  key={t.tag_key}
+                  onClick={() => setActiveTagFilter(activeTagFilter === t.tag_key ? "" : t.tag_key)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                    activeTagFilter === t.tag_key
+                      ? "bg-primary border-primary text-zinc-950"
+                      : "border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-white"
+                  }`}
+                >
+                  {t.tag_label}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Results count */}
           {!isLoading && !error && (
@@ -296,7 +393,7 @@ export default function CoachingDirectory() {
 
                       {/* Specialty tags */}
                       {coach.specialties && coach.specialties.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-4">
+                        <div className="flex flex-wrap gap-1 mb-2">
                           {coach.specialties.slice(0, 2).map((s) => (
                             <span
                               key={s}
@@ -307,6 +404,44 @@ export default function CoachingDirectory() {
                           ))}
                         </div>
                       )}
+
+                      {/* Product type badges */}
+                      {(() => {
+                        const distinctTypes = [...new Set((coach.coach_products || []).map(p => p.product_type))].slice(0, 2);
+                        if (distinctTypes.length === 0) return null;
+                        return (
+                          <div className="flex flex-wrap gap-1 mb-4">
+                            {distinctTypes.map((slug) => {
+                              const { label, className } = getConfig(slug);
+                              return (
+                                <span
+                                  key={slug}
+                                  className={`px-2.5 py-0.5 text-xs font-semibold rounded-full border ${className}`}
+                                >
+                                  {label}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+
+                      {/* Tag badges from coach_tag_map */}
+                      {(() => {
+                        const coachTags = (coachTagLookup[coach.id] || [])
+                          .filter(t => t.tag_family === "specialty")
+                          .slice(0, 2);
+                        return coachTags.length > 0 ? (
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {coachTags.map(t => (
+                              <span key={t.tag_key}
+                                className="px-2 py-0.5 text-xs rounded-full bg-primary/10 border border-primary/20 text-primary">
+                                {t.tag_label}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null;
+                      })()}
 
                       {/* CTAs */}
                       <div className="flex gap-2 mt-auto pt-3 border-t border-zinc-800">

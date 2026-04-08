@@ -14,12 +14,13 @@ type FeaturedCoach = {
 };
 
 const CARD_W = 240;
-const CARD_GAP = 32;
+const CARD_GAP = 36;
 const CARD_STEP = CARD_W + CARD_GAP;
 
 export function FeaturedCoaches() {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const { data: coaches, isLoading, isError } = useQuery({
     queryKey: ["featured-coaches"],
@@ -59,28 +60,42 @@ export function FeaturedCoaches() {
     }
   };
 
-  const getCardStyle = (offset: number): React.CSSProperties => {
+  const getCardStyle = (offset: number, isHovered: boolean): React.CSSProperties => {
     const abs = Math.abs(offset);
     const sign = offset < 0 ? -1 : 1;
     const xPos = offset * CARD_STEP;
 
-    // ±1 cards are clearly visible, ±2+ start to fade
-    const rotateY = sign * Math.min(abs, 2) * 28;
-    const scale = abs === 0 ? 1 : abs === 1 ? 0.88 : Math.max(0.72, 1 - abs * 0.13);
-    // Bright enough to read clearly; only cards 3+ away go very dark
-    const brightness = abs === 0 ? 1 : abs === 1 ? 0.82 : abs === 2 ? 0.65 : Math.max(0.3, 0.65 - (abs - 2) * 0.18);
+    // Base 3D — deeper tilt on side cards for clear depth
+    const rotateY = sign * Math.min(abs, 2) * 42;
+    const baseScale = abs === 0 ? 1 : abs === 1 ? 0.84 : Math.max(0.68, 1 - abs * 0.14);
+    const baseBrightness = abs === 0 ? 1 : abs === 1 ? 0.78 : abs === 2 ? 0.6 : Math.max(0.25, 0.6 - (abs - 2) * 0.2);
     const opacity = abs > 3 ? 0 : 1;
+
+    // Hover overrides — card leaps forward
+    const scale = isHovered ? Math.min(1.08, baseScale * 1.1) : baseScale;
+    const brightness = isHovered ? Math.min(1.05, baseBrightness + 0.25) : baseBrightness;
+    const translateZ = isHovered ? 60 : 0;
+    const zIndex = isHovered ? 50 : (30 - Math.min(abs * 4, 28));
+
+    // Glow: primary blue on hover, subtle shadow at rest
+    const shadow = isHovered
+      ? "drop-shadow(0 0 18px rgba(95,181,245,0.55)) drop-shadow(0 24px 48px rgba(0,0,0,0.9))"
+      : abs === 0
+        ? "drop-shadow(0 12px 28px rgba(0,0,0,0.75))"
+        : "drop-shadow(0 8px 16px rgba(0,0,0,0.6))";
 
     return {
       position: "absolute",
       left: `calc(50% - ${CARD_W / 2}px + ${xPos}px)`,
       bottom: 0,
       width: `${CARD_W}px`,
-      transform: `perspective(1200px) rotateY(${rotateY}deg) scale(${scale})`,
-      zIndex: 30 - Math.min(abs * 4, 28),
-      filter: `brightness(${brightness})`,
+      transform: `perspective(1100px) rotateY(${rotateY}deg) scale(${scale}) translateZ(${translateZ}px)`,
+      zIndex,
+      filter: `brightness(${brightness}) ${shadow}`,
       opacity,
-      transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: isHovered
+        ? "transform 0.22s cubic-bezier(0.34,1.56,0.64,1), filter 0.22s ease, opacity 0.5s ease"
+        : "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
       pointerEvents: abs > 3 ? "none" : "auto",
     };
   };
@@ -126,11 +141,15 @@ export function FeaturedCoaches() {
 
       {/* Carousel stage */}
       <div className="relative z-10">
-        {/* Narrow edge masks — only hide coaches that scroll far off-screen */}
-        <div className="absolute left-0 top-0 bottom-0 w-16 z-20 pointer-events-none"
-          style={{ background: "linear-gradient(to right, #0d0f12 0%, transparent 100%)" }} />
-        <div className="absolute right-0 top-0 bottom-0 w-16 z-20 pointer-events-none"
-          style={{ background: "linear-gradient(to left, #0d0f12 0%, transparent 100%)" }} />
+        {/* Edge fade — only hides coaches scrolled far off screen */}
+        <div
+          className="absolute left-0 top-0 bottom-0 w-16 z-20 pointer-events-none"
+          style={{ background: "linear-gradient(to right, #0d0f12 0%, transparent 100%)" }}
+        />
+        <div
+          className="absolute right-0 top-0 bottom-0 w-16 z-20 pointer-events-none"
+          style={{ background: "linear-gradient(to left, #0d0f12 0%, transparent 100%)" }}
+        />
 
         {/* Arrows */}
         <button
@@ -150,35 +169,43 @@ export function FeaturedCoaches() {
           <ChevronRight className="h-6 w-6" />
         </button>
 
-        {/* Cards — all in DOM, positioned by offset */}
-        <div className="relative overflow-hidden" style={{ height: "500px" }}>
+        {/* Cards */}
+        <div className="relative overflow-hidden" style={{ height: "520px" }}>
           {coaches.map((coach, i) => {
             const offset = i - activeIndex;
+            const isHovered = hoveredIndex === i;
+            const isActive = offset === 0;
 
             return (
-              <div key={coach.id} style={getCardStyle(offset)}>
+              <div
+                key={coach.id}
+                style={getCardStyle(offset, isHovered)}
+                onMouseEnter={() => setHoveredIndex(i)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              >
                 <button
                   onClick={() => handleCardClick(i, offset)}
                   className="group relative cursor-pointer focus:outline-none w-full"
                   aria-label={
-                    offset === 0
+                    isActive
                       ? `View ${coach.display_name || "coach"} profile`
                       : `Select ${coach.display_name || "coach"}`
                   }
                 >
-                  <div className="relative overflow-hidden rounded-t-lg">
+                  <div className="relative overflow-hidden rounded-t-xl">
                     {coach.avatar_url ? (
                       <img
                         src={coach.avatar_url}
                         alt={coach.display_name || "Coach"}
-                        className="w-full h-[440px] object-cover object-top"
+                        className="w-full h-[460px] object-cover object-top"
                         style={{
-                          filter: offset === 0 ? "grayscale(0%)" : "grayscale(100%)",
-                          transition: "filter 0.5s ease",
+                          // Full colour when active or hovered; full B&W otherwise
+                          filter: isActive || isHovered ? "grayscale(0%)" : "grayscale(100%)",
+                          transition: "filter 0.3s ease",
                         }}
                       />
                     ) : (
-                      <div className="w-full h-[440px] bg-zinc-800 flex items-center justify-center">
+                      <div className="w-full h-[460px] bg-zinc-800 flex items-center justify-center">
                         <span className="text-7xl font-bold text-zinc-500">
                           {(coach.display_name || "C").charAt(0)}
                         </span>
@@ -186,20 +213,25 @@ export function FeaturedCoaches() {
                     )}
 
                     {/* Bottom gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
 
                     {/* Active glow ring */}
-                    {offset === 0 && (
-                      <div className="absolute inset-0 ring-2 ring-primary/70 rounded-t-lg pointer-events-none" />
+                    {isActive && (
+                      <div className="absolute inset-0 ring-2 ring-primary/70 rounded-t-xl pointer-events-none" />
                     )}
 
-                    {/* Name + role — active card always visible */}
+                    {/* Hover ring on side cards */}
+                    {!isActive && isHovered && (
+                      <div className="absolute inset-0 ring-2 ring-primary/40 rounded-t-xl pointer-events-none" />
+                    )}
+
+                    {/* Name + role — active always visible; side cards reveal on hover */}
                     <div
-                      className="absolute bottom-0 left-0 right-0 p-4 transition-all duration-300"
+                      className="absolute bottom-0 left-0 right-0 p-4"
                       style={{
-                        opacity: offset === 0 ? 1 : 0,
-                        transform:
-                          offset === 0 ? "translateY(0)" : "translateY(6px)",
+                        opacity: isActive || isHovered ? 1 : 0,
+                        transform: isActive || isHovered ? "translateY(0)" : "translateY(8px)",
+                        transition: "opacity 0.25s ease, transform 0.25s ease",
                       }}
                     >
                       <p className="text-white font-semibold text-sm leading-tight">
@@ -211,18 +243,9 @@ export function FeaturedCoaches() {
                         </p>
                       )}
                       <p className="text-primary text-xs mt-1 font-medium">
-                        View Profile →
+                        {isActive ? "View Profile →" : "Select →"}
                       </p>
                     </div>
-
-                    {/* Side-card hover hint */}
-                    {offset !== 0 && (
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span className="text-white/90 text-xs font-medium bg-black/60 px-3 py-1.5 rounded-full">
-                          Select
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </button>
               </div>

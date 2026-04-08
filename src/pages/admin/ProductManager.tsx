@@ -3,7 +3,9 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Save, Loader2, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Plus, Save, Loader2, Trash2, ToggleLeft, ToggleRight, Settings } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useProductTypes, ProductTypeDefinition, PRODUCT_TYPE_COLOR_PRESETS } from "@/hooks/useProductTypes";
 
 type Coach = { id: string; display_name: string | null; slug: string | null };
 
@@ -12,38 +14,51 @@ type Product = {
   coach_id: string;
   product_type: string;
   title: string;
-  summary: string | null;
-  who_its_for: string | null;
-  duration_label: string | null;
-  format: string | null;
-  pricing_band: string | null;
-  price_display: string | null;
-  price_cents: number | null;
-  cta_label: string;
-  cta_url: string | null;
+  outcome_statement: string | null;
+  target_audience: string[] | null;
+  delivery_format: string | null;
+  session_count: number | null;
+  duration_minutes: number | null;
+  duration_weeks: number | null;
+  price_type: string;
+  price_amount: number | null;
+  price_range_min: number | null;
+  price_range_max: number | null;
+  enterprise_ready: boolean;
+  booking_mode: string;
+  visibility_scope: string;
   is_active: boolean;
   sort_order: number;
 };
 
 const BLANK_PRODUCT = (coachId: string): Omit<Product, "id"> => ({
   coach_id: coachId,
-  product_type: "diagnostic",
+  product_type: "single_session",
   title: "",
-  summary: null,
-  who_its_for: null,
-  duration_label: null,
-  format: "online",
-  pricing_band: null,
-  price_display: null,
-  price_cents: null,
-  cta_label: "Enquire",
-  cta_url: null,
+  outcome_statement: null,
+  target_audience: null,
+  delivery_format: "online",
+  session_count: null,
+  duration_minutes: null,
+  duration_weeks: null,
+  price_type: "enquiry",
+  price_amount: null,
+  price_range_min: null,
+  price_range_max: null,
+  enterprise_ready: false,
+  booking_mode: "enquiry",
+  visibility_scope: "public",
   is_active: true,
   sort_order: 0,
 });
 
-const PRODUCT_TYPES = ["diagnostic", "block", "program", "enterprise"];
 const FORMATS = ["online", "in_person", "hybrid"];
+const PRICE_TYPES = ["enquiry", "fixed", "range"];
+const BOOKING_MODES = [
+  { value: "enquiry", label: "Enquiry" },
+  { value: "stripe",  label: "Stripe (coming soon)" },
+];
+const VISIBILITY = ["public", "unlisted", "private"];
 
 function inputClass() {
   return "w-full bg-[#1a2f4a] border border-[#2a4a6f] text-slate-200 text-sm rounded-xl px-3 py-2.5 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-500/50";
@@ -68,6 +83,61 @@ export default function ProductManager() {
   const [loadingCoaches, setLoadingCoaches] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [audienceInput, setAudienceInput] = useState("");
+
+  // Product type manager
+  const { types: productTypes, loading: typesLoading, refetch: refetchTypes } = useProductTypes();
+  const [showTypeManager, setShowTypeManager] = useState(false);
+  const [localTypes, setLocalTypes]           = useState<ProductTypeDefinition[]>([]);
+  const [newSlug, setNewSlug]                 = useState("");
+  const [newLabel, setNewLabel]               = useState("");
+  const [newColor, setNewColor]               = useState(PRODUCT_TYPE_COLOR_PRESETS[0].value);
+  const [typesSaving, setTypesSaving]         = useState(false);
+
+  const openTypeManager = () => {
+    setLocalTypes(productTypes.map(t => ({ ...t })));
+    setShowTypeManager(true);
+  };
+
+  const updateLocal = (id: string, field: keyof ProductTypeDefinition, value: string) => {
+    setLocalTypes(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
+  };
+
+  const saveType = async (t: ProductTypeDefinition) => {
+    setTypesSaving(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any)
+      .from("product_type_definitions")
+      .update({ label: t.label, badge_color: t.badge_color })
+      .eq("id", t.id);
+    if (error) toast({ title: "Failed to save", description: error.message, variant: "destructive" });
+    else { await refetchTypes(); toast({ title: "Saved" }); }
+    setTypesSaving(false);
+  };
+
+  const deleteType = async (t: ProductTypeDefinition) => {
+    if (!confirm(`Delete type "${t.label}"? Existing products using this type will keep the slug value.`)) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from("product_type_definitions").delete().eq("id", t.id);
+    await refetchTypes();
+    setLocalTypes(prev => prev.filter(x => x.id !== t.id));
+  };
+
+  const addType = async () => {
+    if (!newSlug.trim() || !newLabel.trim()) return;
+    setTypesSaving(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any)
+      .from("product_type_definitions")
+      .insert({ slug: newSlug.trim().toLowerCase().replace(/\s+/g, "_"), label: newLabel.trim(), badge_color: newColor, sort_order: localTypes.length });
+    if (error) toast({ title: "Failed to add", description: error.message, variant: "destructive" });
+    else {
+      setNewSlug(""); setNewLabel(""); setNewColor(PRODUCT_TYPE_COLOR_PRESETS[0].value);
+      await refetchTypes();
+      toast({ title: "Type added" });
+    }
+    setTypesSaving(false);
+  };
 
   useEffect(() => { fetchCoaches(); }, []);
 
@@ -101,20 +171,42 @@ export default function ProductManager() {
   const startNew = () => {
     if (!selectedCoach) return;
     setIsNew(true);
-    setEditing(BLANK_PRODUCT(selectedCoach.id));
+    const blank = BLANK_PRODUCT(selectedCoach.id);
+    setEditing(blank);
+    setAudienceInput("");
   };
 
   const selectProduct = (p: Product) => {
     setIsNew(false);
     setEditing({ ...p });
+    setAudienceInput((p.target_audience ?? []).join(", "));
+  };
+
+  const priceDisplay = (p: Product) => {
+    if (p.price_type === "fixed" && p.price_amount)
+      return `$${(p.price_amount / 100).toLocaleString()}`;
+    if (p.price_type === "range" && p.price_range_min && p.price_range_max)
+      return `$${(p.price_range_min / 100).toLocaleString()} – $${(p.price_range_max / 100).toLocaleString()}`;
+    return p.price_type;
   };
 
   const save = async () => {
     if (!editing || !selectedCoach) return;
     setSaving(true);
 
+    // Parse audience
+    const audience = audienceInput
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const payload = {
+      ...editing,
+      target_audience: audience.length > 0 ? audience : null,
+    };
+
     if (isNew) {
-      const { error } = await supabase.from("coach_products").insert(editing);
+      const { error } = await supabase.from("coach_products").insert(payload);
       if (error) {
         toast({ title: "Failed to create", description: error.message, variant: "destructive" });
       } else {
@@ -123,7 +215,7 @@ export default function ProductManager() {
         setEditing(null);
       }
     } else {
-      const { id, ...patch } = editing as Product;
+      const { id, ...patch } = payload as Product & { target_audience: string[] | null };
       const { error } = await supabase.from("coach_products").update(patch).eq("id", id);
       if (error) {
         toast({ title: "Failed to save", description: error.message, variant: "destructive" });
@@ -160,6 +252,84 @@ export default function ProductManager() {
 
   return (
     <AdminLayout title="Products">
+      {/* ── Manage Types Dialog ── */}
+      <Dialog open={showTypeManager} onOpenChange={setShowTypeManager}>
+        <DialogContent className="bg-[#0a1628] border-zinc-700 text-white max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">Manage Product Types</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 mt-2">
+            {localTypes.map(t => (
+              <div key={t.id} className="flex items-center gap-2">
+                <span className={`px-2 py-0.5 text-xs rounded-full border shrink-0 ${t.badge_color}`}>
+                  {t.label || "preview"}
+                </span>
+                <input
+                  className={inputClass() + " flex-1"}
+                  value={t.label}
+                  onChange={e => updateLocal(t.id, "label", e.target.value)}
+                  placeholder="Label"
+                />
+                <select
+                  className={inputClass() + " w-28"}
+                  value={t.badge_color}
+                  onChange={e => updateLocal(t.id, "badge_color", e.target.value)}
+                >
+                  {PRODUCT_TYPE_COLOR_PRESETS.map(p => (
+                    <option key={p.value} value={p.value} className="bg-[#1a2f4a]">{p.name}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => saveType(t)}
+                  disabled={typesSaving}
+                  className="text-xs text-amber-400 font-semibold hover:text-amber-300 shrink-0"
+                >
+                  Save
+                </button>
+                <button onClick={() => deleteType(t)} className="text-red-400 hover:text-red-300 shrink-0">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Add new type */}
+          <div className="pt-4 border-t border-zinc-700 space-y-2">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Add New Type</p>
+            <div className="flex items-center gap-2">
+              <input
+                className={inputClass() + " w-28"}
+                value={newSlug}
+                onChange={e => setNewSlug(e.target.value)}
+                placeholder="slug"
+              />
+              <input
+                className={inputClass() + " flex-1"}
+                value={newLabel}
+                onChange={e => setNewLabel(e.target.value)}
+                placeholder="Label"
+              />
+              <select
+                className={inputClass() + " w-28"}
+                value={newColor}
+                onChange={e => setNewColor(e.target.value)}
+              >
+                {PRODUCT_TYPE_COLOR_PRESETS.map(p => (
+                  <option key={p.value} value={p.value} className="bg-[#1a2f4a]">{p.name}</option>
+                ))}
+              </select>
+              <button
+                onClick={addType}
+                disabled={typesSaving || !newSlug.trim() || !newLabel.trim()}
+                className="shrink-0 flex items-center gap-1 text-xs text-emerald-400 font-semibold hover:text-emerald-300 disabled:opacity-40"
+              >
+                <Plus className="h-3.5 w-3.5" /> Add
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex h-full">
 
         {/* Left: coach list */}
@@ -190,14 +360,23 @@ export default function ProductManager() {
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Products {selectedCoach ? `(${products.length})` : ""}
             </p>
-            {selectedCoach && (
+            <div className="flex items-center gap-2">
               <button
-                onClick={startNew}
-                className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-semibold"
+                onClick={openTypeManager}
+                className="text-slate-500 hover:text-amber-400"
+                title="Manage product types"
               >
-                <Plus className="h-3.5 w-3.5" /> New
+                <Settings className="h-3.5 w-3.5" />
               </button>
-            )}
+              {selectedCoach && (
+                <button
+                  onClick={startNew}
+                  className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-semibold"
+                >
+                  <Plus className="h-3.5 w-3.5" /> New
+                </button>
+              )}
+            </div>
           </div>
 
           {!selectedCoach ? (
@@ -232,7 +411,7 @@ export default function ProductManager() {
                         : <ToggleLeft className="h-4 w-4 text-slate-600" />}
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5 capitalize">{p.product_type}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{priceDisplay(p)}</p>
                 </div>
               ))}
             </div>
@@ -281,16 +460,19 @@ export default function ProductManager() {
                     value={editing.product_type}
                     onChange={e => set("product_type", e.target.value)}
                   >
-                    {PRODUCT_TYPES.map(t => (
-                      <option key={t} value={t} className="bg-[#1a2f4a] capitalize">{t}</option>
-                    ))}
+                    {typesLoading
+                      ? <option value={editing.product_type}>{editing.product_type}</option>
+                      : productTypes.map(t => (
+                          <option key={t.slug} value={t.slug} className="bg-[#1a2f4a]">{t.label}</option>
+                        ))
+                    }
                   </select>
                 </Field>
-                <Field label="Format">
+                <Field label="Delivery Format">
                   <select
                     className={inputClass()}
-                    value={editing.format || "online"}
-                    onChange={e => set("format", e.target.value)}
+                    value={editing.delivery_format || "online"}
+                    onChange={e => set("delivery_format", e.target.value)}
                   >
                     {FORMATS.map(f => (
                       <option key={f} value={f} className="bg-[#1a2f4a] capitalize">{f.replace("_", " ")}</option>
@@ -308,94 +490,145 @@ export default function ProductManager() {
                 />
               </Field>
 
-              <Field label="Summary">
+              <Field label="Outcome Statement">
                 <textarea
                   className={inputClass() + " min-h-[100px] resize-y"}
-                  value={editing.summary || ""}
-                  onChange={e => set("summary", e.target.value || null)}
-                  placeholder="Short description shown on product card"
+                  value={editing.outcome_statement || ""}
+                  onChange={e => set("outcome_statement", e.target.value || null)}
+                  placeholder="What will the client achieve?"
                 />
               </Field>
 
-              <Field label="Who It's For">
+              <Field label="Target Audience (comma-separated)">
                 <input
                   className={inputClass()}
-                  value={editing.who_its_for || ""}
-                  onChange={e => set("who_its_for", e.target.value || null)}
-                  placeholder="e.g. High-potential leaders in Series B+ companies"
+                  value={audienceInput}
+                  onChange={e => setAudienceInput(e.target.value)}
+                  placeholder="e.g. Mid-level managers, Team leads"
                 />
               </Field>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Duration Label">
-                  <input
-                    className={inputClass()}
-                    value={editing.duration_label || ""}
-                    onChange={e => set("duration_label", e.target.value || null)}
-                    placeholder="e.g. 60 mins, 4 sessions"
-                  />
-                </Field>
-                <Field label="Pricing Band">
-                  <select
-                    className={inputClass()}
-                    value={editing.pricing_band || ""}
-                    onChange={e => set("pricing_band", e.target.value || null)}
-                  >
-                    <option value="" className="bg-[#1a2f4a]">— none —</option>
-                    <option value="standard" className="bg-[#1a2f4a]">Standard</option>
-                    <option value="premium" className="bg-[#1a2f4a]">Premium</option>
-                    <option value="elite" className="bg-[#1a2f4a]">Elite</option>
-                  </select>
-                </Field>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Price Display">
-                  <input
-                    className={inputClass()}
-                    value={editing.price_display || ""}
-                    onChange={e => set("price_display", e.target.value || null)}
-                    placeholder='e.g. "$500" or "$1,500 – $3,000"'
-                  />
-                </Field>
-                <Field label="Price (cents) — leave blank for enquiry">
+              <div className="grid grid-cols-3 gap-4">
+                <Field label="Sessions">
                   <input
                     className={inputClass()}
                     type="number"
-                    value={editing.price_cents ?? ""}
-                    onChange={e => set("price_cents", e.target.value ? parseInt(e.target.value) : null)}
-                    placeholder="e.g. 50000 = $500"
+                    min={1}
+                    value={editing.session_count ?? ""}
+                    onChange={e => set("session_count", e.target.value ? parseInt(e.target.value) : null)}
+                  />
+                </Field>
+                <Field label="Duration (mins)">
+                  <input
+                    className={inputClass()}
+                    type="number"
+                    min={1}
+                    value={editing.duration_minutes ?? ""}
+                    onChange={e => set("duration_minutes", e.target.value ? parseInt(e.target.value) : null)}
+                  />
+                </Field>
+                <Field label="Weeks">
+                  <input
+                    className={inputClass()}
+                    type="number"
+                    min={1}
+                    value={editing.duration_weeks ?? ""}
+                    onChange={e => set("duration_weeks", e.target.value ? parseInt(e.target.value) : null)}
                   />
                 </Field>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <Field label="CTA Label">
-                  <input
+                <Field label="Price Type">
+                  <select
                     className={inputClass()}
-                    value={editing.cta_label}
-                    onChange={e => set("cta_label", e.target.value)}
-                    placeholder="Book Now / Enquire / Request Proposal"
-                  />
+                    value={editing.price_type}
+                    onChange={e => set("price_type", e.target.value)}
+                  >
+                    {PRICE_TYPES.map(pt => (
+                      <option key={pt} value={pt} className="bg-[#1a2f4a] capitalize">{pt}</option>
+                    ))}
+                  </select>
                 </Field>
-                <Field label="CTA URL (optional)">
+                {editing.price_type === "fixed" && (
+                  <Field label="Price (cents)">
+                    <input
+                      className={inputClass()}
+                      type="number"
+                      value={editing.price_amount ?? ""}
+                      onChange={e => set("price_amount", e.target.value ? parseInt(e.target.value) : null)}
+                      placeholder="e.g. 50000 = $500"
+                    />
+                  </Field>
+                )}
+                {editing.price_type === "range" && (
+                  <>
+                    <Field label="Min (cents)">
+                      <input
+                        className={inputClass()}
+                        type="number"
+                        value={editing.price_range_min ?? ""}
+                        onChange={e => set("price_range_min", e.target.value ? parseInt(e.target.value) : null)}
+                      />
+                    </Field>
+                    <Field label="Max (cents)">
+                      <input
+                        className={inputClass()}
+                        type="number"
+                        value={editing.price_range_max ?? ""}
+                        onChange={e => set("price_range_max", e.target.value ? parseInt(e.target.value) : null)}
+                      />
+                    </Field>
+                  </>
+                )}
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <Field label="Booking Mode">
+                  <select
+                    className={inputClass()}
+                    value={editing.booking_mode}
+                    onChange={e => set("booking_mode", e.target.value)}
+                  >
+                    {BOOKING_MODES.map(bm => (
+                      <option key={bm.value} value={bm.value} className="bg-[#1a2f4a]">{bm.label}</option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Visibility">
+                  <select
+                    className={inputClass()}
+                    value={editing.visibility_scope}
+                    onChange={e => set("visibility_scope", e.target.value)}
+                  >
+                    {VISIBILITY.map(v => (
+                      <option key={v} value={v} className="bg-[#1a2f4a] capitalize">{v}</option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Sort Order">
                   <input
                     className={inputClass()}
-                    value={editing.cta_url || ""}
-                    onChange={e => set("cta_url", e.target.value || null)}
-                    placeholder="https://calendly.com/..."
+                    type="number"
+                    value={editing.sort_order}
+                    onChange={e => set("sort_order", parseInt(e.target.value) || 0)}
                   />
                 </Field>
               </div>
 
-              <Field label="Sort Order">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-zinc-800/50 border border-zinc-700">
                 <input
-                  className={inputClass()}
-                  type="number"
-                  value={editing.sort_order}
-                  onChange={e => set("sort_order", parseInt(e.target.value) || 0)}
+                  type="checkbox"
+                  id="enterprise_ready"
+                  checked={editing.enterprise_ready ?? false}
+                  onChange={e => set("enterprise_ready", e.target.checked)}
+                  className="w-4 h-4 accent-amber-500"
                 />
-              </Field>
+                <label htmlFor="enterprise_ready" className="text-sm text-slate-300 cursor-pointer">
+                  <span className="font-semibold text-amber-400">Enterprise ready</span>
+                  <span className="text-slate-500 ml-1">— suitable for corporate / team engagements</span>
+                </label>
+              </div>
             </div>
           )}
         </div>
