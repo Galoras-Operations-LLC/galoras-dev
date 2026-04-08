@@ -125,7 +125,7 @@ export default function Portal() {
 
       const rows = coaches || [];
       const published = rows.filter(c => c.lifecycle_status === "published");
-      const tiers = { pro: 0, elite: 0, master: 0 };
+      const tiers = { standard: 0, premium: 0, elite: 0 };
       published.forEach(c => { if (c.tier && c.tier in tiers) tiers[c.tier as keyof typeof tiers]++; });
       return { total: rows.length, published: published.length, tiers, recent: rows.slice(0, 5) };
     },
@@ -210,7 +210,7 @@ export default function Portal() {
         <div>
           <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Tier Distribution</h3>
           <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-3">
-            {(["pro", "elite", "master"] as const).map(tier => {
+            {(["standard", "premium", "elite"] as const).map(tier => {
               const count = coachStats?.tiers[tier] ?? 0;
               const total = coachStats?.published ?? 1;
               const pct = total > 0 ? Math.round((count / total) * 100) : 0;
@@ -223,7 +223,7 @@ export default function Portal() {
                   <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full ${
-                        tier === "master" ? "bg-amber-500" : tier === "elite" ? "bg-sky-500" : "bg-emerald-500"
+                        tier === "elite" ? "bg-amber-500" : tier === "premium" ? "bg-sky-500" : "bg-emerald-500"
                       }`}
                       style={{ width: `${pct}%` }}
                     />
