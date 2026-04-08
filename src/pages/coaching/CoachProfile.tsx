@@ -10,6 +10,8 @@ import { ContactModal } from "@/components/coaching/ContactModal";
 import { ProductCard, CoachProduct } from "@/components/coaching/ProductCard";
 import { useProductTypes } from "@/hooks/useProductTypes";
 import { CheckoutModal } from "@/components/coaching/CheckoutModal";
+import { RequestModal } from "@/components/coaching/RequestModal";
+import { EnterpriseRequestModal } from "@/components/coaching/EnterpriseRequestModal";
 import { loadStripe } from "@stripe/stripe-js";
 import { useToast } from "@/hooks/use-toast";
 
@@ -119,6 +121,10 @@ export default function CoachProfile() {
   const [checkoutProduct, setCheckoutProduct] = useState<CoachProduct | null>(null);
   const [checkoutSecret, setCheckoutSecret] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Request & Enterprise modals
+  const [requestProduct, setRequestProduct] = useState<CoachProduct | null>(null);
+  const [enterpriseProduct, setEnterpriseProduct] = useState<CoachProduct | null>(null);
 
   const handlePlatformCheckout = async (product: CoachProduct) => {
     if (!isLoggedIn) {
@@ -393,11 +399,13 @@ export default function CoachProfile() {
                             coachName={coach.display_name || ""}
                             bookingUrl={coach.booking_url}
                             getTypeConfig={getTypeConfig}
-                            onCtaClick={
+                            onBookNow={
                               product.booking_mode === "stripe" && product.price_amount
                                 ? () => handlePlatformCheckout(product)
                                 : undefined
                             }
+                            onRequest={() => setRequestProduct(product)}
+                            onEnterprise={() => setEnterpriseProduct(product)}
                           />
                         ))}
                       </div>
@@ -475,6 +483,28 @@ export default function CoachProfile() {
                       setCheckoutProduct(null);
                       setCheckoutSecret("");
                     }}
+                  />
+                )}
+
+                {requestProduct && coach && (
+                  <RequestModal
+                    coachId={coach.id}
+                    coachName={coach.display_name || "Coach"}
+                    productId={requestProduct.id}
+                    productTitle={requestProduct.title}
+                    productType={requestProduct.product_type}
+                    onClose={() => setRequestProduct(null)}
+                  />
+                )}
+
+                {enterpriseProduct && coach && (
+                  <EnterpriseRequestModal
+                    coachId={coach.id}
+                    coachName={coach.display_name || "Coach"}
+                    productId={enterpriseProduct.id}
+                    productTitle={enterpriseProduct.title}
+                    productType={enterpriseProduct.product_type}
+                    onClose={() => setEnterpriseProduct(null)}
                   />
                 )}
               </>

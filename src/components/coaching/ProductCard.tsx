@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, CheckCircle, Calendar, Mail, Users } from "lucide-react";
+import { Clock, CheckCircle, Calendar, Mail, Users, Send, Building2 } from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -41,11 +41,17 @@ interface ProductCardProps {
   /** booking_url from the coach record — used for enquiry mode */
   bookingUrl?:    string | null;
   getTypeConfig?: (slug: string) => { label: string; className: string };
-  /** Override CTA — used for Stripe checkout on platform products */
+  /** Stripe checkout handler */
+  onBookNow?:     () => void;
+  /** Request form handler (packages/intensives) */
+  onRequest?:     () => void;
+  /** Enterprise proposal handler (corporate) */
+  onEnterprise?:  () => void;
+  /** Legacy: override CTA (backwards compat for platform products) */
   onCtaClick?:    () => void;
 }
 
-export function ProductCard({ product, coachName, bookingUrl, getTypeConfig, onCtaClick }: ProductCardProps) {
+export function ProductCard({ product, coachName, bookingUrl, getTypeConfig, onBookNow, onRequest, onEnterprise, onCtaClick }: ProductCardProps) {
   const typeCfg = getTypeConfig
     ? getTypeConfig(product.product_type)
     : { label: product.product_type, className: "bg-zinc-500/10 border-zinc-500/30 text-zinc-400" };
@@ -65,16 +71,39 @@ export function ProductCard({ product, coachName, bookingUrl, getTypeConfig, onC
     product.duration_weeks ? `${product.duration_weeks} week${product.duration_weeks > 1 ? "s" : ""}` : null,
   ].filter(Boolean).join(" · ");
 
-  // CTA logic
-  const hasStripeOverride = !!onCtaClick;
-  const hasBookingLink = !!bookingUrl;
-  const ctaLabel = hasStripeOverride
-    ? "Book Now"
-    : hasBookingLink ? "Book Now" : "Enquire";
-  const isBookNow = hasStripeOverride || hasBookingLink;
+  // Determine CTA type based on product characteristics
+  const isEnterprise = product.product_type === "corporate" || product.enterprise_ready;
+  const isStripe = !!onCtaClick || !!onBookNow;
+  const isRequestable = !!onRequest && !isStripe && !isEnterprise;
+
+  let ctaLabel: string;
+  let ctaIcon: React.ReactNode;
+  let ctaVariant: "default" | "outline" = "default";
+
+  if (isStripe) {
+    ctaLabel = "Book Now";
+    ctaIcon = <Calendar className="mr-1.5 h-3.5 w-3.5" />;
+  } else if (isEnterprise && onEnterprise) {
+    ctaLabel = "Request Proposal";
+    ctaIcon = <Building2 className="mr-1.5 h-3.5 w-3.5" />;
+    ctaVariant = "outline";
+  } else if (isRequestable) {
+    ctaLabel = "Request";
+    ctaIcon = <Send className="mr-1.5 h-3.5 w-3.5" />;
+  } else if (bookingUrl) {
+    ctaLabel = "Book Now";
+    ctaIcon = <Calendar className="mr-1.5 h-3.5 w-3.5" />;
+  } else {
+    ctaLabel = "Enquire";
+    ctaIcon = <Mail className="mr-1.5 h-3.5 w-3.5" />;
+    ctaVariant = "outline";
+  }
 
   const handleCta = () => {
     if (onCtaClick) { onCtaClick(); return; }
+    if (onBookNow) { onBookNow(); return; }
+    if (isEnterprise && onEnterprise) { onEnterprise(); return; }
+    if (isRequestable) { onRequest!(); return; }
     if (bookingUrl) {
       window.open(bookingUrl, "_blank", "noopener,noreferrer");
     } else {
@@ -149,21 +178,12 @@ export function ProductCard({ product, coachName, bookingUrl, getTypeConfig, onC
 
           <Button
             size="sm"
-            variant={isBookNow ? "default" : "outline"}
+            variant={ctaVariant}
             className="shrink-0"
             onClick={handleCta}
           >
-            {isBookNow ? (
-              <>
-                <Calendar className="mr-1.5 h-3.5 w-3.5" />
-                {ctaLabel}
-              </>
-            ) : (
-              <>
-                <Mail className="mr-1.5 h-3.5 w-3.5" />
-                {ctaLabel}
-              </>
-            )}
+            {ctaIcon}
+            {ctaLabel}
           </Button>
         </div>
 
