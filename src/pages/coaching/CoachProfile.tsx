@@ -8,6 +8,7 @@ import { AuthGate } from "@/components/AuthGate";
 import { useAuth } from "@/hooks/useAuth";
 import { ContactModal } from "@/components/coaching/ContactModal";
 import { ProductCard, CoachProduct } from "@/components/coaching/ProductCard";
+import { useProductTypes } from "@/hooks/useProductTypes";
 import { CheckoutModal } from "@/components/coaching/CheckoutModal";
 import { loadStripe } from "@stripe/stripe-js";
 
@@ -59,6 +60,7 @@ export default function CoachProfile() {
   const [debugError, setDebugError] = useState("");
   const [showContact, setShowContact] = useState(false);
   const { isLoggedIn } = useAuth();
+  const { getConfig: getTypeConfig } = useProductTypes();
 
   // Products
   const [products, setProducts] = useState<CoachProduct[]>([]);
@@ -295,17 +297,15 @@ export default function CoachProfile() {
                         <h2 className="text-2xl font-semibold">Sessions & Engagements</h2>
                       </div>
                       <div className="grid sm:grid-cols-2 gap-4">
-                        {products.map((product) =>
-                          product.price_cents ? (
-                            // Fixed-price → intercept CTA and open Stripe checkout
-                            <div key={product.id} onClick={() => handleProductCta(product)} className="cursor-pointer">
-                              <ProductCard product={product} coachName={coach.display_name || ""} />
-                            </div>
-                          ) : (
-                            // Enquiry / external URL → ProductCard handles its own CTA
-                            <ProductCard key={product.id} product={product} coachName={coach.display_name || ""} />
-                          )
-                        )}
+                        {products.map((product) => (
+                          <ProductCard
+                            key={product.id}
+                            product={product}
+                            coachName={coach.display_name || ""}
+                            getTypeConfig={getTypeConfig}
+                            onCtaClick={product.price_cents ? () => handleProductCta(product) : undefined}
+                          />
+                        ))}
                       </div>
                       {checkoutLoading && (
                         <p className="text-sm text-muted-foreground text-center mt-4">

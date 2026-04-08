@@ -7,7 +7,7 @@ import { Clock, CheckCircle, Calendar, Mail } from "lucide-react";
 
 export interface CoachProduct {
   id:               string;
-  product_type:     "diagnostic" | "block" | "program" | "enterprise";
+  product_type:     string;
   title:            string;
   summary?:         string | null;
   what_you_get?:    string[] | null;
@@ -24,12 +24,22 @@ export interface CoachProduct {
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
-const TYPE_CONFIG: Record<CoachProduct["product_type"], { label: string; className: string }> = {
-  diagnostic:  { label: "Diagnostic",  className: "bg-violet-500/10 border-violet-500/30 text-violet-400" },
-  block:       { label: "Coaching Block", className: "bg-blue-500/10 border-blue-500/30 text-blue-400" },
-  program:     { label: "Programme",   className: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" },
-  enterprise:  { label: "Enterprise",  className: "bg-amber-500/10 border-amber-500/30 text-amber-400" },
+// Static fallback — used when no getTypeConfig prop is provided
+const STATIC_TYPE_CONFIG: Record<string, { label: string; className: string }> = {
+  // Legacy types
+  diagnostic:       { label: "Diagnostic",          className: "bg-violet-500/10 border-violet-500/30 text-violet-400" },
+  block:            { label: "Coaching Block",       className: "bg-blue-500/10 border-blue-500/30 text-blue-400" },
+  program:          { label: "Programme",            className: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" },
+  enterprise:       { label: "Enterprise",           className: "bg-amber-500/10 border-amber-500/30 text-amber-400" },
+  // Spec types
+  single_session:   { label: "Single Session",       className: "bg-sky-500/10 border-sky-500/30 text-sky-400" },
+  coaching_package: { label: "Coaching Package",     className: "bg-blue-500/10 border-blue-500/30 text-blue-400" },
+  intensive:        { label: "Intensive",            className: "bg-violet-500/10 border-violet-500/30 text-violet-400" },
+  group_program:    { label: "Group Program",        className: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" },
+  workshop_event:   { label: "Workshop / Event",     className: "bg-amber-500/10 border-amber-500/30 text-amber-400" },
+  corporate:        { label: "Corporate Engagement", className: "bg-orange-500/10 border-orange-500/30 text-orange-400" },
 };
+const DEFAULT_TYPE_CONFIG = { label: "Other", className: "bg-zinc-500/10 border-zinc-500/30 text-zinc-400" };
 
 const FORMAT_LABELS: Record<string, string> = {
   online:    "Remote",
@@ -40,21 +50,29 @@ const FORMAT_LABELS: Record<string, string> = {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 interface ProductCardProps {
-  product:    CoachProduct;
-  coachName?: string;
+  product:        CoachProduct;
+  coachName?:     string;
+  getTypeConfig?: (slug: string) => { label: string; className: string };
+  /** When provided, overrides the default CTA behaviour (used for Stripe checkout). */
+  onCtaClick?:    () => void;
 }
 
-export function ProductCard({ product, coachName }: ProductCardProps) {
-  const typeCfg   = TYPE_CONFIG[product.product_type];
-  const hasCta    = !!product.cta_url;
+export function ProductCard({ product, coachName, getTypeConfig, onCtaClick }: ProductCardProps) {
+  const typeCfg = getTypeConfig
+    ? getTypeConfig(product.product_type)
+    : (STATIC_TYPE_CONFIG[product.product_type] ?? { ...DEFAULT_TYPE_CONFIG, label: product.product_type });
+
+  // If a Stripe handler is wired and the product has a fixed price → "Book Now"
+  const isStripe  = !!onCtaClick && !!product.price_cents;
+  const hasCta    = !!product.cta_url || isStripe;
   const ctaLabel  = product.cta_label || "Book Now";
   const enquiry   = !hasCta;
 
   const handleCta = () => {
+    if (onCtaClick) { onCtaClick(); return; }
     if (product.cta_url) {
       window.open(product.cta_url, "_blank", "noopener,noreferrer");
     } else {
-      // Fallback: mailto enquiry until Stripe is wired (Module 3)
       const subject = encodeURIComponent(`Enquiry: ${product.title}${coachName ? ` — ${coachName}` : ""}`);
       window.location.href = `mailto:hello@galoras.com?subject=${subject}`;
     }
