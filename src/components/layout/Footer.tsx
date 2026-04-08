@@ -48,7 +48,7 @@ export function Footer() {
             <Link to="/" className="inline-block mb-6">
               <img src={galorasLogo} alt="Galoras" className="h-12 w-auto" />
             </Link>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-sm">
+            <p className="text-zinc-400 text-sm leading-relaxed mb-6 max-w-sm">
               Galoras is a performance-led coaching exchange designed to identify and deploy real execution capability for individuals and organizations operating under pressure.
             </p>
             {/* Social Links */}
@@ -78,7 +78,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="text-sm text-zinc-400 hover:text-primary transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -97,7 +97,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="text-sm text-zinc-400 hover:text-primary transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -116,7 +116,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="text-sm text-zinc-400 hover:text-primary transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -135,7 +135,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="text-sm text-zinc-400 hover:text-primary transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -148,10 +148,10 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-16 pt-8 border-t border-border/20">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-zinc-400">
               © {new Date().getFullYear()} Galoras. All rights reserved.
             </p>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-zinc-400">
               <Zap className="h-4 w-4 text-primary" />
               <span>Powered by elite performance</span>
             </div>

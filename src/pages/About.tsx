@@ -2,56 +2,48 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  ArrowRight, 
-  Target, 
-  Heart, 
+import {
+  ArrowRight,
+  Target,
+  Heart,
   Users,
   Zap,
   Shield,
-  Globe,
-  Award,
-  Lightbulb
+  Lightbulb,
+  TrendingUp,
 } from "lucide-react";
 
 const values = [
   {
-    icon: Target,
-    title: "Excellence",
-    description: "We hold ourselves and our coaches to the highest standards of quality and professionalism.",
+    icon: TrendingUp,
+    title: "Growth",
+    description: "We believe growth is a discipline, not a destination. Everyone on the platform — coach and client — is committed to getting better.",
   },
   {
-    icon: Heart,
-    title: "Authenticity",
-    description: "We believe in genuine connections and honest conversations that drive real transformation.",
-  },
-  {
-    icon: Users,
-    title: "Community",
-    description: "We foster a supportive ecosystem where coaches and clients grow together.",
+    icon: Zap,
+    title: "Performance",
+    description: "We are built for people operating under real pressure. Results matter. We measure what actually moves.",
   },
   {
     icon: Shield,
-    title: "Integrity",
-    description: "We operate with transparency and ethical practices in everything we do.",
+    title: "Trust",
+    description: "Every coach on Galoras is vetted. Every engagement is confidential. Trust is the foundation everything else is built on.",
+  },
+  {
+    icon: Heart,
+    title: "Connection",
+    description: "We make connection a daily habit, not an afterthought. The right relationship between coach and client changes everything.",
   },
   {
     icon: Lightbulb,
     title: "Innovation",
-    description: "We leverage technology to enhance the coaching experience while preserving the human connection.",
+    description: "We use technology to enhance the coaching experience — not replace the human at the centre of it.",
   },
   {
-    icon: Globe,
-    title: "Impact",
-    description: "We measure success by the positive change we create in people's lives and organizations.",
+    icon: Users,
+    title: "Ambition",
+    description: "We back people who want more — more clarity, more capability, more impact. Ambition is not optional here.",
   },
-];
-
-const stats = [
-  { value: "500+", label: "Vetted Coaches" },
-  { value: "10,000+", label: "Clients Served" },
-  { value: "50+", label: "Countries" },
-  { value: "98%", label: "Satisfaction Rate" },
 ];
 
 const team = [
@@ -75,72 +67,74 @@ const team = [
 export default function About() {
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1920&q=80"
-            alt="Team working together"
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-background/85" />
-        </div>
-        
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.15),transparent_50%)]" />
-        
+      {/* Hero */}
+      <section className="relative pt-32 pb-20 overflow-hidden bg-zinc-950">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.12),transparent_55%)]" />
         <div className="container-wide relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-              About <span className="text-gradient">Galoras</span>
+            <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">
+              About Galoras
+            </p>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-black tracking-tight text-white uppercase mb-6">
+              One Ecosystem.{" "}
+              <span className="text-primary">One Standard.</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8">
-              We're on a mission to democratize access to world-class coaching and help people unlock their full potential.
+            <p className="text-lg md:text-xl text-zinc-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+              To make connection a daily habit, not an afterthought, in the modern workplace.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="py-12 bg-muted/30 border-y border-border">
+      {/* Vision & Mission */}
+      <section className="py-20 bg-zinc-900">
         <div className="container-wide">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-display font-bold text-primary mb-2">
-                  {stat.value}
+          <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 items-start">
+            <div>
+              <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">Vision</p>
+              <h2 className="text-3xl font-display font-black text-white uppercase tracking-tight mb-4">
+                Why We Exist
+              </h2>
+              <p className="text-zinc-400 text-lg leading-relaxed">
+                The most successful people in the world — athletes, executives, founders — all have coaches. Access to that level of support has always been limited to the few. Galoras changes that.
+              </p>
+              <p className="text-zinc-400 mt-4 leading-relaxed">
+                We are building a performance-led coaching exchange where real coaches with proven track records are identified, vetted, and deployed to the people and organisations that need them most.
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">Mission</p>
+              <h2 className="text-3xl font-display font-black text-white uppercase tracking-tight mb-6">
+                How We Get There
+              </h2>
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-primary text-xs font-bold">25</span>
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold text-sm mb-1">Establish</p>
+                    <p className="text-zinc-400 text-sm">Create the foundation, brand, and core community platform.</p>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Mission */}
-      <section className="section-padding bg-background">
-        <div className="container-wide">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                  Our Mission
-                </h2>
-                <p className="text-muted-foreground text-lg mb-6">
-                  Galoras was born from a simple observation: the most successful people in the world—athletes, executives, entrepreneurs—all have coaches. Yet access to quality coaching has traditionally been limited to the privileged few.
-                </p>
-                <p className="text-muted-foreground">
-                  We're changing that. By combining rigorous coach vetting, AI-powered matching, and technology-enabled delivery, we're making elite coaching accessible to everyone who's committed to growth.
-                </p>
-              </div>
-              <div className="relative">
-                <img
-                  src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&q=80"
-                  alt="Leadership and growth"
-                  className="aspect-square rounded-2xl object-cover"
-                  loading="lazy"
-                />
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-primary text-xs font-bold">26</span>
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold text-sm mb-1">Launch</p>
+                    <p className="text-zinc-400 text-sm">Bring the platform live with coaching enablement and community features.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-primary text-xs font-bold">27</span>
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold text-sm mb-1">Scale</p>
+                    <p className="text-zinc-400 text-sm">Expand reach, grow the user base, and deepen engagement.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -148,26 +142,27 @@ export default function About() {
       </section>
 
       {/* Values */}
-      <section className="section-padding bg-muted/30">
+      <section className="py-20 bg-zinc-950">
         <div className="container-wide">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+          <div className="text-center mb-14">
+            <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">What We Stand For</p>
+            <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight mb-4">
               Our Values
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              The principles that guide everything we do.
+            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+              Growth. Performance. Trust. Connection. Innovation. Ambition.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {values.map((value, index) => (
-              <Card key={index} className="group hover:border-primary/50 transition-all card-hover">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {values.map((value) => (
+              <Card key={value.title} className="bg-zinc-900 border-zinc-700 hover:border-primary/50 transition-all">
                 <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <value.icon className="h-6 w-6 text-primary" />
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <value.icon className="h-5 w-5 text-primary" />
                   </div>
-                  <h3 className="text-xl font-display font-semibold mb-2">{value.title}</h3>
-                  <p className="text-muted-foreground">{value.description}</p>
+                  <h3 className="text-lg font-display font-bold text-white mb-2">{value.title}</h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">{value.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -176,29 +171,30 @@ export default function About() {
       </section>
 
       {/* Team */}
-      <section className="section-padding bg-background">
+      <section className="py-20 bg-zinc-900">
         <div className="container-wide">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              Leadership Team
+          <div className="text-center mb-14">
+            <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">The People Behind It</p>
+            <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight mb-4">
+              Leadership
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Experienced leaders committed to transforming the coaching industry.
+            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+              Experienced operators who have been in the room where it happens.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {team.map((member, index) => (
-              <Card key={index} className="text-center">
+            {team.map((member) => (
+              <Card key={member.name} className="bg-zinc-950 border-zinc-700 text-center">
                 <CardContent className="p-6">
-                  <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                    <span className="text-2xl font-display font-bold text-primary">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+                    <span className="text-xl font-display font-bold text-primary">
                       {member.name.split(' ').map(n => n[0]).join('')}
                     </span>
                   </div>
-                  <h3 className="text-lg font-display font-semibold mb-1">{member.name}</h3>
-                  <p className="text-sm text-primary mb-3">{member.role}</p>
-                  <p className="text-sm text-muted-foreground">{member.bio}</p>
+                  <h3 className="text-base font-display font-bold text-white mb-1">{member.name}</h3>
+                  <p className="text-xs text-primary mb-3 font-semibold uppercase tracking-wide">{member.role}</p>
+                  <p className="text-sm text-zinc-400 leading-relaxed">{member.bio}</p>
                 </CardContent>
               </Card>
             ))}
@@ -207,23 +203,23 @@ export default function About() {
       </section>
 
       {/* CTA */}
-      <section className="section-padding hero-gradient">
+      <section className="py-20 bg-zinc-950 border-t border-zinc-800">
         <div className="container-wide text-center">
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-            Join the Galoras Community
+          <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight mb-4">
+            Join the Galoras Ecosystem
           </h2>
-          <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
-            Whether you're seeking a coach or you are one, we'd love to have you.
+          <p className="text-zinc-400 text-lg mb-8 max-w-xl mx-auto">
+            Whether you're seeking a coach or ready to become one — the standard is the same.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/coaching">
-              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary">
+              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
                 Find a Coach
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link to="/apply">
-              <Button size="lg" variant="outline" className="border-primary/50 hover:bg-primary/10">
+              <Button size="lg" variant="outline" className="border-zinc-600 text-white hover:bg-zinc-800">
                 Apply as a Coach
               </Button>
             </Link>
