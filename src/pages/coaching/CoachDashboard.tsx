@@ -172,7 +172,8 @@ export default function CoachDashboard() {
     }
     if (tab === 'visibility') { setActiveTab('overview'); return; }
     if (tab === 'engagement') { setActiveTab('bookings'); return; }
-    if (tab === 'labs' || tab === 'messages' || tab === 'settings') {
+    if (tab === 'settings') { setActiveTab('settings'); return; }
+    if (tab === 'labs' || tab === 'messages') {
       toast({ title: 'Coming Soon', description: `${tab.charAt(0).toUpperCase() + tab.slice(1)} is under development.` });
       return;
     }
@@ -277,6 +278,11 @@ export default function CoachDashboard() {
           {/* Products tab */}
           {activeTab === 'products' && (
             <CoachProductsTab coachProfile={coachProfile} />
+          )}
+
+          {/* Settings tab */}
+          {activeTab === 'settings' && user?.email && (
+            <SettingsContent email={user.email} toast={toast} />
           )}
         </main>
       </div>
@@ -519,6 +525,144 @@ function AvailabilityContent({
 /* ================================================================
    Sub-tab pill (for engagement section navigation)
    ================================================================ */
+
+/* ================================================================
+   Settings Content — Password Change with OTP verification
+   ================================================================ */
+
+const FUNCTIONS_BASE = "https://qbjuomsmnrclsjhdsjcz.supabase.co/functions/v1";
+
+function SettingsContent({ email, toast }: { email: string; toast: any }) {
+  const [step, setStep] = useState<'idle' | 'code' | 'newpass'>('idle');
+  const [code, setCode] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const callFn = async (name: string, body: Record<string, unknown>) => {
+    const res = await fetch(`${FUNCTIONS_BASE}/${name}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || "Request failed");
+    return data;
+  };
+
+  const handleSendCode = async () => {
+    setLoading(true);
+    try {
+      await callFn("send-password-reset", { email });
+      toast({ title: "Code sent!", description: `Check ${email} for your 6-digit code.` });
+      setStep('code');
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyCode = () => setStep('newpass');
+
+  const handleResetPassword = async () => {
+    if (newPw.length < 6) {
+      toast({ title: "Too short", description: "Password must be at least 6 characters.", variant: "destructive" });
+      return;
+    }
+    if (newPw !== confirmPw) {
+      toast({ title: "Mismatch", description: "Passwords don't match.", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    try {
+      await callFn("verify-password-reset", { email, code, newPassword: newPw });
+      toast({ title: "Password changed!", description: "Your new password is now active." });
+      setStep('idle');
+      setCode('');
+      setNewPw('');
+      setConfirmPw('');
+    } catch (err: any) {
+      toast({ title: "Reset failed", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-display font-bold text-white">Settings</h2>
+
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="text-white font-display text-base">Change Password</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {step === 'idle' && (
+            <div>
+              <p className="text-sm text-muted-foreground mb-4">
+                We'll send a verification code to <span className="text-white font-medium">{email}</span> to confirm it's you.
+              </p>
+              <Button onClick={handleSendCode} disabled={loading} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                {loading ? 'Sending...' : 'Send verification code'}
+              </Button>
+            </div>
+          )}
+
+          {step === 'code' && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Enter the 6-digit code sent to {email}</p>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                className="w-full bg-background border border-border rounded-lg px-4 py-3 text-center text-lg font-mono tracking-widest text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="000000"
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              />
+              <Button onClick={handleVerifyCode} disabled={code.length < 6} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                Verify code
+              </Button>
+            </div>
+          )}
+
+          {step === 'newpass' && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                <CheckCircle className="h-4 w-4 text-emerald-400 shrink-0" />
+                <p className="text-xs text-emerald-400">Code verified. Set your new password.</p>
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">New password</label>
+                <input
+                  type="password"
+                  className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="At least 6 characters"
+                  value={newPw}
+                  onChange={(e) => setNewPw(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Confirm password</label>
+                <input
+                  type="password"
+                  className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Re-enter your new password"
+                  value={confirmPw}
+                  onChange={(e) => setConfirmPw(e.target.value)}
+                />
+              </div>
+              <Button onClick={handleResetPassword} disabled={loading} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                {loading ? 'Resetting...' : 'Change password'}
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 function SubTab({ href, label, active, icon }: { href: string; label: string; active?: boolean; icon?: React.ReactNode }) {
   // These are display-only; parent handles actual tab switching via sidebar

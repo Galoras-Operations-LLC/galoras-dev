@@ -58,6 +58,7 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isCoach, setIsCoach] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -65,31 +66,32 @@ export function Navbar() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsLoggedIn(!!session?.user);
       if (session?.user) {
-        checkAdminRole(session.user.id);
+        checkRoles(session.user.id);
       } else {
         setIsAdmin(false);
+        setIsCoach(false);
       }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsLoggedIn(!!session?.user);
       if (session?.user) {
-        checkAdminRole(session.user.id);
+        checkRoles(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const checkAdminRole = async (userId: string) => {
+  const checkRoles = async (userId: string) => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    
-    setIsAdmin(!!data);
+      .eq("user_id", userId);
+
+    const roles = data?.map(r => r.role) || [];
+    setIsAdmin(roles.includes("admin"));
+    setIsCoach(roles.includes("coach"));
   };
 
   const handleSignOut = async () => {
@@ -163,9 +165,11 @@ export function Navbar() {
 
           {/* Right Side Actions */}
           <div className="hidden lg:flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/coach-signup">Join as a Coach</Link>
-            </Button>
+            {!isCoach && (
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/coach-signup">Join as a Coach</Link>
+              </Button>
+            )}
             {isLoggedIn ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -263,13 +267,15 @@ export function Navbar() {
                 </div>
               ))}
               <div className="pt-4 mt-4 border-t border-border space-y-2">
-                <Link
-                  to="/coach-signup"
-                  className="block px-3 py-2 text-sm font-medium rounded-md hover:bg-muted"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Join as a Coach
-                </Link>
+                {!isCoach && (
+                  <Link
+                    to="/coach-signup"
+                    className="block px-3 py-2 text-sm font-medium rounded-md hover:bg-muted"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Join as a Coach
+                  </Link>
+                )}
                 {isLoggedIn ? (
                   <>
                     <Link
