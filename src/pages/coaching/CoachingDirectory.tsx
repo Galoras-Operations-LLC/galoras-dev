@@ -1,16 +1,15 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
-import { Search, Sparkles, UserCircle2, ArrowRight, GitCompareArrows, X, SlidersHorizontal, Building2 } from "lucide-react";
+import { Search, Sparkles, UserCircle2, ArrowRight, GitCompareArrows, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ContactModal } from "@/components/coaching/ContactModal";
 import { DirectoryCoachCard, type DirectoryCoach } from "@/components/coaching/DirectoryCoachCard";
-import { FilterChip, FilterRow, toggle } from "@/components/coaching/DirectoryFilters";
+import { toggle } from "@/components/coaching/DirectoryFilters";
 import { useAuth } from "@/hooks/useAuth";
 import { useProductTypes } from "@/hooks/useProductTypes";
-import { useTags } from "@/hooks/useTags";
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -33,19 +32,12 @@ export default function CoachingDirectory() {
   const [selTiers, setSelTiers] = useState<string[]>([]);
   const [selEngagementFormats, setSelEngagementFormats] = useState<string[]>([]);
   const [enterpriseOnly, setEnterpriseOnly] = useState(false);
-  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [contactCoach, setContactCoach] = useState<{ id: string; name: string } | null>(null);
   const [compareList, setCompareList] = useState<string[]>([]);
   const { isLoggedIn, profile } = useAuth();
   const navigate = useNavigate();
-  const { types: productTypes, getConfig } = useProductTypes();
-  const { getTagsByFamily } = useTags();
-
-  const specialtyTags = getTagsByFamily("specialty");
-  const audienceTags  = getTagsByFamily("audience");
-  const outcomeTags   = getTagsByFamily("outcome");
-  const formatTags    = getTagsByFamily("format");
+  const { getConfig } = useProductTypes();
 
   const toggleCompare = (id: string) => {
     setCompareList((prev) => {
@@ -217,42 +209,93 @@ export default function CoachingDirectory() {
         </div>
       </section>
 
-      {/* ── Trust bar ── */}
-      <div className="bg-zinc-900 border-y border-zinc-800">
-        <div className="container-wide py-3">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-1 text-xs text-zinc-500">
-            <span>Vetted by Galoras</span>
-            <span className="text-zinc-700">·</span>
-            <span>Matched to your goals</span>
-            <span className="text-zinc-700">·</span>
-            <span>Real-world execution experience</span>
-            <span className="text-zinc-700">·</span>
-            <span>Book directly — no gatekeeping</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Directory ── */}
-      <section className="min-h-screen bg-zinc-950 py-10 pb-24">
-        <div className="container-wide">
-
-          {/* Profile nudge */}
+      {/* ── Filter Bar ── */}
+      <div className="bg-card border-y border-border sticky top-0 z-20">
+        <div className="container-wide py-4">
+          {/* Profile nudge — only if incomplete */}
           {!hasProfile && (
-            <div className="flex items-center gap-3 mb-8 p-4 rounded-xl bg-primary/5 border border-primary/20 max-w-2xl mx-auto">
-              <UserCircle2 className="h-5 w-5 text-primary shrink-0" />
-              <p className="text-sm text-zinc-300">
+            <div className="flex items-center gap-3 mb-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
+              <UserCircle2 className="h-4 w-4 text-primary shrink-0" />
+              <p className="text-sm text-muted-foreground">
                 {isLoggedIn
                   ? "Complete your profile to see coaches matched to your goals."
-                  : "Create a free profile to see coaches matched to your goals."}
+                  : "Create a free profile to get personalized coach matches."}
               </p>
               <button
                 onClick={() => navigate(isLoggedIn ? "/onboarding" : "/signup")}
-                className="ml-auto text-xs font-semibold text-primary hover:underline whitespace-nowrap"
+                className="ml-auto text-xs font-bold text-primary hover:underline whitespace-nowrap"
               >
                 {isLoggedIn ? "Complete profile →" : "Get started →"}
               </button>
             </div>
           )}
+
+          {/* Filter pills — single row, scrollable */}
+          <div className="flex items-center gap-3 overflow-x-auto pb-1">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider shrink-0">Filter:</span>
+
+            {/* Pillar pills */}
+            {dbPillars.map(p => (
+              <button key={p} onClick={() => setSelPillars(prev => toggle(prev, p))}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                  selPillars.includes(p)
+                    ? "bg-primary/15 border-primary/40 text-primary"
+                    : "bg-card border-border text-muted-foreground hover:border-primary/30 hover:text-white"
+                }`}>
+                {p}
+              </button>
+            ))}
+
+            {/* Divider */}
+            {dbPillars.length > 0 && dbTiers.length > 0 && (
+              <div className="w-px h-5 bg-border shrink-0" />
+            )}
+
+            {/* Tier pills */}
+            {dbTiers.map(t => (
+              <button key={t} onClick={() => setSelTiers(prev => toggle(prev, t))}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors capitalize ${
+                  selTiers.includes(t)
+                    ? "bg-accent/15 border-accent/40 text-accent"
+                    : "bg-card border-border text-muted-foreground hover:border-accent/30 hover:text-white"
+                }`}>
+                {t}
+              </button>
+            ))}
+
+            {/* Divider */}
+            {dbTiers.length > 0 && dbEngagementFormats.length > 0 && (
+              <div className="w-px h-5 bg-border shrink-0" />
+            )}
+
+            {/* Engagement format pills */}
+            {dbEngagementFormats.map(f => (
+              <button key={f} onClick={() => setSelEngagementFormats(prev => toggle(prev, f))}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors capitalize ${
+                  selEngagementFormats.includes(f)
+                    ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400"
+                    : "bg-card border-border text-muted-foreground hover:border-emerald-500/30 hover:text-white"
+                }`}>
+                {f === "in_person" ? "In-Person" : f}
+              </button>
+            ))}
+
+            {/* Clear */}
+            {activeFilterCount > 0 && (
+              <>
+                <div className="w-px h-5 bg-border shrink-0" />
+                <button onClick={clearAllFilters} className="shrink-0 text-xs text-red-400 hover:text-red-300 font-medium">
+                  Clear all ({activeFilterCount})
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Directory ── */}
+      <section className="min-h-screen bg-background py-10 pb-24">
+        <div className="container-wide">
 
           {/* Matched banner */}
           {matchedParam && (
@@ -269,140 +312,6 @@ export default function CoachingDirectory() {
               </button>
             </div>
           )}
-
-          {/* ── Filter bar ── */}
-          <div className="mb-8 space-y-3">
-
-            {/* Top row: product types + enterprise toggle + filter toggle */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mr-1 w-20 shrink-0">Offering</span>
-              {productTypes.map(pt => (
-                <FilterChip
-                  key={pt.slug}
-                  label={pt.label}
-                  active={selProductTypes.includes(pt.slug)}
-                  onClick={() => setSelProductTypes(toggle(selProductTypes, pt.slug))}
-                />
-              ))}
-
-              {/* Enterprise toggle */}
-              <button
-                onClick={() => setEnterpriseOnly(!enterpriseOnly)}
-                className={`ml-2 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                  enterpriseOnly
-                    ? "bg-orange-500 border-orange-500 text-zinc-950"
-                    : "border-zinc-700 text-zinc-400 hover:border-orange-500/50 hover:text-orange-400"
-                }`}
-              >
-                <Building2 className="h-3 w-3" />
-                Enterprise
-              </button>
-
-              {/* Expand filters */}
-              <button
-                onClick={() => setFiltersOpen(!filtersOpen)}
-                className={`ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                  filtersOpen
-                    ? "border-primary text-primary"
-                    : "border-zinc-700 text-zinc-400 hover:border-zinc-500"
-                }`}
-              >
-                <SlidersHorizontal className="h-3 w-3" />
-                Filters{activeFilterCount > 0 && ` (${activeFilterCount})`}
-              </button>
-
-              {activeFilterCount > 0 && (
-                <button
-                  onClick={clearAllFilters}
-                  className="text-xs text-zinc-500 hover:text-zinc-300 underline"
-                >
-                  Clear all
-                </button>
-              )}
-            </div>
-
-            {/* DB-driven primary filter rows: Pillar, Tier */}
-            {(dbPillars.length > 0 || dbTiers.length > 0) && (
-              <div className="flex flex-wrap items-center gap-2">
-                {dbPillars.length > 0 && (
-                  <>
-                    <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mr-1 w-20 shrink-0">Pillar</span>
-                    {dbPillars.map(p => (
-                      <FilterChip
-                        key={p}
-                        label={p}
-                        active={selPillars.includes(p)}
-                        onClick={() => setSelPillars(toggle(selPillars, p))}
-                      />
-                    ))}
-                  </>
-                )}
-                {dbTiers.length > 0 && (
-                  <>
-                    <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mr-1 ml-4 w-12 shrink-0">Tier</span>
-                    {dbTiers.map(t => (
-                      <FilterChip
-                        key={t}
-                        label={t.charAt(0).toUpperCase() + t.slice(1)}
-                        active={selTiers.includes(t)}
-                        onClick={() => setSelTiers(toggle(selTiers, t))}
-                      />
-                    ))}
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* Expanded filter rows */}
-            {filtersOpen && (
-              <div className="space-y-3 p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
-                {dbEngagementFormats.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mr-1 w-20 shrink-0">Format</span>
-                    {dbEngagementFormats.map(f => (
-                      <FilterChip
-                        key={f}
-                        label={f === "in_person" ? "In-Person" : f.charAt(0).toUpperCase() + f.slice(1)}
-                        active={selEngagementFormats.includes(f)}
-                        onClick={() => setSelEngagementFormats(toggle(selEngagementFormats, f))}
-                      />
-                    ))}
-                  </div>
-                )}
-                {dbAudiences.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mr-1 w-20 shrink-0">Audience</span>
-                    {dbAudiences.map(a => (
-                      <FilterChip
-                        key={a}
-                        label={a.charAt(0).toUpperCase() + a.slice(1)}
-                        active={selAudience.includes(a)}
-                        onClick={() => setSelAudience(toggle(selAudience, a))}
-                      />
-                    ))}
-                  </div>
-                )}
-                <FilterRow
-                  label="Specialty"
-                  tags={specialtyTags}
-                  selected={selSpecialties}
-                  onToggle={k => setSelSpecialties(toggle(selSpecialties, k))}
-                />
-                <FilterRow
-                  label="Outcome"
-                  tags={outcomeTags}
-                  selected={selOutcomes}
-                  onToggle={k => setSelOutcomes(toggle(selOutcomes, k))}
-                />
-                <FilterRow
-                  label="Tag Format"
-                  tags={formatTags}
-                  selected={selFormats}
-                  onToggle={k => setSelFormats(toggle(selFormats, k))}
-                />
-              </div>
-            )}
-          </div>
 
           {/* Results count */}
           {!isLoading && !error && (
