@@ -3,6 +3,7 @@ import {
   UserCircle,
   Eye,
   Handshake,
+  Package,
   FlaskConical,
   MessageSquare,
   Settings,
@@ -21,6 +22,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'profile', label: 'My Profile', icon: UserCircle },
   { id: 'visibility', label: 'Visibility & Signals', icon: Eye },
   { id: 'engagement', label: 'Engagement', icon: Handshake },
+  { id: 'products', label: 'Products', icon: Package },
   { id: 'labs', label: 'Leadership Labs', icon: FlaskConical },
   { id: 'messages', label: 'Messages', icon: MessageSquare },
   { id: 'settings', label: 'Settings', icon: Settings },
@@ -46,7 +48,8 @@ export function PortalSidebar({ activeTab, onNavigate }: PortalSidebarProps) {
         {NAV_ITEMS.map((item) => {
           const isActive =
             item.id === activeTab ||
-            (item.id === 'engagement' && (activeTab === 'pipeline' || activeTab === 'bookings' || activeTab === 'availability' || activeTab === 'products')) ||
+            (item.id === 'engagement' && (activeTab === 'pipeline' || activeTab === 'bookings' || activeTab === 'availability')) ||
+            (item.id === 'products' && activeTab === 'products') ||
             (item.id === 'visibility' && activeTab === 'revenue');
           const Icon = item.icon;
 
