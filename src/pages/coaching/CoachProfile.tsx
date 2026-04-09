@@ -72,6 +72,9 @@ type CoachProfileData = {
   headline: string | null;
   positioning_statement: string | null;
   methodology: string | null;
+  coaching_style: string | null;
+  engagement_format: string | null;
+  primary_pillar: string | null;
   proof_points: unknown;
   audience: string[] | null;
   tier: string | null;
@@ -190,7 +193,7 @@ export default function CoachProfile() {
       let query = supabase
         .from("coaches")
         .select(
-          "id, slug, display_name, headline, positioning_statement, methodology, proof_points, audience, tier, lifecycle_status, booking_url, avatar_url"
+          "id, slug, display_name, headline, positioning_statement, methodology, coaching_style, engagement_format, primary_pillar, proof_points, audience, tier, lifecycle_status, booking_url, avatar_url"
         )
         .eq("lifecycle_status", "published");
 
@@ -418,6 +421,34 @@ export default function CoachProfile() {
                       {coach.methodology || "Methodology not available."}
                     </p>
                   </section>
+
+                  {/* ── Coaching Style & Details ── */}
+                  {(coach.coaching_style || coach.engagement_format || coach.primary_pillar) && (
+                    <section className="rounded-2xl border border-border bg-card p-8">
+                      <h2 className="text-2xl font-semibold mb-4">Coaching Style</h2>
+                      {coach.coaching_style && (
+                        <p className="text-muted-foreground leading-7 whitespace-pre-wrap mb-6">
+                          {coach.coaching_style}
+                        </p>
+                      )}
+                      {(coach.engagement_format || coach.primary_pillar) && (
+                        <div className="flex flex-wrap gap-3">
+                          {coach.primary_pillar && (
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-sm">
+                              <span className="text-muted-foreground mr-1.5">Pillar:</span>
+                              <span className="font-medium">{coach.primary_pillar}</span>
+                            </div>
+                          )}
+                          {coach.engagement_format && (
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-border text-sm">
+                              <span className="text-muted-foreground mr-1.5">Format:</span>
+                              <span className="font-medium capitalize">{coach.engagement_format}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </section>
+                  )}
 
                   <section className="rounded-2xl border border-border bg-card p-8">
                     <h2 className="text-2xl font-semibold mb-4">Proof Points</h2>
