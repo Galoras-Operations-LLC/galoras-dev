@@ -1,56 +1,16 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
-import { Button } from "@/components/ui/button";
-import { Search, MessageCircle, Sparkles, UserCircle2, ArrowRight, CalendarCheck, GitCompareArrows, X, SlidersHorizontal, Building2 } from "lucide-react";
+import { Search, Sparkles, UserCircle2, ArrowRight, GitCompareArrows, X, SlidersHorizontal, Building2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ContactModal } from "@/components/coaching/ContactModal";
-import { AuthGate } from "@/components/AuthGate";
+import { DirectoryCoachCard, type DirectoryCoach } from "@/components/coaching/DirectoryCoachCard";
+import { FilterChip, FilterRow, toggle } from "@/components/coaching/DirectoryFilters";
 import { useAuth } from "@/hooks/useAuth";
 import { useProductTypes } from "@/hooks/useProductTypes";
 import { useTags } from "@/hooks/useTags";
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-type PublicCoach = {
-  id: string;
-  slug: string | null;
-  display_name: string | null;
-  headline: string | null;
-  bio: string | null;
-  specialties: string[] | null;
-  audience: string[] | null;
-  avatar_url: string | null;
-  booking_url: string | null;
-  tier: string | null;
-  coach_products?: {
-    product_type: string;
-    title: string;
-    price_type: string;
-    price_amount: number | null;
-    enterprise_ready: boolean;
-  }[] | null;
-};
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-/** Toggle a value in/out of a multi-select set */
-function toggle(set: string[], value: string): string[] {
-  return set.includes(value) ? set.filter(v => v !== value) : [...set, value];
-}
-
-/** Format price for card display */
-function priceAnchor(products: PublicCoach["coach_products"]): string | null {
-  if (!products || products.length === 0) return null;
-  const fixed = products
-    .filter(p => p.price_type === "fixed" && p.price_amount)
-    .map(p => p.price_amount!);
-  if (fixed.length === 0) return null;
-  const min = Math.min(...fixed);
-  return `From $${(min / 100).toLocaleString()}`;
-}
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -69,6 +29,9 @@ export default function CoachingDirectory() {
   const [selAudience, setSelAudience] = useState<string[]>([]);
   const [selOutcomes, setSelOutcomes] = useState<string[]>([]);
   const [selFormats, setSelFormats] = useState<string[]>([]);
+  const [selPillars, setSelPillars] = useState<string[]>([]);
+  const [selTiers, setSelTiers] = useState<string[]>([]);
+  const [selEngagementFormats, setSelEngagementFormats] = useState<string[]>([]);
   const [enterpriseOnly, setEnterpriseOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -94,7 +57,8 @@ export default function CoachingDirectory() {
 
   const activeFilterCount =
     selProductTypes.length + selSpecialties.length + selAudience.length +
-    selOutcomes.length + selFormats.length + (enterpriseOnly ? 1 : 0);
+    selOutcomes.length + selFormats.length + selPillars.length +
+    selTiers.length + selEngagementFormats.length + (enterpriseOnly ? 1 : 0);
 
   const clearAllFilters = () => {
     setSelProductTypes([]);
@@ -102,6 +66,9 @@ export default function CoachingDirectory() {
     setSelAudience([]);
     setSelOutcomes([]);
     setSelFormats([]);
+    setSelPillars([]);
+    setSelTiers([]);
+    setSelEngagementFormats([]);
     setEnterpriseOnly(false);
     setSearchQuery("");
   };
@@ -113,11 +80,11 @@ export default function CoachingDirectory() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("coaches")
-        .select("id, slug, display_name, headline, bio, specialties, audience, avatar_url, booking_url, tier, coach_products(product_type, title, price_type, price_amount, enterprise_ready)")
+        .select("id, slug, display_name, headline, bio, specialties, audience, avatar_url, booking_url, tier, primary_pillar, engagement_format, coaching_style, coach_products(product_type, title, price_type, price_amount, enterprise_ready)")
         .eq("lifecycle_status", "published")
         .order("display_name", { ascending: true });
       if (error) throw error;
-      return (data || []) as PublicCoach[];
+      return (data || []) as DirectoryCoach[];
     },
   });
 
@@ -151,7 +118,32 @@ export default function CoachingDirectory() {
     return labels;
   }, [coachTagData]);
 
-  const matchScore = (coach: PublicCoach): number => {
+  // ── DB-driven filter options (derived from published coaches) ───────────
+  const dbPillars = useMemo(() => {
+    const set = new Set<string>();
+    (coaches || []).forEach(c => { if (c.primary_pillar) set.add(c.primary_pillar); });
+    return [...set].sort();
+  }, [coaches]);
+
+  const dbTiers = useMemo(() => {
+    const set = new Set<string>();
+    (coaches || []).forEach(c => { if (c.tier) set.add(c.tier); });
+    return [...set].sort();
+  }, [coaches]);
+
+  const dbEngagementFormats = useMemo(() => {
+    const set = new Set<string>();
+    (coaches || []).forEach(c => { if (c.engagement_format) set.add(c.engagement_format); });
+    return [...set].sort();
+  }, [coaches]);
+
+  const dbAudiences = useMemo(() => {
+    const set = new Set<string>();
+    (coaches || []).forEach(c => { (c.audience || []).forEach(a => set.add(a)); });
+    return [...set].sort();
+  }, [coaches]);
+
+  const matchScore = (coach: DirectoryCoach): number => {
     if (!profile?.coaching_areas || profile.coaching_areas.length === 0) return 0;
     const userAreas = profile.coaching_areas.map((a) => a.toLowerCase());
     return (coach.specialties || []).filter((s) =>
@@ -211,6 +203,21 @@ export default function CoachingDirectory() {
         if (!selFormats.some(f => coachFmtKeys.includes(f))) return false;
       }
 
+      // Primary pillar filter
+      if (selPillars.length > 0) {
+        if (!coach.primary_pillar || !selPillars.includes(coach.primary_pillar)) return false;
+      }
+
+      // Tier filter
+      if (selTiers.length > 0) {
+        if (!coach.tier || !selTiers.includes(coach.tier)) return false;
+      }
+
+      // Engagement format filter
+      if (selEngagementFormats.length > 0) {
+        if (!coach.engagement_format || !selEngagementFormats.includes(coach.engagement_format)) return false;
+      }
+
       return true;
     })
     .sort((a, b) => matchScore(b) - matchScore(a));
@@ -218,47 +225,8 @@ export default function CoachingDirectory() {
   const hasProfile = isLoggedIn && profile?.onboarding_complete;
   const hasMatches = isLoggedIn && profile?.coaching_areas && profile.coaching_areas.length > 0;
 
-  const coachProfilePath = (coach: PublicCoach) =>
+  const coachProfilePath = (coach: DirectoryCoach) =>
     coach.slug ? `/coach/${coach.slug}` : `/coaching/${coach.id}`;
-
-  // ── Filter chip component ─────────────────────────────────────────────────
-
-  function FilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-    return (
-      <button
-        onClick={onClick}
-        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-          active
-            ? "bg-primary border-primary text-zinc-950"
-            : "border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-white"
-        }`}
-      >
-        {label}
-      </button>
-    );
-  }
-
-  function FilterRow({ label, tags, selected, onToggle }: {
-    label: string;
-    tags: { tag_key: string; tag_label: string }[];
-    selected: string[];
-    onToggle: (key: string) => void;
-  }) {
-    if (tags.length === 0) return null;
-    return (
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mr-1 w-20 shrink-0">{label}</span>
-        {tags.map(t => (
-          <FilterChip
-            key={t.tag_key}
-            label={t.tag_label}
-            active={selected.includes(t.tag_key)}
-            onClick={() => onToggle(t.tag_key)}
-          />
-        ))}
-      </div>
-    );
-  }
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -405,20 +373,72 @@ export default function CoachingDirectory() {
               )}
             </div>
 
+            {/* DB-driven primary filter rows: Pillar, Tier */}
+            {(dbPillars.length > 0 || dbTiers.length > 0) && (
+              <div className="flex flex-wrap items-center gap-2">
+                {dbPillars.length > 0 && (
+                  <>
+                    <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mr-1 w-20 shrink-0">Pillar</span>
+                    {dbPillars.map(p => (
+                      <FilterChip
+                        key={p}
+                        label={p}
+                        active={selPillars.includes(p)}
+                        onClick={() => setSelPillars(toggle(selPillars, p))}
+                      />
+                    ))}
+                  </>
+                )}
+                {dbTiers.length > 0 && (
+                  <>
+                    <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mr-1 ml-4 w-12 shrink-0">Tier</span>
+                    {dbTiers.map(t => (
+                      <FilterChip
+                        key={t}
+                        label={t.charAt(0).toUpperCase() + t.slice(1)}
+                        active={selTiers.includes(t)}
+                        onClick={() => setSelTiers(toggle(selTiers, t))}
+                      />
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+
             {/* Expanded filter rows */}
             {filtersOpen && (
               <div className="space-y-3 p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+                {dbEngagementFormats.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mr-1 w-20 shrink-0">Format</span>
+                    {dbEngagementFormats.map(f => (
+                      <FilterChip
+                        key={f}
+                        label={f === "in_person" ? "In-Person" : f.charAt(0).toUpperCase() + f.slice(1)}
+                        active={selEngagementFormats.includes(f)}
+                        onClick={() => setSelEngagementFormats(toggle(selEngagementFormats, f))}
+                      />
+                    ))}
+                  </div>
+                )}
+                {dbAudiences.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mr-1 w-20 shrink-0">Audience</span>
+                    {dbAudiences.map(a => (
+                      <FilterChip
+                        key={a}
+                        label={a.charAt(0).toUpperCase() + a.slice(1)}
+                        active={selAudience.includes(a)}
+                        onClick={() => setSelAudience(toggle(selAudience, a))}
+                      />
+                    ))}
+                  </div>
+                )}
                 <FilterRow
                   label="Specialty"
                   tags={specialtyTags}
                   selected={selSpecialties}
                   onToggle={k => setSelSpecialties(toggle(selSpecialties, k))}
-                />
-                <FilterRow
-                  label="Audience"
-                  tags={audienceTags}
-                  selected={selAudience}
-                  onToggle={k => setSelAudience(toggle(selAudience, k))}
                 />
                 <FilterRow
                   label="Outcome"
@@ -427,7 +447,7 @@ export default function CoachingDirectory() {
                   onToggle={k => setSelOutcomes(toggle(selOutcomes, k))}
                 />
                 <FilterRow
-                  label="Format"
+                  label="Tag Format"
                   tags={formatTags}
                   selected={selFormats}
                   onToggle={k => setSelFormats(toggle(selFormats, k))}
@@ -460,166 +480,21 @@ export default function CoachingDirectory() {
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {filtered.map((coach) => {
-                const score = matchScore(coach);
-                const profilePath = coachProfilePath(coach);
-                const price = priceAnchor(coach.coach_products);
-                const featuredProduct = coach.coach_products?.[0];
-                const hasEnterprise = (coach.coach_products || []).some(p => p.enterprise_ready);
-                const coachTags = coachTagLookup[coach.id] || [];
-                const audienceLabels = coachTags.filter(t => t.tag_family === "audience").slice(0, 2);
-                const outcomeLabels = coachTags.filter(t => t.tag_family === "outcome").slice(0, 2);
-
-                return (
-                  <div
-                    key={coach.id}
-                    className="group bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-primary/40 transition-all duration-200 flex flex-col"
-                  >
-                    {/* Photo */}
-                    <Link to={profilePath} className="relative bg-zinc-800 block" style={{ height: "260px" }}>
-                      {coach.avatar_url ? (
-                        <img
-                          src={coach.avatar_url}
-                          alt={coach.display_name || "Coach"}
-                          className="w-full h-full object-contain object-center transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-6xl font-bold text-zinc-600">
-                            {(coach.display_name || "C").charAt(0)}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent" />
-
-                      {/* Badges: top-right */}
-                      <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
-                        {hasMatches && score > 0 && (
-                          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 backdrop-blur-sm">
-                            <Sparkles className="h-3 w-3" />
-                            Matched
-                          </span>
-                        )}
-                        {hasEnterprise && (
-                          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 backdrop-blur-sm">
-                            <Building2 className="h-3 w-3" />
-                            Enterprise
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Price anchor: bottom-left */}
-                      {price && (
-                        <div className="absolute bottom-3 left-3">
-                          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-zinc-950/80 text-white backdrop-blur-sm border border-zinc-700/50">
-                            {price}
-                          </span>
-                        </div>
-                      )}
-                    </Link>
-
-                    {/* Info */}
-                    <div className="p-4 flex flex-col flex-1">
-                      <Link to={profilePath}>
-                        <h3 className="text-base font-bold text-white leading-tight mb-1 hover:text-primary transition-colors">
-                          {coach.display_name || "Coach"}
-                        </h3>
-                      </Link>
-
-                      {coach.headline && (
-                        <p className="text-zinc-400 text-xs mb-3 line-clamp-2 leading-relaxed">
-                          {coach.headline}
-                        </p>
-                      )}
-
-                      {/* Featured product */}
-                      {featuredProduct && (
-                        <div className="mb-3 px-3 py-2 rounded-lg bg-zinc-800/60 border border-zinc-700/50">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            {(() => {
-                              const { label, className } = getConfig(featuredProduct.product_type);
-                              return (
-                                <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-full border ${className}`}>
-                                  {label}
-                                </span>
-                              );
-                            })()}
-                          </div>
-                          <p className="text-xs text-zinc-300 font-medium line-clamp-1">{featuredProduct.title}</p>
-                        </div>
-                      )}
-
-                      {/* Tags: audience + outcome */}
-                      {(audienceLabels.length > 0 || outcomeLabels.length > 0) && (
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          {audienceLabels.map(t => (
-                            <span key={t.tag_key}
-                              className="px-2 py-0.5 text-[10px] rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400">
-                              {t.tag_label}
-                            </span>
-                          ))}
-                          {outcomeLabels.map(t => (
-                            <span key={t.tag_key}
-                              className="px-2 py-0.5 text-[10px] rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                              {t.tag_label}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Specialty tags (legacy) */}
-                      {coach.specialties && coach.specialties.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-2">
-                          {coach.specialties.slice(0, 2).map((s) => (
-                            <span
-                              key={s}
-                              className="px-2 py-0.5 rounded-full border border-zinc-700 text-zinc-500 text-xs capitalize"
-                            >
-                              {s}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* CTAs */}
-                      <div className="flex gap-2 mt-auto pt-3 border-t border-zinc-800">
-                        <Link to={profilePath} className="flex-1">
-                          <Button className="w-full bg-primary hover:bg-primary/90 text-zinc-950 text-xs font-bold h-9 rounded-lg gap-1.5">
-                            <CalendarCheck className="h-3.5 w-3.5" />
-                            View & Book
-                          </Button>
-                        </Link>
-
-                        <button
-                          onClick={() => toggleCompare(coach.id)}
-                          title={compareList.includes(coach.id) ? "Remove from compare" : "Add to compare"}
-                          className={`flex items-center justify-center w-9 h-9 rounded-lg border transition-colors ${
-                            compareList.includes(coach.id)
-                              ? "border-amber-500 bg-amber-500/10 text-amber-400"
-                              : "border-zinc-700 text-zinc-400 hover:border-amber-500/50 hover:text-amber-400"
-                          }`}
-                        >
-                          <GitCompareArrows className="h-3.5 w-3.5" />
-                        </button>
-
-                        <AuthGate isLoggedIn={isLoggedIn} message="Sign in to message coaches">
-                          <button
-                            onClick={() =>
-                              setContactCoach({ id: coach.id, name: coach.display_name || "Coach" })
-                            }
-                            className="flex items-center justify-center w-9 h-9 rounded-lg border border-zinc-700 text-zinc-400 hover:border-primary/50 hover:text-primary transition-colors"
-                            title="Send a message"
-                          >
-                            <MessageCircle className="h-3.5 w-3.5" />
-                          </button>
-                        </AuthGate>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {filtered.map((coach) => (
+                <DirectoryCoachCard
+                  key={coach.id}
+                  coach={coach}
+                  profilePath={coachProfilePath(coach)}
+                  matchScore={matchScore(coach)}
+                  hasMatches={!!hasMatches}
+                  isLoggedIn={!!isLoggedIn}
+                  coachTags={coachTagLookup[coach.id] || []}
+                  compareList={compareList}
+                  getConfig={getConfig}
+                  onToggleCompare={toggleCompare}
+                  onContact={(id, name) => setContactCoach({ id, name })}
+                />
+              ))}
             </div>
           )}
         </div>
