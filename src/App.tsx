@@ -46,6 +46,8 @@ import CoachEditorDetail from "./pages/admin/CoachEditorDetail";
 import Bookings from "@/pages/admin/Bookings";
 import ProductManager from "@/pages/admin/ProductManager";
 import Portal from "./pages/admin/Portal";
+import AgentEvaluation from "./pages/admin/AgentEvaluation";
+import Leads from "./pages/admin/Leads";
 import CompleteRegistration from "./pages/CompleteRegistration";
 
 // Legal pages
@@ -222,6 +224,22 @@ function AppRoutes() {
             element={
               <ProtectedRoute requireAdmin>
                 <ProductManager />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/leads"
+            element={
+              <ProtectedRoute requireAdmin>
+                <Leads />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/agent-evaluation"
+            element={
+              <ProtectedRoute requireAdmin>
+                <AgentEvaluation />
               </ProtectedRoute>
             }
           />
