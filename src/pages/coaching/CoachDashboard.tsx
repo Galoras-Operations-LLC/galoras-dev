@@ -26,6 +26,7 @@ import { OverviewTab } from '@/components/coaching/portal/OverviewTab';
 import { CoachProductsManager } from '@/components/coaching/portal/CoachProductsManager';
 import { CoachPipelineCalendar } from '@/components/coaching/portal/CoachPipelineCalendar';
 import { CoachRevenueDashboard } from '@/components/coaching/portal/CoachRevenueDashboard';
+import { CoachProfileEditor } from '@/components/coaching/portal/CoachProfileEditor';
 
 const DAYS_OF_WEEK = [
   { value: 0, label: 'Sunday' },
@@ -169,7 +170,7 @@ export default function CoachDashboard() {
 
   function handleNavigate(tab: string) {
     if (tab === 'profile') {
-      navigate('/coach-dashboard/edit');
+      setActiveTab('profile');
       return;
     }
     if (tab === 'visibility') { setActiveTab('revenue'); return; }
@@ -279,6 +280,11 @@ export default function CoachDashboard() {
           {/* Products tab */}
           {activeTab === 'products' && (
             <CoachProductsManager coachProfile={coachProfile} />
+          )}
+
+          {/* Profile tab */}
+          {activeTab === 'profile' && (
+            <CoachProfileEditor coachProfile={coachProfile} />
           )}
 
           {/* Settings tab */}
