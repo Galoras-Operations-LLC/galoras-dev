@@ -90,7 +90,7 @@ export function DirectoryCoachCard({
               <img
                 src={coach.avatar_url}
                 alt={coach.display_name || "Coach"}
-                className="w-full h-full object-contain object-center"
+                className="w-full h-full object-contain object-bottom"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
