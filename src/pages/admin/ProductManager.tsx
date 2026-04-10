@@ -56,7 +56,7 @@ const FORMATS = ["online", "in_person", "hybrid"];
 const PRICE_TYPES = ["enquiry", "fixed", "range"];
 const BOOKING_MODES = [
   { value: "enquiry", label: "Enquiry" },
-  { value: "stripe",  label: "Stripe (coming soon)" },
+  { value: "stripe",  label: "Stripe" },
 ];
 const VISIBILITY = ["public", "unlisted", "private"];
 
@@ -237,6 +237,35 @@ export default function ProductManager() {
   };
 
   const deleteProduct = async (p: Product) => {
+    // Check for active bookings before allowing deletion
+    const { data: activeBookings } = await supabase
+      .from("bookings")
+      .select("id", { count: "exact", head: true })
+      .eq("product_id", p.id)
+      .not("status", "in", '("cancelled","refunded","completed")');
+
+    const bookingCount = (activeBookings as unknown as { count: number } | null)?.count
+      ?? (Array.isArray(activeBookings) ? (activeBookings as unknown[]).length : 0);
+
+    // Also check session_bookings
+    const { data: activeSessions } = await supabase
+      .from("session_bookings")
+      .select("id", { count: "exact", head: true })
+      .eq("product_id", p.id)
+      .not("status", "in", '("cancelled","completed")');
+
+    const sessionCount = (activeSessions as unknown as { count: number } | null)?.count
+      ?? (Array.isArray(activeSessions) ? (activeSessions as unknown[]).length : 0);
+
+    if (bookingCount > 0 || sessionCount > 0) {
+      toast({
+        title: "Cannot delete product",
+        description: `This product has ${bookingCount + sessionCount} active booking(s). Wait until all sessions are complete and payments received.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!confirm(`Delete "${p.title}"? This cannot be undone.`)) return;
     const { error } = await supabase.from("coach_products").delete().eq("id", p.id);
     if (!error && selectedCoach) {
