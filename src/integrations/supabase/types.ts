@@ -497,6 +497,7 @@ export type Database = {
           id: string
           industry: string | null
           industry_focus: string | null
+          featured_rank: number | null
           is_featured: boolean | null
           leadership_experience_years: number | null
           lifecycle_status: string | null
@@ -555,6 +556,7 @@ export type Database = {
           id?: string
           industry?: string | null
           industry_focus?: string | null
+          featured_rank?: number | null
           is_featured?: boolean | null
           leadership_experience_years?: number | null
           lifecycle_status?: string | null
@@ -613,6 +615,7 @@ export type Database = {
           id?: string
           industry?: string | null
           industry_focus?: string | null
+          featured_rank?: number | null
           is_featured?: boolean | null
           leadership_experience_years?: number | null
           lifecycle_status?: string | null
@@ -647,6 +650,47 @@ export type Database = {
           years_experience?: number | null
         }
         Relationships: []
+      }
+      coach_transition_log: {
+        Row: {
+          id: string
+          coach_id: string
+          from_status: string | null
+          to_status: string
+          actor_id: string | null
+          actor_email: string | null
+          reviewer_notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          coach_id: string
+          from_status?: string | null
+          to_status: string
+          actor_id?: string | null
+          actor_email?: string | null
+          reviewer_notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          coach_id?: string
+          from_status?: string | null
+          to_status?: string
+          actor_id?: string | null
+          actor_email?: string | null
+          reviewer_notes?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_transition_log_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       legal_agreements: {
         Row: {

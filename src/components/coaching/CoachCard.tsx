@@ -3,7 +3,7 @@ import { Award, MapPin, ArrowRight } from "lucide-react";
 
 // ── Tier config ────────────────────────────────────────────────
 const TIER_CONFIG: Record<string, { label: string; className: string }> = {
-  elite:    { label: "⭐ Elite",    className: "bg-amber-500/20 border border-amber-500/40 text-amber-300" },
+  elite:    { label: "Elite",       className: "bg-amber-500/20 border border-amber-500/40 text-amber-300" },
   premium:  { label: "Premium",    className: "bg-blue-500/20 border border-blue-500/40 text-blue-300" },
   standard: { label: "Standard",   className: "bg-white/10 border border-white/20 text-white/70" },
 };

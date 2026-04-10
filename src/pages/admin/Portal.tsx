@@ -127,7 +127,15 @@ export default function Portal() {
       const published = rows.filter(c => c.lifecycle_status === "published");
       const tiers = { pro: 0, elite: 0, master: 0 };
       published.forEach(c => { if (c.tier && c.tier in tiers) tiers[c.tier as keyof typeof tiers]++; });
-      return { total: rows.length, published: published.length, tiers, recent: rows.slice(0, 5) };
+
+      // Full lifecycle breakdown
+      const lifecycle: Record<string, number> = {};
+      rows.forEach(c => {
+        const s = c.lifecycle_status ?? "draft";
+        lifecycle[s] = (lifecycle[s] ?? 0) + 1;
+      });
+
+      return { total: rows.length, published: published.length, tiers, lifecycle, recent: rows.slice(0, 5) };
     },
   });
 
@@ -184,14 +192,52 @@ export default function Portal() {
 
   // ── Render helpers ────────────────────────────────────────────────────────
 
+  const LIFECYCLE_COLORS: Record<string, string> = {
+    published: "text-emerald-400", approved: "text-amber-400", under_review: "text-blue-400",
+    submitted: "text-sky-400", draft: "text-zinc-400", revision_required: "text-orange-400", rejected: "text-red-400",
+  };
+
   const renderCoachPipeline = () => (
     <div className="space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard label="Pending Applications" value={appStats?.pending ?? "—"} icon={Clock} color="text-amber-400" />
-        <KpiCard label="Approved Coaches" value={appStats?.approved ?? "—"} icon={CheckCircle2} color="text-emerald-400" />
-        <KpiCard label="Published Coaches" value={coachStats?.published ?? "—"} icon={Users} color="text-sky-400" />
-        <KpiCard label="Total Applications" value={appStats?.total ?? "—"} icon={TrendingUp} color="text-zinc-400" />
+        <KpiCard label="Pending Applications" value={appStats?.pending ?? "---"} icon={Clock} color="text-amber-400" />
+        <KpiCard label="Approved Coaches" value={appStats?.approved ?? "---"} icon={CheckCircle2} color="text-emerald-400" />
+        <KpiCard label="Published Coaches" value={coachStats?.published ?? "---"} icon={Users} color="text-sky-400" />
+        <KpiCard label="Total Applications" value={appStats?.total ?? "---"} icon={TrendingUp} color="text-zinc-400" />
+      </div>
+
+      {/* Lifecycle status breakdown */}
+      <div>
+        <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Coaches by Lifecycle Status</h3>
+        <div className="grid grid-cols-3 lg:grid-cols-7 gap-3">
+          {["published", "approved", "under_review", "submitted", "draft", "revision_required", "rejected"].map(status => {
+            const count = coachStats?.lifecycle?.[status] ?? 0;
+            const label = status.replace(/_/g, " ");
+            return (
+              <div key={status} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
+                <p className={`text-xl font-black ${LIFECYCLE_COLORS[status] ?? "text-zinc-400"}`}>{count}</p>
+                <p className="text-xs text-zinc-500 mt-0.5 capitalize">{label}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Booking summary metrics */}
+      <div>
+        <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Booking Metrics</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <KpiCard
+            label="Revenue"
+            value={bookingStats ? formatMoney(bookingStats.revenue, bookingStats.currency) : "---"}
+            icon={CreditCard}
+            color="text-emerald-400"
+          />
+          <KpiCard label="Total Bookings" value={bookingStats?.totalPayments ?? "---"} icon={ShoppingCart} color="text-sky-400" />
+          <KpiCard label="Pending Payments" value={bookingStats?.pendingPayments ?? "---"} icon={AlertCircle} color="text-amber-400" />
+          <KpiCard label="Upcoming Sessions" value={bookingStats?.upcomingSessions ?? "---"} icon={Calendar} color="text-violet-400" />
+        </div>
       </div>
 
       {/* Two columns */}

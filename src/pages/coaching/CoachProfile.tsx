@@ -14,56 +14,9 @@ import { RequestModal } from "@/components/coaching/RequestModal";
 import { EnterpriseRequestModal } from "@/components/coaching/EnterpriseRequestModal";
 import { loadStripe } from "@stripe/stripe-js";
 import { useToast } from "@/hooks/use-toast";
+import { GALORAS_PLATFORM_PRODUCTS } from "@/components/coaching/platformProducts";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? "");
-
-// ── Galoras Platform Sessions ─────────────────────────────────────────────────
-// Standard offerings available on every qualified coach's profile.
-
-const GALORAS_PLATFORM_PRODUCTS: CoachProduct[] = [
-  {
-    id:               "galoras-discovery",
-    product_type:     "single_session",
-    title:            "Discovery Session",
-    outcome_statement:
-      "A focused 1-on-1 session to assess where you are, clarify what's holding you back, and map the fastest path to your next performance breakthrough. You'll walk away with a clear picture of your leadership gaps and a concrete action plan — no fluff, just signal.",
-    target_audience:  ["Leaders ready to stop guessing and start executing with clarity"],
-    delivery_format:  "online",
-    session_count:    1,
-    duration_minutes: 60,
-    duration_weeks:   null,
-    price_type:       "fixed",
-    price_amount:     100,  // $1 for live testing — revert to 25000 ($250) after
-    price_range_min:  null,
-    price_range_max:  null,
-    enterprise_ready: false,
-    booking_mode:     "enquiry",
-    visibility_scope: "public",
-    is_active:        true,
-    sort_order:       0,
-  },
-  {
-    id:               "galoras-workshop",
-    product_type:     "workshop_event",
-    title:            "Strategic Initiative Workshop",
-    outcome_statement:
-      "A high-intensity 90-minute working session designed to pressure-test your biggest strategic initiative. Bring your real challenge — leave with a validated plan, sharper priorities, and the blind spots you didn't know you had. Built for leaders who move fast and need thinking partners, not theory.",
-    target_audience:  ["Executives and founders navigating high-stakes decisions"],
-    delivery_format:  "online",
-    session_count:    1,
-    duration_minutes: 90,
-    duration_weeks:   null,
-    price_type:       "fixed",
-    price_amount:     45000,
-    price_range_min:  null,
-    price_range_max:  null,
-    enterprise_ready: false,
-    booking_mode:     "enquiry",
-    visibility_scope: "public",
-    is_active:        true,
-    sort_order:       1,
-  },
-];
 
 type CoachProfileData = {
   id: string;
@@ -72,6 +25,9 @@ type CoachProfileData = {
   headline: string | null;
   positioning_statement: string | null;
   methodology: string | null;
+  coaching_style: string | null;
+  engagement_format: string | null;
+  primary_pillar: string | null;
   proof_points: unknown;
   audience: string[] | null;
   tier: string | null;
@@ -82,21 +38,15 @@ type CoachProfileData = {
 
 function normalizeProofPoints(value: unknown): string[] {
   if (!value) return [];
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => {
-        if (typeof item === "string") return item.trim();
-        if (item && typeof item === "object" && "text" in item) {
-          const text = (item as { text?: unknown }).text;
-          return typeof text === "string" ? text.trim() : "";
-        }
-        return "";
-      })
-      .filter(Boolean);
-  }
-  if (typeof value === "string") {
-    return value.split("\n").map((line) => line.trim()).filter(Boolean);
-  }
+  if (Array.isArray(value)) return value.map((item) => {
+    if (typeof item === "string") return item.trim();
+    if (item && typeof item === "object" && "text" in item) {
+      const t = (item as { text?: unknown }).text;
+      return typeof t === "string" ? t.trim() : "";
+    }
+    return "";
+  }).filter(Boolean);
+  if (typeof value === "string") return value.split("\n").map(l => l.trim()).filter(Boolean);
   return [];
 }
 
@@ -113,8 +63,6 @@ export default function CoachProfile() {
   const { isLoggedIn } = useAuth();
   const { getConfig: getTypeConfig } = useProductTypes();
   const { toast } = useToast();
-
-  // Products
   const [products, setProducts] = useState<CoachProduct[]>([]);
 
   // Stripe checkout for platform products and coach products with booking_mode=stripe
@@ -190,7 +138,7 @@ export default function CoachProfile() {
       let query = supabase
         .from("coaches")
         .select(
-          "id, slug, display_name, headline, positioning_statement, methodology, proof_points, audience, tier, lifecycle_status, booking_url, avatar_url"
+          "id, slug, display_name, headline, positioning_statement, methodology, coaching_style, engagement_format, primary_pillar, proof_points, audience, tier, lifecycle_status, booking_url, avatar_url"
         )
         .eq("lifecycle_status", "published");
 
@@ -295,8 +243,13 @@ export default function CoachProfile() {
                           Galoras Coaching Exchange
                         </div>
                         {coach.tier && (
-                          <div className="inline-flex items-center px-3 py-1 rounded-full border border-border text-xs font-medium capitalize">
+                          <div className="inline-flex items-center px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium capitalize">
                             {coach.tier}
+                          </div>
+                        )}
+                        {coach.primary_pillar && (
+                          <div className="inline-flex items-center px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-primary text-xs font-medium">
+                            {coach.primary_pillar}
                           </div>
                         )}
                         {coach.audience && coach.audience.length > 0 && (
@@ -354,7 +307,62 @@ export default function CoachProfile() {
 
                 <div className="grid gap-6">
 
-                  {/* ── Galoras Platform Sessions ── */}
+                  {/* 3. Methodology */}
+                  <section className="rounded-2xl border border-border bg-card p-8">
+                    <h2 className="text-2xl font-semibold mb-4">Methodology</h2>
+                    <p className="text-muted-foreground leading-7 whitespace-pre-wrap">
+                      {coach.methodology || "Methodology not available."}
+                    </p>
+                  </section>
+
+                  {/* 4. Coaching Style + Engagement Format + Primary Pillar */}
+                  {(coach.coaching_style || coach.engagement_format || coach.primary_pillar) && (
+                    <section className="rounded-2xl border border-border bg-card p-8">
+                      <h2 className="text-2xl font-semibold mb-4">Coaching Style</h2>
+                      {coach.coaching_style && (
+                        <p className="text-muted-foreground leading-7 whitespace-pre-wrap mb-6">
+                          {coach.coaching_style}
+                        </p>
+                      )}
+                      {(coach.engagement_format || coach.primary_pillar) && (
+                        <div className="flex flex-wrap gap-3">
+                          {coach.primary_pillar && (
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-sm">
+                              <span className="text-muted-foreground mr-1.5">Pillar:</span>
+                              <span className="font-medium">{coach.primary_pillar}</span>
+                            </div>
+                          )}
+                          {coach.engagement_format && (
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-border text-sm">
+                              <span className="text-muted-foreground mr-1.5">Format:</span>
+                              <span className="font-medium capitalize">{coach.engagement_format}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </section>
+                  )}
+
+                  {/* 5. Proof Points / Testimonials */}
+                  <section className="rounded-2xl border border-border bg-card p-8">
+                    <h2 className="text-2xl font-semibold mb-4">Proof Points</h2>
+                    {proofPoints.length > 0 ? (
+                      <div className="space-y-4">
+                        {proofPoints.map((point, index) => (
+                          <div
+                            key={index}
+                            className="rounded-xl border border-border bg-muted/30 p-5"
+                          >
+                            <p className="text-muted-foreground leading-7">{point}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground">Proof points not available.</p>
+                    )}
+                  </section>
+
+                  {/* 6a. Galoras Platform Sessions */}
                   <section className="rounded-2xl border border-primary/20 bg-card p-8">
                     <div className="flex items-center gap-3 mb-2">
                       <Sparkles className="h-5 w-5 text-primary" />
@@ -381,7 +389,7 @@ export default function CoachProfile() {
                     )}
                   </section>
 
-                  {/* ── Coach's Own Products ── */}
+                  {/* 6b. Coach's Own Products */}
                   {products.length > 0 && (
                     <section className="rounded-2xl border border-border bg-card p-8">
                       <div className="flex items-center gap-3 mb-2">
@@ -411,31 +419,6 @@ export default function CoachProfile() {
                       </div>
                     </section>
                   )}
-
-                  <section className="rounded-2xl border border-border bg-card p-8">
-                    <h2 className="text-2xl font-semibold mb-4">Methodology</h2>
-                    <p className="text-muted-foreground leading-7 whitespace-pre-wrap">
-                      {coach.methodology || "Methodology not available."}
-                    </p>
-                  </section>
-
-                  <section className="rounded-2xl border border-border bg-card p-8">
-                    <h2 className="text-2xl font-semibold mb-4">Proof Points</h2>
-                    {proofPoints.length > 0 ? (
-                      <div className="space-y-4">
-                        {proofPoints.map((point, index) => (
-                          <div
-                            key={index}
-                            className="rounded-xl border border-border bg-muted/30 p-5"
-                          >
-                            <p className="text-muted-foreground leading-7">{point}</p>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-muted-foreground">Proof points not available.</p>
-                    )}
-                  </section>
                 </div>
 
                 <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { usePageTracker } from "@/hooks/usePageTracker";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -45,6 +46,8 @@ import CoachEditorDetail from "./pages/admin/CoachEditorDetail";
 import Bookings from "@/pages/admin/Bookings";
 import ProductManager from "@/pages/admin/ProductManager";
 import Portal from "./pages/admin/Portal";
+import AgentEvaluation from "./pages/admin/AgentEvaluation";
+import Leads from "./pages/admin/Leads";
 import CompleteRegistration from "./pages/CompleteRegistration";
 
 // Legal pages
@@ -92,13 +95,10 @@ function CoachOnboardingRedirect() {
   return <Navigate to={`/coaching/onboarding${location.search}`} replace />;
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
+function AppRoutes() {
+  usePageTracker();
+  return (
+    <Routes>
           {/* Home */}
           <Route path="/" element={<Index />} />
 
@@ -142,14 +142,7 @@ const App = () => (
           <Route path="/subscription-success" element={<SubscriptionSuccess />} />
 
           {/* Dashboard Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/dashboard" element={<Navigate to="/coach-dashboard" replace />} />
           <Route
             path="/coach-dashboard"
             element={
@@ -234,6 +227,22 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/leads"
+            element={
+              <ProtectedRoute requireAdmin>
+                <Leads />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/agent-evaluation"
+            element={
+              <ProtectedRoute requireAdmin>
+                <AgentEvaluation />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Legal Routes */}
           <Route path="/terms" element={<Terms />} />
@@ -245,6 +254,16 @@ const App = () => (
           {/* Always last */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+  );
+}
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AppRoutes />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
