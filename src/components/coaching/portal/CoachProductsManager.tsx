@@ -430,23 +430,23 @@ export function CoachProductsManager({ coachProfile }: CoachProductsManagerProps
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs text-muted-foreground uppercase tracking-wide">
-                  {draft.price_type === 'range' ? 'Price Min (cents)' : 'Price (cents)'}
+                  {draft.price_type === 'range' ? 'Price range ($)' : 'Price ($)'}
                 </Label>
                 {draft.price_type === 'enquiry' ? (
                   <p className="text-sm text-muted-foreground italic pt-2">Clients enquire directly</p>
                 ) : draft.price_type === 'range' ? (
                   <div className="grid grid-cols-2 gap-2">
-                    <Input type="number" min={0} value={draft.price_range_min}
-                      onChange={(e) => set('price_range_min', e.target.value ? Number(e.target.value) : '')}
-                      placeholder="Min" className="bg-card border-border" />
-                    <Input type="number" min={0} value={draft.price_range_max}
-                      onChange={(e) => set('price_range_max', e.target.value ? Number(e.target.value) : '')}
-                      placeholder="Max" className="bg-card border-border" />
+                    <Input type="number" min={0} value={draft.price_range_min ? draft.price_range_min / 100 : ''}
+                      onChange={(e) => set('price_range_min', e.target.value ? Math.round(parseFloat(e.target.value) * 100) : '')}
+                      placeholder="Min $" className="bg-card border-border" />
+                    <Input type="number" min={0} value={draft.price_range_max ? draft.price_range_max / 100 : ''}
+                      onChange={(e) => set('price_range_max', e.target.value ? Math.round(parseFloat(e.target.value) * 100) : '')}
+                      placeholder="Max $" className="bg-card border-border" />
                   </div>
                 ) : (
-                  <Input type="number" min={0} value={draft.price_amount}
-                    onChange={(e) => set('price_amount', e.target.value ? Number(e.target.value) : '')}
-                    placeholder="50000 = $500" className="bg-card border-border" />
+                  <Input type="number" min={0} value={draft.price_amount ? draft.price_amount / 100 : ''}
+                    onChange={(e) => set('price_amount', e.target.value ? Math.round(parseFloat(e.target.value) * 100) : '')}
+                    placeholder="e.g. 500" className="bg-card border-border" />
                 )}
               </div>
             </div>

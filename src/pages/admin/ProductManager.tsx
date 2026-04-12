@@ -645,32 +645,32 @@ export default function ProductManager() {
                   </select>
                 </Field>
                 {editing.price_type === "fixed" && (
-                  <Field label="Price (cents)">
+                  <Field label="Price ($)">
                     <input
                       className={inputClass()}
                       type="number"
-                      value={editing.price_amount ?? ""}
-                      onChange={e => set("price_amount", e.target.value ? parseInt(e.target.value) : null)}
-                      placeholder="e.g. 50000 = $500"
+                      value={editing.price_amount != null ? editing.price_amount / 100 : ""}
+                      onChange={e => set("price_amount", e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null)}
+                      placeholder="e.g. 500"
                     />
                   </Field>
                 )}
                 {editing.price_type === "range" && (
                   <>
-                    <Field label="Min (cents)">
+                    <Field label="Min price ($)">
                       <input
                         className={inputClass()}
                         type="number"
-                        value={editing.price_range_min ?? ""}
-                        onChange={e => set("price_range_min", e.target.value ? parseInt(e.target.value) : null)}
+                        value={editing.price_range_min != null ? editing.price_range_min / 100 : ""}
+                        onChange={e => set("price_range_min", e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null)}
                       />
                     </Field>
-                    <Field label="Max (cents)">
+                    <Field label="Max price ($)">
                       <input
                         className={inputClass()}
                         type="number"
-                        value={editing.price_range_max ?? ""}
-                        onChange={e => set("price_range_max", e.target.value ? parseInt(e.target.value) : null)}
+                        value={editing.price_range_max != null ? editing.price_range_max / 100 : ""}
+                        onChange={e => set("price_range_max", e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null)}
                       />
                     </Field>
                   </>

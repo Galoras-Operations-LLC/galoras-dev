@@ -46,13 +46,13 @@ const offerings = [
 ];
 
 const stats = [
-  { value: "200+", label: "Organizations Served" },
-  { value: "15,000+", label: "Leaders Developed" },
-  { value: "94%", label: "Client Retention" },
-  { value: "40+", label: "Fortune 500 Clients" },
+  { value: "B2B", label: "Enterprise-First Focus" },
+  { value: "C-Suite", label: "Leadership Audience" },
+  { value: "Real", label: "Vetted Coaches Only" },
+  { value: "Data", label: "Performance-Driven" },
 ];
 
-const logos = ["TechCorp", "GlobalBank", "InnovateCo", "ScaleUp", "Enterprise", "FutureFirm"];
+const logos: string[] = [];
 
 export default function Business() {
   return (
@@ -253,21 +253,6 @@ export default function Business() {
         </div>
       </section>
 
-      {/* Trusted By */}
-      <section className="section-padding bg-background">
-        <div className="container-wide">
-          <div className="text-center mb-12">
-            <p className="text-muted-foreground text-lg">Trusted by leading organizations</p>
-          </div>
-          <div className="flex flex-wrap justify-center gap-8 md:gap-16">
-            {logos.map((logo, index) => (
-              <div key={index} className="text-2xl font-display font-bold text-muted-foreground/30">
-                {logo}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* CTA */}
       <section className="section-padding hero-gradient">
