@@ -48,7 +48,8 @@ export function MessageCoachModal({ isOpen, onClose, coachId, coachName, coachUs
     try {
       const { error } = await supabase.from("messages").insert({
         sender_id: user.id,
-        receiver_id: coachId,
+        coach_id: coachId,
+        sender_email: user.email,
         subject: subject || `Message from ${user.email}`,
         content,
       });

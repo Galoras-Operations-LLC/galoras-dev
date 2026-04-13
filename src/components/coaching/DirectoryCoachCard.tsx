@@ -113,9 +113,9 @@ export function DirectoryCoachCard({
 
           {/* Info */}
           <div className="p-4 flex flex-col flex-1">
-            <h3 className="text-base font-display font-bold text-white leading-tight mb-0.5">
-              {coach.display_name || "Coach"}
-            </h3>
+            <div className="mb-0.5">
+              <img src="/galoras-logo.svg" alt="Galoras" className="h-5 w-auto" />
+            </div>
 
             {coach.headline && (
               <p className="text-muted-foreground text-xs mb-2 line-clamp-2 leading-snug">
@@ -174,9 +174,7 @@ export function DirectoryCoachCard({
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-display font-bold text-white">
-              {coach.display_name}
-            </h3>
+            <img src="/galoras-logo.svg" alt="Galoras" className="h-5 w-auto" />
             <button
               onClick={() => setFlipped(false)}
               className="flex items-center gap-1 text-xs text-muted-foreground hover:text-accent transition-colors"

@@ -53,6 +53,7 @@ export default function Auth() {
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [countryCode, setCountryCode] = useState("+1");
 
   // Legal consent state
   const [consentValid, setConsentValid] = useState(false);
@@ -165,7 +166,7 @@ export default function Auth() {
     try {
       // Complete signup via edge function — sets password and signs in
       const signupResult = await callFunction("complete-signup", {
-        email: signupEmail, password, fullName, phone: phoneNumber || null,
+        email: signupEmail, password, fullName, phone: phoneNumber ? `${countryCode}${phoneNumber.replace(/\D/g, "")}` : null,
       });
 
       // Set session from the response
@@ -445,9 +446,41 @@ export default function Auth() {
                   </div>
                   <div>
                     <Label htmlFor="phone" className="mb-1.5 block">Phone number <span className="text-muted-foreground font-normal">(optional)</span></Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="phone" type="tel" className="pl-10" placeholder="+1 (555) 000-0000"
+                    <div className="flex gap-2">
+                      <div className="relative shrink-0">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <select
+                          value={countryCode}
+                          onChange={(e) => setCountryCode(e.target.value)}
+                          className="h-10 pl-10 pr-2 rounded-md border border-input bg-background text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring w-[120px]"
+                        >
+                          <option value="+1">+1 CA/US</option>
+                          <option value="+44">+44 UK</option>
+                          <option value="+61">+61 AU</option>
+                          <option value="+64">+64 NZ</option>
+                          <option value="+353">+353 IE</option>
+                          <option value="+91">+91 IN</option>
+                          <option value="+86">+86 CN</option>
+                          <option value="+81">+81 JP</option>
+                          <option value="+82">+82 KR</option>
+                          <option value="+65">+65 SG</option>
+                          <option value="+852">+852 HK</option>
+                          <option value="+971">+971 AE</option>
+                          <option value="+49">+49 DE</option>
+                          <option value="+33">+33 FR</option>
+                          <option value="+39">+39 IT</option>
+                          <option value="+34">+34 ES</option>
+                          <option value="+31">+31 NL</option>
+                          <option value="+46">+46 SE</option>
+                          <option value="+47">+47 NO</option>
+                          <option value="+55">+55 BR</option>
+                          <option value="+52">+52 MX</option>
+                          <option value="+27">+27 ZA</option>
+                          <option value="+234">+234 NG</option>
+                          <option value="+254">+254 KE</option>
+                        </select>
+                      </div>
+                      <Input id="phone" type="tel" className="flex-1" placeholder="(555) 000-0000"
                         value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">For SMS verification — we'll text you a code to confirm.</p>

@@ -49,7 +49,7 @@ export function RequestModal({ coachId, coachName, productId, productTitle, prod
       return;
     }
 
-    // Notify admin
+    // Notify admin and requester
     try {
       await supabase.functions.invoke("send-admin-alert", {
         body: {
@@ -57,6 +57,18 @@ export function RequestModal({ coachId, coachName, productId, productTitle, prod
           name, email, coachName,
           product: productTitle || "General enquiry",
           goal, context, urgency,
+        },
+      });
+    } catch (_) { /* non-blocking */ }
+
+    try {
+      await supabase.functions.invoke("send-request-confirmation", {
+        body: {
+          requesterEmail: email,
+          name,
+          coachName,
+          productTitle,
+          urgency,
         },
       });
     } catch (_) { /* non-blocking */ }

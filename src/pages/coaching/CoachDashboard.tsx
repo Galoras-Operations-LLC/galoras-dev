@@ -186,14 +186,8 @@ export default function CoachDashboard() {
   // --- Early returns for auth / loading / no profile ---
 
   if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-display font-bold text-white mb-4">Please Sign In</h1>
-          <Button onClick={() => navigate('/login')}>Sign In</Button>
-        </div>
-      </div>
-    );
+    navigate('/auth?redirect=/coach-dashboard', { replace: true });
+    return null;
   }
 
   if (coachLoading) {
@@ -215,15 +209,8 @@ export default function CoachDashboard() {
   }
 
   if (!coachProfile) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-display font-bold text-white mb-4">Coach Profile Not Found</h1>
-          <p className="text-muted-foreground mb-6">You need to be an approved coach to access this dashboard.</p>
-          <Button onClick={() => navigate('/apply')}>Apply as Coach</Button>
-        </div>
-      </div>
-    );
+    navigate('/apply', { replace: true });
+    return null;
   }
 
   // --- Derived data ---

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { RotateCcw, RotateCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 type FeaturedCoach = {
@@ -47,10 +47,20 @@ export function FeaturedCoaches() {
 
   if (isLoading || isError || !coaches || coaches.length === 0) return null;
 
-  const prev = () => setActiveIndex(i => Math.max(0, i - 1));
-  const next = () => setActiveIndex(i => Math.min(coaches.length - 1, i + 1));
+  const prev = () => setActiveIndex(i => (i - 1 + coaches.length) % coaches.length);
+  const next = () => setActiveIndex(i => (i + 1) % coaches.length);
 
-  const handleCardClick = (i: number, offset: number) => {
+  // Wrapped offset: shortest path around the circle
+  const wrappedOffset = (i: number) => {
+    const n = coaches.length;
+    const raw = i - activeIndex;
+    if (raw > n / 2) return raw - n;
+    if (raw < -n / 2) return raw + n;
+    return raw;
+  };
+
+  const handleCardClick = (i: number) => {
+    const offset = wrappedOffset(i);
     if (offset === 0) {
       const coach = coaches[i];
       const path = coach.slug ? `/coach/${coach.slug}` : `/coaching/${coach.id}`;
@@ -65,10 +75,10 @@ export function FeaturedCoaches() {
     const sign = offset < 0 ? -1 : 1;
     const xPos = offset * CARD_STEP;
 
-    // Base 3D — deeper tilt on side cards for clear depth
-    const rotateY = sign * Math.min(abs, 2) * 42;
-    const baseScale = abs === 0 ? 1 : abs === 1 ? 0.84 : Math.max(0.68, 1 - abs * 0.14);
-    const baseBrightness = abs === 0 ? 1 : abs === 1 ? 0.78 : abs === 2 ? 0.6 : Math.max(0.25, 0.6 - (abs - 2) * 0.2);
+    // Base 3D — gentle tilt on side cards so faces stay visible
+    const rotateY = sign * Math.min(abs, 2) * 22;
+    const baseScale = abs === 0 ? 1 : abs === 1 ? 0.88 : Math.max(0.72, 1 - abs * 0.12);
+    const baseBrightness = abs === 0 ? 1 : abs === 1 ? 0.82 : abs === 2 ? 0.65 : Math.max(0.3, 0.65 - (abs - 2) * 0.2);
     const opacity = abs > 3 ? 0 : 1;
 
     // Hover overrides — card leaps forward
@@ -115,7 +125,7 @@ export function FeaturedCoaches() {
           backgroundImage: `url("https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1920&q=80&auto=format&fit=crop")`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          opacity: 0.35,
+          opacity: 0.25,
         }}
       />
       {/* Edge vignette */}
@@ -151,28 +161,31 @@ export function FeaturedCoaches() {
           style={{ background: "linear-gradient(to left, #0d0f12 0%, transparent 100%)" }}
         />
 
-        {/* Arrows */}
-        <button
-          onClick={prev}
-          disabled={activeIndex === 0}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/70 border border-zinc-700 flex items-center justify-center text-white hover:bg-primary/20 hover:border-primary transition-all disabled:opacity-20 disabled:cursor-not-allowed"
-          aria-label="Previous coach"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        <button
-          onClick={next}
-          disabled={activeIndex === coaches.length - 1}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/70 border border-zinc-700 flex items-center justify-center text-white hover:bg-primary/20 hover:border-primary transition-all disabled:opacity-20 disabled:cursor-not-allowed"
-          aria-label="Next coach"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
+        {/* Turntable dial — centred below cards */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1">
+          <button
+            onClick={prev}
+            className="w-10 h-10 rounded-full bg-black/60 border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-primary/20 hover:border-primary transition-all"
+            aria-label="Rotate left"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </button>
+          <div className="w-8 h-8 rounded-full border border-zinc-600 bg-black/40 flex items-center justify-center">
+            <div className="w-2 h-2 rounded-full bg-primary" />
+          </div>
+          <button
+            onClick={next}
+            className="w-10 h-10 rounded-full bg-black/60 border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-primary/20 hover:border-primary transition-all"
+            aria-label="Rotate right"
+          >
+            <RotateCw className="h-4 w-4" />
+          </button>
+        </div>
 
         {/* Cards */}
-        <div className="relative overflow-hidden" style={{ height: "520px" }}>
+        <div className="relative overflow-hidden" style={{ height: "540px" }}>
           {coaches.map((coach, i) => {
-            const offset = i - activeIndex;
+            const offset = wrappedOffset(i);
             const isHovered = hoveredIndex === i;
             const isActive = offset === 0;
 
@@ -184,7 +197,7 @@ export function FeaturedCoaches() {
                 onMouseLeave={() => setHoveredIndex(null)}
               >
                 <button
-                  onClick={() => handleCardClick(i, offset)}
+                  onClick={() => handleCardClick(i)}
                   className="group relative cursor-pointer focus:outline-none w-full"
                   aria-label={
                     isActive
@@ -225,7 +238,7 @@ export function FeaturedCoaches() {
                       <div className="absolute inset-0 ring-2 ring-primary/40 rounded-t-xl pointer-events-none" />
                     )}
 
-                    {/* Name + role — active always visible; side cards reveal on hover */}
+                    {/* Logo + CTA — active always visible; side cards reveal on hover */}
                     <div
                       className="absolute bottom-0 left-0 right-0 p-4"
                       style={{
@@ -234,9 +247,7 @@ export function FeaturedCoaches() {
                         transition: "opacity 0.25s ease, transform 0.25s ease",
                       }}
                     >
-                      <p className="text-white font-semibold text-sm leading-tight">
-                        {coach.display_name}
-                      </p>
+                      <img src="/galoras-logo.svg" alt="Galoras" className="h-5 w-auto mb-1" />
                       {(coach.current_role || coach.headline) && (
                         <p className="text-zinc-300 text-xs mt-0.5 line-clamp-1">
                           {coach.current_role || coach.headline}
@@ -254,21 +265,8 @@ export function FeaturedCoaches() {
         </div>
       </div>
 
-      {/* Dot indicators */}
-      <div className="relative z-10 flex justify-center gap-2 mt-6">
-        {coaches.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setActiveIndex(i)}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              i === activeIndex
-                ? "w-6 bg-primary"
-                : "w-2 bg-zinc-600 hover:bg-zinc-400"
-            }`}
-            aria-label={`Go to coach ${i + 1}`}
-          />
-        ))}
-      </div>
+      {/* Spacer below turntable */}
+      <div className="h-4" />
     </section>
   );
 }

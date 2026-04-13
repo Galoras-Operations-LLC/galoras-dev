@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { X, Send } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 type Props = {
   coachId: string;
@@ -18,17 +17,24 @@ export function ContactModal({ coachId, coachName, onClose }: Props) {
     e.preventDefault();
     setStatus("sending");
 
-    const { error } = await supabase.from("messages").insert({
-      coach_id: coachId,
-      sender_email: email,
-      subject: `Inquiry from ${name}`,
-      content: message,
-    });
-
-    if (error) {
-      setStatus("error");
-    } else {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL || "https://qbjuomsmnrclsjhdsjcz.supabase.co"}/functions/v1/send-contact-message`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            coachId,
+            senderName: name,
+            senderEmail: email,
+            message,
+          }),
+        },
+      );
+      if (!res.ok) throw new Error("Failed");
       setStatus("sent");
+    } catch {
+      setStatus("error");
     }
   };
 
