@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -21,10 +21,13 @@ const COACHES = [
 ];
 
 export function FeaturedCoaches() {
+  const navigate = useNavigate();
   const [active, setActive] = useState(0);
   const [fading, setFading] = useState(false);
+  const [colorizing, setColorizing] = useState(false);
 
   useEffect(() => {
+    if (colorizing) return; // pause rotation while colorizing
     const interval = setInterval(() => {
       setFading(true);
       setTimeout(() => {
@@ -33,9 +36,22 @@ export function FeaturedCoaches() {
       }, 500);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [colorizing]);
 
   const coach = COACHES[active];
+
+  const handlePhotoClick = () => {
+    setColorizing(true);
+    // After color transition completes, navigate
+    setTimeout(() => {
+      navigate(`/coaching/${coach.slug}`);
+      setColorizing(false);
+    }, 600);
+  };
+
+  const filter = colorizing
+    ? "grayscale(0%) contrast(1.0) brightness(1.05)"
+    : "grayscale(100%) contrast(1.05)";
 
   return (
     <section
@@ -54,10 +70,10 @@ export function FeaturedCoaches() {
               People Who Have <span className="text-gradient">Been There</span>
             </h2>
             <p className="text-zinc-400 text-lg leading-relaxed mb-4">
-              Every Galoras coach has operated at the level they coach. Not studied it. Not observed it. Lived it — and taken responsibility for outcomes.
+              Every Galoras coach has operated at the level they coach. Not studied it. Not observed it. Lived it, and taken responsibility for outcomes.
             </p>
             <p className="text-zinc-500 text-base leading-relaxed mb-10">
-              Executives, founders, and operators who have led at the highest level — and now deploy that experience to help others perform under real conditions.
+              Executives, founders, and operators who have led at the highest level and now deploy that experience to help others perform under real conditions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/coaching">
@@ -86,7 +102,7 @@ export function FeaturedCoaches() {
             </div>
           </div>
 
-          {/* Right — rotating B&W portrait */}
+          {/* Right — rotating portrait, click to colourize + navigate */}
           <div className="relative flex items-center justify-center order-1 lg:order-2" style={{ minHeight: 560 }}>
             {/* Bottom fade */}
             <div
@@ -98,26 +114,40 @@ export function FeaturedCoaches() {
               }}
             />
 
-            <img
-              key={coach.slug}
-              src={coach.photo}
-              alt={coach.name}
-              className="relative z-0 mx-auto"
-              style={{
-                maxHeight: 500,
-                maxWidth: "100%",
-                width: "auto",
-                objectFit: "contain",
-                filter: "grayscale(100%) contrast(1.05)",
-                opacity: fading ? 0 : 1,
-                transition: "opacity 0.5s ease",
-                display: "block",
-              }}
-            />
+            <button
+              onClick={handlePhotoClick}
+              className="relative z-0 focus:outline-none group"
+              aria-label={`View ${coach.name}'s profile`}
+            >
+              <img
+                key={coach.slug}
+                src={coach.photo}
+                alt={coach.name}
+                className="mx-auto block"
+                style={{
+                  maxHeight: 500,
+                  maxWidth: "100%",
+                  width: "auto",
+                  objectFit: "contain",
+                  filter,
+                  opacity: fading ? 0 : 1,
+                  transition: "filter 0.5s ease, opacity 0.5s ease",
+                  cursor: "pointer",
+                }}
+              />
+              {/* Hover hint */}
+              {!colorizing && (
+                <div className="absolute inset-0 flex items-end justify-center pb-16 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                  <span className="text-xs font-semibold text-primary bg-black/60 px-3 py-1.5 rounded-full">
+                    View Profile
+                  </span>
+                </div>
+              )}
+            </button>
 
             {/* Name plate */}
             <div
-              className="absolute bottom-6 left-0 right-0 z-20 text-center"
+              className="absolute bottom-6 left-0 right-0 z-20 text-center pointer-events-none"
               style={{ opacity: fading ? 0 : 1, transition: "opacity 0.5s ease" }}
             >
               <p className="text-white font-display font-bold text-base">{coach.name}</p>
