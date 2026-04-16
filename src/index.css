@@ -235,13 +235,66 @@
   .stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
   .stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
 
-  /* Brush sweep animation */
-  @keyframes brushSweep {
-    0%   { transform: translateX(-110%) skewX(-8deg); }
-    100% { transform: translateX(110%) skewX(-8deg); }
+  /* Fire sweep — left position so transform is free for flicker */
+  @keyframes fireSweep {
+    0%   { left: -55%; }
+    100% { left: 115%; }
   }
 
-  /* Text reveal — appears as brush passes midpoint */
+  @keyframes fireFlicker {
+    0%   { transform: skewX(-8deg)  scaleY(1.00); }
+    20%  { transform: skewX(-13deg) scaleY(1.07); }
+    40%  { transform: skewX(-5deg)  scaleY(0.95); }
+    60%  { transform: skewX(-11deg) scaleY(1.05); }
+    80%  { transform: skewX(-7deg)  scaleY(0.97); }
+    100% { transform: skewX(-8deg)  scaleY(1.00); }
+  }
+
+  /* Ambient glow behind the flame front */
+  .fire-glow {
+    position: absolute;
+    top: -30%; bottom: -30%;
+    width: 55%;
+    animation:
+      fireSweep 1.2s cubic-bezier(0.3, 0, 0.5, 1) forwards,
+      fireFlicker 0.18s ease-in-out infinite;
+    background: linear-gradient(
+      105deg,
+      transparent 0%,
+      rgba(60,0,0,0.3) 12%,
+      rgba(180,30,0,0.55) 30%,
+      rgba(255,80,0,0.7) 52%,
+      rgba(255,180,0,0.6) 68%,
+      rgba(255,240,100,0.4) 80%,
+      transparent 95%
+    );
+    filter: blur(14px);
+  }
+
+  /* Crisp flame core */
+  .fire-core {
+    position: absolute;
+    top: -15%; bottom: -15%;
+    width: 42%;
+    animation:
+      fireSweep 1.2s cubic-bezier(0.3, 0, 0.5, 1) forwards,
+      fireFlicker 0.13s ease-in-out infinite;
+    background: linear-gradient(
+      105deg,
+      transparent 0%,
+      rgba(30,0,0,0.8)   8%,
+      rgba(120,10,0,0.95) 20%,
+      rgba(220,40,0,1)   35%,
+      rgba(255,90,0,1)   50%,
+      rgba(255,170,0,1)  64%,
+      rgba(255,230,60,1) 75%,
+      rgba(255,248,180,0.9) 84%,
+      transparent 94%
+    );
+    filter: blur(2.5px);
+  }
+
+  /* Text reveal — appears as flame clears midpoint */
   @keyframes headlineReveal {
     0%   { opacity: 0; transform: translateY(10px); }
     100% { opacity: 1; transform: translateY(0); }
@@ -250,10 +303,6 @@
   @keyframes headlineExit {
     0%   { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-10px); }
-  }
-
-  .brush-sweep {
-    animation: brushSweep 0.75s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
   .headline-reveal {

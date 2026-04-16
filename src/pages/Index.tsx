@@ -116,17 +116,12 @@ function RotatingHero() {
       onMouseLeave={() => { setPaused(false); }}
       style={{ minHeight: "3.5rem" }}
     >
-      {/* Yellow brush sweep */}
+      {/* Fire sweep — glow layer + crisp core */}
       {phase === "brush" && (
-        <span
-          className="brush-sweep pointer-events-none absolute inset-y-0 left-0 z-10"
-          style={{
-            width: "55%",
-            background: "linear-gradient(105deg, transparent 0%, hsl(var(--accent)/0.85) 30%, hsl(var(--accent)) 50%, hsl(var(--accent)/0.85) 70%, transparent 100%)",
-            borderRadius: "2px",
-            filter: "blur(1px)",
-          }}
-        />
+        <>
+          <span className="fire-glow pointer-events-none z-10" />
+          <span className="fire-core pointer-events-none z-10" />
+        </>
       )}
 
       {/* Headline text */}
