@@ -118,7 +118,7 @@ export default function Compass() {
         <div className="container-wide">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              Intelligent Features for Your Growth
+              Intelligent Features for Your <span className="text-gradient">Growth</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Compass combines cutting-edge AI with proven coaching methodologies.
@@ -128,8 +128,8 @@ export default function Compass() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <Card key={index} className="group hover:border-primary/50 transition-all card-hover">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform mx-auto">
                     <feature.icon className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="text-xl font-display font-semibold mb-2">{feature.title}</h3>
@@ -146,7 +146,7 @@ export default function Compass() {
         <div className="container-wide">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              How Compass Works
+              How Compass <span className="text-gradient">Works</span>
             </h2>
             <p className="text-muted-foreground text-lg">
               Four simple steps to AI-enhanced coaching success.
@@ -174,47 +174,37 @@ export default function Compass() {
       {/* For Organizations */}
       <section className="section-padding bg-background">
         <div className="container-wide">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-                <Users className="h-4 w-4" />
-                For Organizations
-              </div>
-              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                Compass for Enterprise
-              </h2>
-              <p className="text-muted-foreground text-lg mb-6">
-                Unlock coaching at scale with Compass Enterprise. Manage coaching programs, track team development, and measure organizational ROI.
-              </p>
-              <ul className="space-y-3 mb-8">
-                {[
-                  "Centralized coaching program management",
-                  "Team-wide progress dashboards",
-                  "Custom matching algorithms for your culture",
-                  "Integration with HR systems",
-                  "Aggregate analytics and reporting",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-2 text-muted-foreground">
-                    <Zap className="h-4 w-4 text-primary shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link to="/business">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  Learn About Enterprise
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+              <Users className="h-4 w-4" />
+              For Organizations
             </div>
-            <div className="relative">
-              <div 
-                className="aspect-square rounded-2xl bg-cover bg-center overflow-hidden"
-                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop')" }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/20" />
-              </div>
-            </div>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+              Compass for <span className="text-gradient">Enterprise</span>
+            </h2>
+            <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
+              Unlock coaching at scale with Compass Enterprise. Manage coaching programmes, track team development, and measure organisational ROI.
+            </p>
+            <ul className="space-y-3 mb-8 text-left max-w-md mx-auto">
+              {[
+                "Centralised coaching programme management",
+                "Team-wide progress dashboards",
+                "Custom matching algorithms for your culture",
+                "Integration with HR systems",
+                "Aggregate analytics and reporting",
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-2 text-muted-foreground">
+                  <Zap className="h-4 w-4 text-primary shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <Link to="/business">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                Learn About Enterprise
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -223,7 +213,7 @@ export default function Compass() {
       <section className="section-padding hero-gradient">
         <div className="container-wide text-center">
           <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-            Start Your AI-Guided Journey
+            Start Your <span className="text-gradient">AI-Guided Journey</span>
           </h2>
           <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
             Let Compass find your perfect coach match in minutes.

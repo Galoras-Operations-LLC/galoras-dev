@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Layout } from "@/components/layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { CourseCard } from "@/components/labs/CourseCard";
 import { 
@@ -256,6 +257,11 @@ export default function Labs() {
 
   return (
     <Layout>
+      <SEO
+        title="Galoras Labs"
+        description="Galoras Labs: on-demand courses, tools, and frameworks for leaders who want to sharpen their execution capability between coaching sessions."
+        canonical="/labs"
+      />
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden bg-gradient-to-b from-muted/50 to-background">
         <div className="container-wide relative z-10">

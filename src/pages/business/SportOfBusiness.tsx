@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -96,6 +97,11 @@ const formats = [
 export default function SportOfBusiness() {
   return (
     <Layout>
+      <SEO
+        title="The Sport of Business"
+        description="The Sport of Business is Galoras's flagship performance framework for leadership teams — built around alignment, decision-making under pressure, and execution discipline."
+        canonical="/business/sport-of-business"
+      />
       {/* Hero */}
       <section className="relative pt-32 pb-20 overflow-hidden bg-zinc-950">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.10),transparent_55%)]" />
@@ -184,29 +190,19 @@ export default function SportOfBusiness() {
       {/* Credibility */}
       <section className="section-padding bg-muted/30">
         <div className="container-wide">
-          <div className="max-w-3xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <p className="text-sm text-primary font-semibold uppercase tracking-widest mb-4">
-                  Built from the inside
-                </p>
-                <h2 className="text-3xl md:text-4xl font-display font-bold mb-5">
-                  Designed by Someone Who's Been in the <span className="text-gradient">Arena</span>
-                </h2>
-                <p className="text-muted-foreground text-base leading-relaxed mb-4">
-                  The Sport of Business was not designed by consultants observing from the outside. It was built from experience leading $100M+ revenue businesses across Europe, the Caribbean, Latin America, and the United States — through growth, transformation, and disruption.
-                </p>
-                <p className="text-muted-foreground text-base leading-relaxed">
-                  The disciplines in this framework are the ones that actually moved organisations forward under pressure — not the ones that looked good in a boardroom presentation.
-                </p>
-              </div>
-              <div
-                className="aspect-square rounded-2xl bg-cover bg-center overflow-hidden"
-                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop')" }}
-              >
-                <div className="w-full h-full bg-gradient-to-br from-primary/20 to-transparent" />
-              </div>
-            </div>
+          <div className="max-w-3xl mx-auto text-center">
+            <p className="text-sm text-primary font-semibold uppercase tracking-widest mb-4">
+              Built from the inside
+            </p>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-5">
+              Designed by Someone Who's Been in the <span className="text-gradient">Arena</span>
+            </h2>
+            <p className="text-muted-foreground text-base leading-relaxed mb-4 max-w-2xl mx-auto">
+              The Sport of Business was not designed by consultants observing from the outside. It was built from experience leading $100M+ revenue businesses across Europe, the Caribbean, Latin America, and the United States, through growth, transformation, and disruption.
+            </p>
+            <p className="text-muted-foreground text-base leading-relaxed max-w-2xl mx-auto">
+              The disciplines in this framework are the ones that actually moved organisations forward under pressure, not the ones that looked good in a boardroom presentation.
+            </p>
           </div>
         </div>
       </section>

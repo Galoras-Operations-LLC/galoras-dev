@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -126,6 +127,11 @@ const formats = [
 export default function Workshops() {
   return (
     <Layout>
+      <SEO
+        title="Workshops & Leadership Labs"
+        description="Galoras Leadership Labs are immersive facilitated sessions for leadership teams — covering alignment, decision velocity, execution discipline, and executive communication."
+        canonical="/business/workshops"
+      />
       {/* Hero */}
       <section className="relative pt-32 pb-20 overflow-hidden bg-zinc-950">
         <div
@@ -191,9 +197,9 @@ export default function Workshops() {
                   </div>
                 )}
 
-                <CardContent className="p-6">
+                <CardContent className="p-6 text-center">
                   <div className="flex items-start justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform ${
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform mx-auto ${
                       lab.highlight === "free" ? "bg-green-500/10" : "bg-primary/10"
                     }`}>
                       <lab.icon className={`h-6 w-6 ${lab.highlight === "free" ? "text-green-500" : "text-primary"}`} />
@@ -215,7 +221,7 @@ export default function Workshops() {
                   <div className="space-y-1.5 mb-5">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Outcomes</p>
                     {lab.outcomes.map((outcome, j) => (
-                      <div key={j} className="flex items-center gap-2 text-sm">
+                      <div key={j} className="flex items-center justify-center gap-2 text-sm">
                         <Zap className={`h-3 w-3 shrink-0 ${lab.highlight === "free" ? "text-green-500" : "text-primary"}`} />
                         {outcome}
                       </div>

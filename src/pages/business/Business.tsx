@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Building2, Target, Brain, Zap, CheckCircle2 } from "lucide-react";
 
@@ -55,6 +56,11 @@ const forYouIf = [
 export default function Business() {
   return (
     <Layout>
+      <SEO
+        title="Business Performance Programmes"
+        description="Galoras business programmes for leadership teams: the Sport of Business framework, diagnostics, leadership circles, and facilitated workshops. Built for execution."
+        canonical="/business"
+      />
       {/* Hero */}
       <section className="relative pt-32 pb-20 overflow-hidden bg-zinc-950">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.10),transparent_55%)]" />

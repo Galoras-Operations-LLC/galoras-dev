@@ -73,19 +73,19 @@ export function HowItWorks() {
               {/* Default overlay — lighter so card looks clean */}
               <div className="absolute inset-0 bg-black/55 group-hover:bg-black/75 transition-colors duration-400" />
 
-              {/* Content */}
-              <div className="relative z-10 p-6 flex flex-col items-center">
-                {/* Title — primary colour, grays out on hover */}
+              {/* Title — always visible, absolutely centered */}
+              <div className="absolute inset-0 z-10 flex items-center justify-center p-6 text-center">
                 <h3 className="text-xl md:text-2xl font-black uppercase leading-tight whitespace-pre-line transition-colors duration-300 text-primary group-hover:text-primary/40">
                   {pillar.title}
                 </h3>
+              </div>
 
-                {/* Body — hidden by default, appears on hover */}
-                <p className="text-sm text-white leading-relaxed mt-4 max-w-[220px] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+              {/* Hover overlay — body + arrow, fades in over the title */}
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <p className="text-sm text-white leading-relaxed max-w-[220px] translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                   {pillar.body}
                 </p>
-
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary mt-4">
                   Learn more <ArrowRight className="h-3.5 w-3.5" />
                 </span>
               </div>

@@ -6,15 +6,16 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 import { FounderVideoModal } from "@/components/FounderVideoModal";
 import { FeaturedCoaches } from "@/components/FeaturedCoaches";
 import { HowItWorks } from "@/components/HowItWorks";
+import { SEO } from "@/components/SEO";
 import { ArrowRight, Compass, Zap, Target, Brain, MessageCircle, TrendingUp } from "lucide-react";
 
 const categories = [
-  { icon: Target, name: "Leadership", slug: "leadership" },
-  { icon: TrendingUp, name: "Career", slug: "career" },
-  { icon: Zap, name: "Performance", slug: "performance" },
-  { icon: Brain, name: "Mindset", slug: "mindset" },
-  { icon: MessageCircle, name: "Communication", slug: "communication" },
-  { icon: Compass, name: "Transitions", slug: "transitions" },
+  { icon: Target, name: "Leadership Under Pressure", slug: "leadership", desc: "Leading teams, making decisions, and holding authority when the stakes are real." },
+  { icon: TrendingUp, name: "Career Acceleration", slug: "career", desc: "Moving faster, further, and with more intention — at every stage of the climb." },
+  { icon: Zap, name: "Execution & Performance", slug: "performance", desc: "Closing the gap between what you intend and what you actually deliver." },
+  { icon: Brain, name: "Mindset & Resilience", slug: "mindset", desc: "The mental edge that separates consistent performers from everyone else." },
+  { icon: MessageCircle, name: "Influence & Communication", slug: "communication", desc: "How you show up, speak, and move people — in rooms that matter." },
+  { icon: Compass, name: "Transitions & Pivots", slug: "transitions", desc: "Role changes, industry shifts, and reinventions — done with clarity and confidence." },
 ];
 
 const HEADLINES: { parts: { text: string; highlight?: boolean }[]; href: string | null }[] = [
@@ -28,26 +29,26 @@ const HEADLINES: { parts: { text: string; highlight?: boolean }[]; href: string 
   },
   {
     parts: [
-      { text: "Losers have plans. " },
-      { text: "Winners", highlight: true },
-      { text: " have coaches." },
+      { text: "Clarity changes everything. " },
+      { text: "Coaching", highlight: true },
+      { text: " creates it." },
     ],
     href: "/business/sport-of-business",
   },
   {
     parts: [
-      { text: "Your leadership team has never been " },
-      { text: "coached.", highlight: true },
-      { text: " It shows." },
+      { text: "Effort isn't the constraint. " },
+      { text: "Guidance", highlight: true },
+      { text: " is." },
     ],
-    href: "/business/sport-of-business",
+    href: "/coaching",
   },
   {
     parts: [
-      { text: "You're not stuck. You're " },
-      { text: "uncoached.", highlight: true },
+      { text: "A coach gives you the space to " },
+      { text: "reflect, commit, and grow.", highlight: true },
     ],
-    href: "/signup",
+    href: "/coaching",
   },
   {
     parts: [
@@ -141,6 +142,11 @@ function RotatingHero() {
 export default function Index() {
   return (
     <Layout>
+      <SEO
+        title="Elite Performance Coaching"
+        description="Galoras connects high-performers and leadership teams with coaches who have operated at the level they coach. Execution-led. Results-driven."
+        canonical="/"
+      />
       <FounderVideoModal />
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
@@ -189,22 +195,28 @@ export default function Index() {
       {/* Categories Preview */}
       <section className="section-padding bg-muted/30">
         <div className="container-wide">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Performance <span className="text-gradient">Domains</span></h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Areas where execution capability has been demonstrated. Not just discussed.</p>
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">What We <span className="text-gradient">Coach</span></h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Real performance. Built through experience, not theory.</p>
           </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((category) => (
               <Link
                 key={category.slug}
                 to={`/coaching?category=${category.slug}`}
-                className="group p-6 rounded-xl bg-card border border-border hover:border-primary/50 text-center transition-all card-hover"
+                className="group flex items-start gap-5 p-6 rounded-2xl bg-card border border-border hover:border-primary/50 transition-all card-hover"
               >
-                <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <category.icon className="h-6 w-6 text-primary" />
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-primary/20 transition-all">
+                  <category.icon className="h-7 w-7 text-primary" />
                 </div>
-                <span className="font-medium">{category.name}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <h3 className="font-display font-bold text-lg text-foreground">{category.name}</h3>
+                    <ArrowRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2" />
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{category.desc}</p>
+                </div>
               </Link>
             ))}
           </div>

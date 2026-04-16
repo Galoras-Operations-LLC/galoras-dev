@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -88,6 +89,11 @@ export default function Contact() {
 
   return (
     <Layout>
+      <SEO
+        title="Contact Us"
+        description="Start a conversation with Galoras. Whether you're exploring coaching, the Sport of Business programme, or a business consultation, we're ready to help."
+        canonical="/contact"
+      />
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
         {/* Background Image */}

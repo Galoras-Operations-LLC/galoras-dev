@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -124,6 +125,11 @@ const process = [
 export default function Diagnostics() {
   return (
     <Layout>
+      <SEO
+        title="Organisational Diagnostics"
+        description="Galoras diagnostics reveal the specific execution gaps holding your organisation back — alignment, decision-making, leadership effectiveness, and accountability."
+        canonical="/business/diagnostics"
+      />
       {/* Hero */}
       <section className="relative pt-32 pb-20 overflow-hidden bg-zinc-950">
         <div
@@ -215,8 +221,8 @@ export default function Diagnostics() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {diagnostics.map((item, i) => (
               <Card key={i} className="group hover:border-primary/50 transition-all card-hover">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform mx-auto">
                     <item.icon className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="text-xl font-display font-semibold mb-2">{item.title}</h3>

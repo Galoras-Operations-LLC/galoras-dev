@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
+import { SEO } from "@/components/SEO";
 import { Search, Sparkles, UserCircle2, ArrowRight, GitCompareArrows, X, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
@@ -184,6 +185,11 @@ export default function CoachingDirectory() {
 
   return (
     <Layout>
+      <SEO
+        title="Find a Coach"
+        description="Browse Galoras coaches by domain and operating background. Every coach has performed at the level they coach — leadership, career, performance, mindset, and more."
+        canonical="/coaching"
+      />
 
       {/* ══ HERO ══ */}
       <section className="pt-20 pb-10 bg-zinc-950 border-b border-zinc-900">

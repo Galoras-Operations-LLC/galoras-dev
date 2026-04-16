@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -62,6 +63,11 @@ const team = [
 export default function About() {
   return (
     <Layout>
+      <SEO
+        title="About Galoras"
+        description="Galoras is a performance-led coaching exchange built on one standard: coaches who have operated at the level they coach. Meet the team and the philosophy."
+        canonical="/about"
+      />
       {/* Hero */}
       <section className="relative pt-32 pb-20 overflow-hidden bg-zinc-950">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.12),transparent_55%)]" />

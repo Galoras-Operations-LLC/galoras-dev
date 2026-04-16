@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout";
+import { SEO } from "@/components/SEO";
 import { SubscriptionPlans } from "@/components/subscription/SubscriptionPlans";
 
 export default function Pricing() {
@@ -7,6 +8,11 @@ export default function Pricing() {
 
   return (
     <Layout>
+      <SEO
+        title="Pricing & Plans"
+        description="Galoras coaching plans for individuals and teams. Choose the level of access that fits your goals — from individual sessions to full programme engagements."
+        canonical="/pricing"
+      />
       <section className="relative pt-28 pb-20 overflow-hidden bg-zinc-950">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.10),transparent_55%)]" />
 
