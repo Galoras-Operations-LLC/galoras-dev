@@ -173,7 +173,7 @@ export default function Index() {
             <RotatingHero />
 
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mt-8 mb-10">
-              Galoras connects individuals and organizations with proven performance expertise — through the Sport of Business framework.
+              Coaching is not our business. Winning is.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
