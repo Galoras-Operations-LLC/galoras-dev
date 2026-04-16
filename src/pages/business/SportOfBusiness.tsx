@@ -138,8 +138,8 @@ export default function SportOfBusiness() {
 
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {pillars.map((pillar, i) => (
-              <div key={i} className="relative p-8 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-primary/40 transition-colors">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-5">
+              <div key={i} className="relative p-8 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-primary/40 transition-colors text-center">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-5 mx-auto">
                   <pillar.icon className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-3">{pillar.title}</h3>
