@@ -60,7 +60,7 @@ const HEADLINES: { parts: { text: string; highlight?: boolean }[]; href: string 
 
 // Timing constants (ms)
 const BRUSH_DURATION = 750;
-const TEXT_REVEAL_DELAY = 420; // text appears as brush clears midpoint
+const TEXT_REVEAL_DELAY = 220; // text appears as bolt clears midpoint
 const HOLD_DURATION = 3000;
 const EXIT_DURATION = 350;
 
@@ -116,11 +116,11 @@ function RotatingHero() {
       onMouseLeave={() => { setPaused(false); }}
       style={{ minHeight: "3.5rem" }}
     >
-      {/* Fire sweep — glow layer + crisp core */}
+      {/* Lightning strike — ambient glow + jagged bolt */}
       {phase === "brush" && (
         <>
-          <span className="fire-glow pointer-events-none z-10" />
-          <span className="fire-core pointer-events-none z-10" />
+          <span className="lightning-glow pointer-events-none z-10" />
+          <span className="lightning-bolt pointer-events-none z-10" />
         </>
       )}
 
@@ -137,7 +137,7 @@ function RotatingHero() {
       >
         {headline.parts.map((part, i) =>
           part.highlight
-            ? <span key={i} className="text-gradient">{part.text}</span>
+            ? <span key={i} className="text-electric">{part.text}</span>
             : <span key={i} className="text-foreground">{part.text}</span>
         )}
         {headline.href && (

@@ -235,81 +235,90 @@
   .stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
   .stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
 
-  /* Fire sweep — left position so transform is free for flicker */
-  @keyframes fireSweep {
-    0%   { left: -55%; }
-    100% { left: 115%; }
+  /* Lightning bolt sweep — travels left to right */
+  @keyframes boltSweep {
+    0%   { left: -22%; opacity: 0; }
+    4%   { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { left: 118%; opacity: 0; }
   }
 
-  @keyframes fireFlicker {
-    0%   { transform: skewX(-8deg)  scaleY(1.00); }
-    20%  { transform: skewX(-13deg) scaleY(1.07); }
-    40%  { transform: skewX(-5deg)  scaleY(0.95); }
-    60%  { transform: skewX(-11deg) scaleY(1.05); }
-    80%  { transform: skewX(-7deg)  scaleY(0.97); }
-    100% { transform: skewX(-8deg)  scaleY(1.00); }
+  @keyframes glowSweep {
+    0%   { left: -38%; opacity: 0; }
+    4%   { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { left: 122%; opacity: 0; }
   }
 
-  /* Ambient glow behind the flame front */
-  .fire-glow {
+  /* Blue glow that travels with the bolt */
+  .lightning-glow {
     position: absolute;
-    top: -30%; bottom: -30%;
-    width: 55%;
-    animation:
-      fireSweep 1.2s cubic-bezier(0.3, 0, 0.5, 1) forwards,
-      fireFlicker 0.18s ease-in-out infinite;
-    background: linear-gradient(
-      105deg,
-      transparent 0%,
-      rgba(60,0,0,0.3) 12%,
-      rgba(180,30,0,0.55) 30%,
-      rgba(255,80,0,0.7) 52%,
-      rgba(255,180,0,0.6) 68%,
-      rgba(255,240,100,0.4) 80%,
-      transparent 95%
+    top: -60%; bottom: -60%;
+    width: 36%;
+    animation: glowSweep 0.38s cubic-bezier(0.15, 0, 0.5, 1) forwards;
+    background: radial-gradient(
+      ellipse at center,
+      hsl(var(--primary) / 0.45) 0%,
+      hsl(var(--primary) / 0.15) 50%,
+      transparent 80%
     );
-    filter: blur(14px);
+    filter: blur(10px);
   }
 
-  /* Crisp flame core */
-  .fire-core {
+  /* Crisp jagged bolt shard */
+  .lightning-bolt {
     position: absolute;
-    top: -15%; bottom: -15%;
-    width: 42%;
-    animation:
-      fireSweep 1.2s cubic-bezier(0.3, 0, 0.5, 1) forwards,
-      fireFlicker 0.13s ease-in-out infinite;
+    top: -20%; bottom: -20%;
+    width: 18%;
+    animation: boltSweep 0.38s cubic-bezier(0.15, 0, 0.5, 1) forwards;
     background: linear-gradient(
-      105deg,
+      90deg,
       transparent 0%,
-      rgba(30,0,0,0.8)   8%,
-      rgba(120,10,0,0.95) 20%,
-      rgba(220,40,0,1)   35%,
-      rgba(255,90,0,1)   50%,
-      rgba(255,170,0,1)  64%,
-      rgba(255,230,60,1) 75%,
-      rgba(255,248,180,0.9) 84%,
-      transparent 94%
+      hsl(var(--primary) / 0.4) 18%,
+      hsl(var(--primary)) 40%,
+      white 50%,
+      hsl(var(--primary)) 60%,
+      hsl(var(--primary) / 0.4) 82%,
+      transparent 100%
     );
-    filter: blur(2.5px);
+    /* Jagged zigzag bolt silhouette */
+    clip-path: polygon(
+      0% 40%, 42% 40%, 28% 2%,  72% 2%,
+      58% 48%, 100% 48%, 100% 58%,
+      58% 58%, 72% 98%, 28% 98%,
+      42% 52%, 0% 52%
+    );
+    filter: blur(0.5px);
   }
 
-  /* Text reveal — appears as flame clears midpoint */
-  @keyframes headlineReveal {
-    0%   { opacity: 0; transform: translateY(10px); }
-    100% { opacity: 1; transform: translateY(0); }
+  /* Text charges in with blue electric glow that fades to normal */
+  @keyframes headlineCharge {
+    0%   { opacity: 0; transform: translateY(8px); text-shadow: none; }
+    30%  { opacity: 1; transform: translateY(0);   text-shadow: 0 0 24px hsl(var(--primary)/0.9), 0 0 48px hsl(var(--primary)/0.5); }
+    100% { opacity: 1; transform: translateY(0);   text-shadow: none; }
   }
 
   @keyframes headlineExit {
     0%   { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 0; transform: translateY(-8px); }
   }
 
   .headline-reveal {
-    animation: headlineReveal 0.4s ease-out forwards;
+    animation: headlineCharge 0.7s ease-out forwards;
   }
 
   .headline-exit {
     animation: headlineExit 0.35s ease-in forwards;
+  }
+
+  /* Electric blue highlight for key words (replaces blue→yellow gradient) */
+  .text-electric {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      105deg,
+      white 0%,
+      hsl(var(--primary)) 40%,
+      hsl(var(--primary) / 0.85) 100%
+    );
   }
 }
