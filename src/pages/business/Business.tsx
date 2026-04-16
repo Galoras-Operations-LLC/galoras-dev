@@ -98,7 +98,7 @@ export default function Business() {
           <div className="text-center mb-14">
             <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">What Changes</p>
             <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight">
-              Not What We Do. What You Get.
+              Not What We Do. What You <span className="text-gradient">Get.</span>
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -120,7 +120,7 @@ export default function Business() {
           <div className="max-w-3xl mx-auto text-center">
             <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">The Framework</p>
             <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight mb-6">
-              The Sport of Business
+              The Sport of <span className="text-gradient">Business</span>
             </h2>
             <p className="text-zinc-300 text-lg leading-relaxed mb-4">
               Elite sports teams don't just train harder. They train the behaviours that hold under pressure — consistency, containment, decisive execution.
@@ -157,7 +157,7 @@ export default function Business() {
           <div className="text-center mb-16">
             <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">How We Engage</p>
             <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight">
-              Three Steps. No Guesswork.
+              Three Steps. No <span className="text-gradient">Guesswork.</span>
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -185,7 +185,7 @@ export default function Business() {
             <div className="text-center mb-12">
               <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">Is This For You?</p>
               <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight">
-                This Work Is For You If...
+                This Work Is For <span className="text-gradient">You</span> If...
               </h2>
             </div>
             <div className="space-y-4 mb-12">

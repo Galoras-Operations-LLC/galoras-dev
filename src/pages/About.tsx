@@ -88,7 +88,7 @@ export default function About() {
             <div>
               <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">Vision</p>
               <h2 className="text-3xl font-display font-black text-white uppercase tracking-tight mb-4">
-                Why We Exist
+                Why We <span className="text-gradient">Exist</span>
               </h2>
               <p className="text-zinc-400 text-lg leading-relaxed">
                 The most successful people in the world — athletes, executives, founders — all have coaches. Access to that level of support has always been limited to the few. Galoras changes that.
@@ -100,7 +100,7 @@ export default function About() {
             <div>
               <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">Mission</p>
               <h2 className="text-3xl font-display font-black text-white uppercase tracking-tight mb-6">
-                How We Get There
+                How We Get <span className="text-gradient">There</span>
               </h2>
               <div className="space-y-4">
                 <div className="flex gap-4">
@@ -142,7 +142,7 @@ export default function About() {
           <div className="text-center mb-14">
             <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">What We Stand For</p>
             <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight mb-4">
-              Our Values
+              Our <span className="text-gradient">Values</span>
             </h2>
             <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
               Growth. Performance. Trust. Connection. Innovation. Ambition.
@@ -171,7 +171,7 @@ export default function About() {
           <div className="text-center mb-14">
             <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">The People Behind It</p>
             <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight mb-4">
-              Leadership
+              <span className="text-gradient">Leadership</span>
             </h2>
             <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
               Experienced operators who have been in the room where it happens.
@@ -201,7 +201,7 @@ export default function About() {
       <section className="py-20 bg-zinc-950 border-t border-zinc-800">
         <div className="container-wide text-center">
           <h2 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight mb-4">
-            Join the Galoras Ecosystem
+            Join the Galoras <span className="text-gradient">Ecosystem</span>
           </h2>
           <p className="text-zinc-400 text-lg mb-8 max-w-xl mx-auto">
             Whether you're seeking a coach or ready to become one — the standard is the same.

@@ -165,7 +165,7 @@ export default function Workshops() {
         <div className="container-wide">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              Lab Catalogue
+              Lab <span className="text-gradient">Catalogue</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Each Lab is built around a specific execution challenge. Choose the one that fits where your team is — or we design something custom.
@@ -248,7 +248,7 @@ export default function Workshops() {
         <div className="container-wide">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              Delivery Options
+              Delivery <span className="text-gradient">Options</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               The format follows the team's needs and not a preference for one delivery model.
@@ -283,7 +283,7 @@ export default function Workshops() {
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
                 <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                  Custom Labs
+                  Custom <span className="text-gradient">Labs</span>
                 </h2>
                 <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
                   Your team's challenges don't always fit a catalogue. We design custom Labs built around your specific operating environment, team dynamics, and the outcomes that matter most.
@@ -325,7 +325,7 @@ export default function Workshops() {
       <section className="section-padding bg-zinc-950">
         <div className="container-wide text-center">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
-            Your Team Leaves with Decisions Made
+            Your Team Leaves with Decisions <span className="text-gradient">Made</span>
           </h2>
           <p className="text-zinc-400 text-lg mb-8 max-w-xl mx-auto">
             Not slides. Not action items. Actual alignment, clarity, and a path forward.

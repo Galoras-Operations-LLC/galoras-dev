@@ -163,7 +163,7 @@ export default function Diagnostics() {
         <div className="container-wide">
           <div className="max-w-4xl mx-auto text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              Diagnose Before You Intervene
+              Diagnose Before You <span className="text-gradient">Intervene</span>
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed">
               Most organisations jump to solutions before they've understood the problem. Leadership programmes get deployed without knowing whether the issue is capability, alignment, or accountability. The result is investment without impact. Galoras diagnostics exist to make sure every intervention is aimed at the right target.
@@ -205,7 +205,7 @@ export default function Diagnostics() {
         <div className="container-wide">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              Our Diagnostics
+              Our <span className="text-gradient">Diagnostics</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Each diagnostic is focused on execution capability and not generic culture or engagement metrics.
@@ -242,7 +242,7 @@ export default function Diagnostics() {
         <div className="container-wide">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-12">
-              How It Works
+              How It <span className="text-gradient">Works</span>
             </h2>
             <div className="space-y-8">
               {process.map((item, i) => (
@@ -265,7 +265,7 @@ export default function Diagnostics() {
       <section className="section-padding bg-zinc-950">
         <div className="container-wide text-center">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
-            Know What's Actually Holding You Back
+            Know What's Actually Holding You <span className="text-gradient">Back</span>
           </h2>
           <p className="text-zinc-400 text-lg mb-8 max-w-xl mx-auto">
             Start with a conversation. We'll help you identify the right diagnostic for your organisation's situation.

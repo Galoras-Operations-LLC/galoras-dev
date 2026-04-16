@@ -129,7 +129,7 @@ export default function SportOfBusiness() {
         <div className="container-wide">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-3">
-              The Framework
+              The <span className="text-gradient">Framework</span>
             </h2>
             <p className="text-zinc-400 text-base max-w-2xl mx-auto">
               Three disciplines. Every high-performing team has them. Most leadership teams have never been coached on them.
@@ -158,7 +158,7 @@ export default function SportOfBusiness() {
         <div className="container-wide">
           <div className="max-w-3xl mx-auto text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              Why It's Different
+              Why It's <span className="text-gradient">Different</span>
             </h2>
             <p className="text-muted-foreground text-lg">
               The Sport of Business is not a leadership workshop. It is a performance intervention — designed for teams that are already operating, under real pressure, with real consequences.
@@ -191,7 +191,7 @@ export default function SportOfBusiness() {
                   Built from the inside
                 </p>
                 <h2 className="text-3xl md:text-4xl font-display font-bold mb-5">
-                  Designed by Someone Who's Been in the Arena
+                  Designed by Someone Who's Been in the <span className="text-gradient">Arena</span>
                 </h2>
                 <p className="text-muted-foreground text-base leading-relaxed mb-4">
                   The Sport of Business was not designed by consultants observing from the outside. It was built from experience leading $100M+ revenue businesses across Europe, the Caribbean, Latin America, and the United States — through growth, transformation, and disruption.
@@ -216,7 +216,7 @@ export default function SportOfBusiness() {
         <div className="container-wide">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              How We Engage
+              How We <span className="text-gradient">Engage</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Every engagement starts with understanding your team's actual execution environment — then we design accordingly.
@@ -251,7 +251,7 @@ export default function SportOfBusiness() {
       <section className="section-padding bg-zinc-950">
         <div className="container-wide text-center">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
-            Ready to Build a High-Performance Team?
+            Ready to Build a <span className="text-gradient">High-Performance</span> Team?
           </h2>
           <p className="text-zinc-400 text-lg mb-8 max-w-xl mx-auto">
             Start with a conversation about where your team is and what's getting in the way.

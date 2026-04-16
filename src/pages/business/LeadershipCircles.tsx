@@ -134,7 +134,7 @@ export default function LeadershipCircles() {
         <div className="container-wide">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              What a Circle Gives You
+              What a Circle Gives <span className="text-gradient">You</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Not another network. Not another programme. A small group of people who hold you to a higher standard.
@@ -162,7 +162,7 @@ export default function LeadershipCircles() {
         <div className="container-wide">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              Find Your Circle
+              Find Your <span className="text-gradient">Circle</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Circles are matched by operating level and context — so every conversation in the room is relevant to every person in it.
@@ -201,7 +201,7 @@ export default function LeadershipCircles() {
         <div className="container-wide">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-12">
-              How Circles Work
+              How Circles <span className="text-gradient">Work</span>
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
               {[
@@ -245,7 +245,7 @@ export default function LeadershipCircles() {
       <section className="section-padding bg-zinc-950">
         <div className="container-wide text-center">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
-            The People in the Room Matter
+            The People in the Room <span className="text-gradient">Matter</span>
           </h2>
           <p className="text-zinc-400 text-lg mb-8 max-w-xl mx-auto">
             Circles are small by design. Spots are limited. Tell us where you are and we'll find the right fit.
