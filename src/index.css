@@ -236,6 +236,32 @@
   .stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
   .stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
 
+  /* Soft light beam — warm wash burns left to right */
+  @keyframes burnSweep {
+    0%   { left: -55%; opacity: 0; }
+    8%   { opacity: 1; }
+    85%  { opacity: 0.85; }
+    100% { left: 118%; opacity: 0; }
+  }
+
+  .burn-sweep {
+    position: absolute;
+    top: -140%;
+    bottom: -140%;
+    width: 55%;
+    pointer-events: none;
+    z-index: 5;
+    animation: burnSweep 0.75s cubic-bezier(0.25, 0, 0.45, 1) forwards;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(255, 255, 255, 0.20) 0%,
+      hsl(var(--primary) / 0.18) 30%,
+      hsl(var(--accent) / 0.10) 55%,
+      transparent 78%
+    );
+    filter: blur(20px);
+  }
+
   /* Lightning bolt sweep — travels left to right */
   @keyframes boltSweep {
     0%   { left: -22%; opacity: 0; }

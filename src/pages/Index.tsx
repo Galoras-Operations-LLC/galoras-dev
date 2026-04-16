@@ -59,15 +59,16 @@ const HEADLINES: { parts: { text: string; highlight?: boolean }[]; href: string 
 ];
 
 // Timing constants (ms)
-const HOLD_DURATION = 3500;
+const SWEEP_DURATION = 750;
+const HOLD_DURATION = 3200;
 const EXIT_DURATION = 350;
 
-type Phase = "visible" | "exiting";
+type Phase = "sweep" | "visible" | "exiting";
 
 function RotatingHero() {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
-  const [phase, setPhase] = useState<Phase>("visible");
+  const [phase, setPhase] = useState<Phase>("sweep");
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -75,15 +76,19 @@ function RotatingHero() {
 
   const runCycle = (idx: number) => {
     setIndex(idx);
-    setPhase("visible");
+    setPhase("sweep");
 
     timerRef.current = setTimeout(() => {
-      setPhase("exiting");
+      setPhase("visible");
 
       timerRef.current = setTimeout(() => {
-        runCycle((idx + 1) % HEADLINES.length);
-      }, EXIT_DURATION);
-    }, HOLD_DURATION);
+        setPhase("exiting");
+
+        timerRef.current = setTimeout(() => {
+          runCycle((idx + 1) % HEADLINES.length);
+        }, EXIT_DURATION);
+      }, HOLD_DURATION);
+    }, SWEEP_DURATION);
   };
 
   useEffect(() => {
@@ -110,13 +115,18 @@ function RotatingHero() {
       onMouseLeave={() => { setPaused(false); }}
       style={{ minHeight: "3.5rem" }}
     >
+      {/* Soft burn-sweep light — fires once as text appears */}
+      {phase === "sweep" && (
+        <span className="burn-sweep pointer-events-none" />
+      )}
+
       {/* Headline text */}
       <span
         onClick={handleClick}
         className={[
           "relative z-20 block text-4xl md:text-5xl lg:text-6xl font-display font-bold leading-tight",
           headline.href ? "cursor-pointer" : "",
-          phase === "visible" ? "headline-reveal" : "",
+          phase === "sweep" || phase === "visible" ? "headline-reveal" : "",
           phase === "exiting" ? "headline-exit" : "",
         ].join(" ")}
       >
