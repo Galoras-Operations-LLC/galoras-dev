@@ -100,24 +100,7 @@ export function CourseCard({
 
         {/* Footer */}
         <div className="flex items-center justify-between">
-          {coachName && (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-muted overflow-hidden">
-                {coachAvatar ? (
-                  <img
-                    src={coachAvatar}
-                    alt={coachName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-sm font-medium text-muted-foreground">
-                    {coachName.charAt(0)}
-                  </div>
-                )}
-              </div>
-              <span className="text-sm font-medium">{coachName}</span>
-            </div>
-          )}
+          <span className="text-sm font-medium text-muted-foreground">Coach</span>
           <Link to={`/labs/${id}`}>
             <Button variant="link" className="text-primary font-semibold p-0">
               EXPLORE MORE →
