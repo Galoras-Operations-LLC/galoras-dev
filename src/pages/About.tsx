@@ -48,11 +48,6 @@ const values = [
 
 const team = [
   {
-    name: "Conor McGowan Smyth",
-    role: "Founder & Executive Performance Coach",
-    bio: "CEO of $100M+ revenue businesses across Europe, the Caribbean, Latin America, and the United States. Coaches senior executives and founders navigating rapid change and sustained pressure.",
-  },
-  {
     name: "Mitesh Kapadia",
     role: "Executive Performance Coach",
     bio: "Coached 1,000+ Directors and VPs at Apple, Google, Cisco, and Fortune 500 companies. Focused on making leadership capability visible, deployable, and career-defining.",
