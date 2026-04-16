@@ -59,17 +59,15 @@ const HEADLINES: { parts: { text: string; highlight?: boolean }[]; href: string 
 ];
 
 // Timing constants (ms)
-const BRUSH_DURATION = 750;
-const TEXT_REVEAL_DELAY = 500; // text appears as bolt clears midpoint
-const HOLD_DURATION = 3000;
+const HOLD_DURATION = 3500;
 const EXIT_DURATION = 350;
 
-type Phase = "brush" | "visible" | "exiting";
+type Phase = "visible" | "exiting";
 
 function RotatingHero() {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
-  const [phase, setPhase] = useState<Phase>("brush");
+  const [phase, setPhase] = useState<Phase>("visible");
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -77,19 +75,15 @@ function RotatingHero() {
 
   const runCycle = (idx: number) => {
     setIndex(idx);
-    setPhase("brush");
+    setPhase("visible");
 
     timerRef.current = setTimeout(() => {
-      setPhase("visible");
+      setPhase("exiting");
 
       timerRef.current = setTimeout(() => {
-        setPhase("exiting");
-
-        timerRef.current = setTimeout(() => {
-          runCycle((idx + 1) % HEADLINES.length);
-        }, EXIT_DURATION);
-      }, HOLD_DURATION);
-    }, TEXT_REVEAL_DELAY);
+        runCycle((idx + 1) % HEADLINES.length);
+      }, EXIT_DURATION);
+    }, HOLD_DURATION);
   };
 
   useEffect(() => {
@@ -116,14 +110,6 @@ function RotatingHero() {
       onMouseLeave={() => { setPaused(false); }}
       style={{ minHeight: "3.5rem" }}
     >
-      {/* Lightning strike — ambient glow + jagged bolt */}
-      {phase === "brush" && (
-        <>
-          <span className="lightning-glow pointer-events-none z-10" />
-          <span className="lightning-bolt pointer-events-none z-10" />
-        </>
-      )}
-
       {/* Headline text */}
       <span
         onClick={handleClick}
@@ -132,7 +118,6 @@ function RotatingHero() {
           headline.href ? "cursor-pointer" : "",
           phase === "visible" ? "headline-reveal" : "",
           phase === "exiting" ? "headline-exit" : "",
-          phase === "brush" ? "opacity-0" : "",
         ].join(" ")}
       >
         {headline.parts.map((part, i) =>
