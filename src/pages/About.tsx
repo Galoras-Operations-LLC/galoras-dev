@@ -82,9 +82,9 @@ export default function About() {
               <div className="relative">
                 <div className="absolute -inset-3 rounded-2xl border border-primary/20 pointer-events-none" />
                 <img
-                  src="/conor-mcgowan-smyth.jpg"
+                  src="https://qbjuomsmnrclsjhdsjcz.supabase.co/storage/v1/object/public/coach-images/Conor_standing-removebg.png"
                   alt="Conor McGowan Smyth"
-                  className="w-72 rounded-2xl object-cover object-top"
+                  className="w-72 object-contain"
                   style={{ maxHeight: 400 }}
                 />
               </div>
