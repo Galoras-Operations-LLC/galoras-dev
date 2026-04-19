@@ -32,26 +32,9 @@ const navItems = [
       { name: "Why Coaching", href: "/coaching/why", description: "The power of coaching" },
     ],
   },
-  {
-    name: "For Organizations",
-    href: "/business",
-    children: [
-      { name: "The Sport of Business™", href: "/business/sport-of-business", description: "Our flagship program" },
-      { name: "Leadership Circles", href: "/business/leadership-circles", description: "Peer-led growth groups" },
-      { name: "Workshops & Offsites", href: "/business/workshops", description: "Team development sessions" },
-      { name: "Organizational Diagnostics", href: "/business/diagnostics", description: "Measure what matters" },
-    ],
-  },
-  {
-    name: "Leadership Lab",
-    href: "/labs",
-    children: [
-      { name: "All Courses", href: "/labs", description: "Browse all workshops and events" },
-      { name: "Performance Labs", href: "/labs#performance", description: "Intensive transformation programs" },
-      { name: "Upcoming Events", href: "/labs#events", description: "Workshops and live sessions" },
-    ],
-  },
-  // { name: "Compass", href: "/compass" }, // hidden — route preserved at /compass
+  // { name: "For Organizations", href: "/business" }, // hidden — SOW #4 pending sign-off
+  // { name: "Leadership Lab", href: "/labs" }, // hidden — SOW #4 pending sign-off
+  // { name: "Compass", href: "/compass" }, // hidden — SOW #4 pending sign-off
   { name: "About", href: "/about" },
 ];
 

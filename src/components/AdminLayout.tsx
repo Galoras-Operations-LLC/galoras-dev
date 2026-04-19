@@ -10,7 +10,7 @@ const NAV = [
   { label: "Products",   href: "/admin/products",   icon: Package },
   { label: "Bookings",   href: "/admin/bookings",   icon: BookOpen },
   { label: "Leads",      href: "/admin/leads",      icon: MessageSquare },
-  { label: "Agent Eval", href: "/admin/agent-evaluation", icon: Bot },
+  // { label: "Agent Eval", href: "/admin/agent-evaluation", icon: Bot }, // hidden — SOW #5 pending sign-off
 ];
 
 interface AdminLayoutProps {
