@@ -106,7 +106,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <img src="/galoras-logo.jpg" alt="Galoras" className="h-12 w-auto" />
+            <img src="/galoras-logo.jpg" alt="Galoras" className="h-14 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}
