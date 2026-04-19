@@ -48,16 +48,25 @@ export default function CoachSignup() {
     });
   }, [navigate, tierParam]);
 
+  const FUNCTIONS_URL = "https://qbjuomsmnrclsjhdsjcz.supabase.co/functions/v1";
+
+  const callEdgeFn = async (slug: string, body: object) => {
+    const res = await fetch(`${FUNCTIONS_URL}/${slug}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return data;
+  };
+
   // ── STEP 1: send OTP ────────────────────────────────────────────────────────
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: true },
-      });
-      if (error) throw error;
+      await callEdgeFn("send-signup-otp", { email });
       toast({
         title: "Verification code sent",
         description: `Check ${email} for your 6-digit code.`,
@@ -75,18 +84,13 @@ export default function CoachSignup() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: otpCode,
-        type: "email",
-      });
-      if (error) throw error;
+      await callEdgeFn("verify-signup-otp", { email, code: otpCode });
       toast({ title: "Email verified!", description: "Now set a secure password." });
       setStep("password");
     } catch (err: any) {
       toast({
         title: "Invalid code",
-        description: "Please check the code and try again.",
+        description: err.message || "Please check the code and try again.",
         variant: "destructive",
       });
     } finally {
@@ -103,18 +107,23 @@ export default function CoachSignup() {
     }
     setIsLoading(true);
     try {
-      const { error: pwError } = await supabase.auth.updateUser({
+      const { session, user } = await callEdgeFn("complete-signup", {
+        email,
         password,
-        data: { full_name: fullName },
+        fullName,
       });
-      if (pwError) throw pwError;
 
-      const { data: { user } } = await supabase.auth.getUser();
+      if (session) {
+        await supabase.auth.setSession({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+        });
+      }
+
       if (user) {
         await supabase.from("profiles").update({
-          full_name: fullName,
-          user_role: currentRole || undefined,
-          linkedin_url: linkedinUrl || undefined,
+          user_role: currentRole || null,
+          linkedin_url: linkedinUrl || null,
           user_type: "coach",
         }).eq("id", user.id);
       }
