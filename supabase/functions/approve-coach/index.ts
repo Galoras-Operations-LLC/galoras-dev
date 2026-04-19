@@ -265,32 +265,56 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Galoras <onboarding@resend.dev>",
+          from: "Galoras <noreply@uat-galoras.site>",
           to: [reg.email],
-          subject: "You're approved — Welcome to the Galoras Coach Ecosystem",
+          subject: "You're approved — Payment receipt & next steps",
           html: `
             <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#111">
-              <h2>Congratulations, ${reg.full_name ?? "Coach"}! You're in.</h2>
-              <p>Your application has been <strong>approved</strong>. Welcome to the Galoras coaching network — you're now an active <strong>${TIER_LABELS[tier]} Coach</strong> on the platform.</p>
-              <p>Your subscription of <strong>$${amountCents / 100}/month</strong> has been activated and your profile is now live.</p>
+              <h2 style="margin-bottom:4px">Congratulations, ${reg.full_name ?? "Coach"}! You're in.</h2>
+              <p style="color:#6b7280;margin-top:0">Your Galoras coach application has been approved.</p>
 
-              <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:20px;margin:24px 0">
-                <p style="margin:0 0 8px;font-weight:600;color:#0369a1">Next Step: Book Your Orientation Call</p>
+              <!-- Receipt -->
+              <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin:24px 0">
+                <p style="margin:0 0 12px;font-weight:700;font-size:15px;color:#111">Payment Receipt</p>
+                <table style="width:100%;font-size:14px;color:#374151;border-collapse:collapse">
+                  <tr>
+                    <td style="padding:6px 0">Galoras ${TIER_LABELS[tier]} Coach Subscription</td>
+                    <td style="text-align:right;font-weight:600">$${(amountCents / 100).toFixed(2)} USD/month</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:6px 0;color:#6b7280">Billing</td>
+                    <td style="text-align:right;color:#6b7280">Monthly, starting today</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:6px 0;color:#6b7280">Card on file</td>
+                    <td style="text-align:right;color:#6b7280">Card authorized at application</td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- Profile CTA -->
+              <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin:24px 0">
+                <p style="margin:0 0 8px;font-weight:600;color:#166534">Before we go live — complete your profile</p>
                 <p style="margin:0 0 16px;font-size:14px;color:#374151">
-                  Schedule a 30-minute orientation with Barnes to get you set up, walk through the platform, and discuss how to get the most from your Galoras membership.
+                  Review your coach profile, update your bio, add your products, and make any changes before your listing goes public.
                 </p>
-                <a href="https://calendly.com/barnes-lam/galoras-initial-session-call"
-                   style="background:#0ea5e9;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">
-                  Book Your Orientation →
+                <a href="https://uat-galoras.site/coach-dashboard/edit"
+                   style="background:#16a34a;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">
+                  Complete My Profile →
                 </a>
               </div>
 
-              <p style="margin:24px 0">
-                <a href="https://uat-galoras.site/coaching"
-                   style="background:#18181b;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;border:1px solid #3f3f46">
-                  View Your Coach Profile →
+              <!-- Orientation -->
+              <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:20px;margin:24px 0">
+                <p style="margin:0 0 8px;font-weight:600;color:#0369a1">Book your orientation call</p>
+                <p style="margin:0 0 16px;font-size:14px;color:#374151">
+                  30 minutes with Barnes — platform walkthrough, how to get the most from your membership, and your first 90 days on Galoras.
+                </p>
+                <a href="https://calendly.com/barnes-lam/galoras-initial-session-call"
+                   style="background:#0ea5e9;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">
+                  Book Orientation →
                 </a>
-              </p>
+              </div>
 
               <p style="font-size:14px;color:#6b7280">Questions? Reply to this email or reach out to <a href="mailto:barnes@thestrategypitch.com" style="color:#0ea5e9">barnes@thestrategypitch.com</a>.</p>
               <hr style="border:none;border-top:1px solid #eee;margin:24px 0"/>

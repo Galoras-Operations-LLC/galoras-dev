@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,6 +58,7 @@ const benefits = [
 ];
 
 export default function Apply() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ndaAccepted, setNdaAccepted] = useState(false);
@@ -203,17 +205,11 @@ export default function Apply() {
       }
 
       toast({
-        title: "Application submitted!",
-        description: "We'll review your application and get back to you within 5 business days.",
+        title: "Application received!",
+        description: "Create your account to secure your spot — we'll only charge your card if you're approved.",
       });
 
-      setFormData({
-        full_name: "", email: "", phone: "", linkedin_url: "", website_url: "", bio: "",
-        coaching_philosophy: "", coach_background: "", coach_background_detail: "",
-        certification_interest: "", coaching_experience_years: "", leadership_experience_years: "",
-        current_role: "", coaching_experience_level: "", booking_url: "",
-      });
-      removePhoto();
+      navigate(`/coach-signup?applicationId=${inserted.id}`);
     } catch (error) {
       console.error("Submit error:", error);
       toast({ title: "Error", description: "Failed to submit application. Please try again.", variant: "destructive" });

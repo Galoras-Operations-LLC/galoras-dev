@@ -25,6 +25,7 @@ export default function CoachSignup() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const tierParam = searchParams.get("tier");
+  const applicationId = searchParams.get("applicationId");
   const { toast } = useToast();
   const [step, setStep] = useState<Step>("info");
   const [isLoading, setIsLoading] = useState(false);
@@ -44,9 +45,14 @@ export default function CoachSignup() {
   // Redirect if already logged in
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) navigate(tierParam ? `/pricing?tier=${tierParam}` : "/pricing");
+      if (session?.user) {
+        const dest = new URLSearchParams();
+        if (tierParam) dest.set("tier", tierParam);
+        if (applicationId) dest.set("applicationId", applicationId);
+        navigate(`/pricing${dest.toString() ? `?${dest}` : ""}`);
+      }
     });
-  }, [navigate, tierParam]);
+  }, [navigate, tierParam, applicationId]);
 
   const FUNCTIONS_URL = "https://qbjuomsmnrclsjhdsjcz.supabase.co/functions/v1";
 
@@ -126,13 +132,23 @@ export default function CoachSignup() {
           linkedin_url: linkedinUrl || null,
           user_type: "coach",
         }).eq("id", user.id);
+
+        // Link the application to this new account
+        if (applicationId) {
+          await supabase.from("coach_applications")
+            .update({ user_id: user.id })
+            .eq("id", applicationId);
+        }
       }
 
       toast({
         title: "Account created!",
-        description: "Now choose your coach tier to get started.",
+        description: "Now choose your coach tier and secure your spot.",
       });
-      navigate(tierParam ? `/pricing?tier=${tierParam}` : "/pricing");
+      const dest = new URLSearchParams();
+      if (tierParam) dest.set("tier", tierParam);
+      if (applicationId) dest.set("applicationId", applicationId);
+      navigate(`/pricing${dest.toString() ? `?${dest}` : ""}`);
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
