@@ -51,7 +51,7 @@ const navItems = [
       { name: "Upcoming Events", href: "/labs#events", description: "Workshops and live sessions" },
     ],
   },
-  { name: "Compass", href: "/compass" },
+  // { name: "Compass", href: "/compass" }, // hidden — route preserved at /compass
   { name: "About", href: "/about" },
 ];
 

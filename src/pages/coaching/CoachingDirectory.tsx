@@ -256,15 +256,15 @@ export default function CoachingDirectory() {
                 </div>
               )}
 
-              {/* Compass link */}
-              <Link
+              {/* Compass link — hidden, route preserved at /compass */}
+              {/* <Link
                 to="/compass"
                 className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-dashed border-zinc-800 text-xs text-zinc-500 hover:border-primary/40 hover:text-primary transition-colors group"
               >
                 <Sparkles className="h-3.5 w-3.5 shrink-0" />
                 <span>Not sure? Let Compass find your coach</span>
                 <ArrowRight className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Link>
+              </Link> */}
 
               {/* Divider */}
               <div className="border-t border-zinc-800" />

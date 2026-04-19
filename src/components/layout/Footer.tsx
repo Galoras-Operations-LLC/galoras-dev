@@ -6,7 +6,7 @@ const footerLinks = {
   platform: [
     { name: "Coaching Exchange", href: "/coaching" },
     { name: "For Organizations", href: "/business" },
-    { name: "Compass AI", href: "/compass" },
+    // { name: "Compass AI", href: "/compass" }, // hidden — route preserved at /compass
     { name: "Performance Labs", href: "/labs" },
   ],
   company: [
