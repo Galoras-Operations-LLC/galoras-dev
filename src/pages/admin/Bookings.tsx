@@ -44,9 +44,9 @@ type SessionRow = {
 
 function formatMoney(cents: number | null, currency: string | null) {
   if (!cents) return "—";
-  return new Intl.NumberFormat("en-CA", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: (currency || "cad").toUpperCase(),
+    currency: (currency || "usd").toUpperCase(),
   }).format(cents / 100);
 }
 
@@ -190,7 +190,7 @@ export default function Bookings() {
               <div className="grid grid-cols-5 gap-3 mb-8">
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 col-span-1">
                   <p className="text-2xl font-black text-emerald-400">
-                    {formatMoney(payStats.revenue, "cad")}
+                    {formatMoney(payStats.revenue, "usd")}
                   </p>
                   <p className="text-xs text-zinc-500 mt-0.5">Revenue confirmed</p>
                 </div>

@@ -39,7 +39,7 @@ export function useStripePayment(): UseStripePaymentReturn {
     productId,
     coachId,
     amountCents,
-    currency = "cad",
+    currency = "usd",
   }: {
     productId: string;
     coachId: string;

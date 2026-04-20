@@ -66,9 +66,9 @@ function ActivityItem({ icon: Icon, text, time, color }: {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("en-CA", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: (currency || "cad").toUpperCase(),
+    currency: (currency || "usd").toUpperCase(),
   }).format(cents / 100);
 }
 
@@ -163,7 +163,7 @@ export default function Portal() {
       return {
         totalPayments: payRows.length,
         revenue,
-        currency: payRows[0]?.currency || "cad",
+        currency: payRows[0]?.currency || "usd",
         pendingPayments: pendingPayments.length,
         totalSessions: sesRows.length,
         upcomingSessions: upcomingSessions.length,
@@ -369,7 +369,7 @@ export default function Portal() {
                 "bg-amber-500"
               }`} />
               <span className="text-sm text-zinc-300 flex-1">
-                {formatMoney(p.amount_cents || 0, p.currency || "cad")}
+                {formatMoney(p.amount_cents || 0, p.currency || "usd")}
               </span>
               <span className="text-xs text-zinc-500 capitalize">{p.status}</span>
               {p.created_at && <span className="text-xs text-zinc-600">{timeAgo(p.created_at)}</span>}

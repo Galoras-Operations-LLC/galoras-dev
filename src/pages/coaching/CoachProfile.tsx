@@ -92,7 +92,7 @@ export default function CoachProfile() {
           productId: product.id,
           coachId: coach.id,
           amountCents: product.price_amount,
-          currency: "cad",
+          currency: "usd",
         },
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
@@ -521,7 +521,7 @@ export default function CoachProfile() {
                     clientSecret={checkoutSecret}
                     productTitle={checkoutProduct.title}
                     amountCents={checkoutProduct.price_amount!}
-                    currency="cad"
+                    currency="usd"
                     onSuccess={() => {
                       setCheckoutProduct(null);
                       setCheckoutSecret("");

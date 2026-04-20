@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { productId, coachId, amountCents, currency = "cad" } = await req.json();
+    const { productId, coachId, amountCents, currency = "usd" } = await req.json();
 
     if (!productId || !coachId || !amountCents) {
       return new Response(
@@ -49,8 +49,8 @@ Deno.serve(async (req) => {
 
     // ── Galoras Platform Products (not stored in coach_products) ──
     const PLATFORM_PRODUCTS: Record<string, { title: string; amountCents: number }> = {
-      "galoras-discovery": { title: "Discovery Session", amountCents: 100 },  // $1 for live testing — revert to 25000
-      "galoras-workshop":  { title: "Strategic Initiative Workshop", amountCents: 45000 },
+      "galoras-discovery": { title: "Discovery Session", amountCents: 50000 },
+      "galoras-workshop":  { title: "Strategic Initiative Workshop", amountCents: 150000 },
     };
 
     const platformProduct = PLATFORM_PRODUCTS[productId];

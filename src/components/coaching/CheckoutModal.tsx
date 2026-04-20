@@ -164,7 +164,7 @@ export function CheckoutModal({
   clientSecret,
   productTitle,
   amountCents,
-  currency = "cad",
+  currency = "usd",
   onSuccess,
   onClose,
 }: CheckoutModalProps) {
