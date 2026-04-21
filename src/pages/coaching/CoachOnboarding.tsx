@@ -19,6 +19,7 @@ import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { useTags } from "@/hooks/useTags";
 import { useProductTypes } from "@/hooks/useProductTypes";
 import { CoachTierPayment } from "@/components/coaching/CoachTierPayment";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const ONBOARDING_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const storageKey = (uid: string) => `galoras_coach_onboarding_${uid}`;
@@ -72,6 +73,7 @@ export default function CoachOnboarding() {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const token = (location.state as { token?: string } | null)?.token ?? null;
 
   const [state, setState] = useState<"loading" | "invalid" | "form" | "submitting" | "success">("loading");
@@ -394,54 +396,64 @@ export default function CoachOnboarding() {
   return (
     <Layout>
       <section className="min-h-screen bg-zinc-950 py-12 px-4">
-        <div className="max-w-6xl mx-auto">
+        <div className={`mx-auto ${isMobile ? "max-w-lg" : "max-w-6xl"}`}>
 
           {/* Page header */}
           <div className="mb-10">
             <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-2">Coach Onboarding</p>
-            <h1 className="text-4xl font-display font-black text-white uppercase tracking-tight">
+            <h1 className={`font-display font-black text-white uppercase tracking-tight ${isMobile ? "text-2xl" : "text-4xl"}`}>
               Complete Your Coach Profile
             </h1>
           </div>
 
-          <div className="flex gap-8 items-start">
+          <div className={`flex gap-8 items-start ${isMobile ? "flex-col" : "flex-row"}`}>
 
-            {/* ── Left sidebar: vertical stepper ── */}
-            <aside className="hidden lg:flex flex-col gap-1 w-64 shrink-0 sticky top-24">
-              {stepTitles.map((title, i) => {
-                const n = i + 1;
-                const done = n < step;
-                const active = n === step;
-                return (
-                  <div key={n} className="flex items-start gap-3 px-3 py-3 rounded-xl transition-colors">
-                    <div className={`mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold transition-colors ${
-                      done    ? "bg-primary text-primary-foreground" :
-                      active  ? "bg-primary/20 border-2 border-primary text-primary" :
-                                "bg-zinc-800 text-zinc-500"
-                    }`}>
-                      {done ? <CheckCircle className="h-4 w-4" /> : n}
+            {/* ── Left sidebar: vertical stepper (desktop only) ── */}
+            {!isMobile && (
+              <aside className="flex flex-col gap-1 w-64 shrink-0 sticky top-24">
+                {stepTitles.map((title, i) => {
+                  const n = i + 1;
+                  const done = n < step;
+                  const active = n === step;
+                  return (
+                    <div key={n} className="flex items-start gap-3 px-3 py-3 rounded-xl transition-colors">
+                      <div className={`mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold transition-colors ${
+                        done    ? "bg-primary text-primary-foreground" :
+                        active  ? "bg-primary/20 border-2 border-primary text-primary" :
+                                  "bg-zinc-800 text-zinc-500"
+                      }`}>
+                        {done ? <CheckCircle className="h-4 w-4" /> : n}
+                      </div>
+                      <div>
+                        <p className={`text-sm font-semibold leading-tight ${active ? "text-white" : done ? "text-zinc-400" : "text-zinc-600"}`}>
+                          {title}
+                        </p>
+                        {active && (
+                          <p className="text-xs text-zinc-500 mt-0.5 leading-snug">{stepDescriptions[i]}</p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <p className={`text-sm font-semibold leading-tight ${active ? "text-white" : done ? "text-zinc-400" : "text-zinc-600"}`}>
-                        {title}
-                      </p>
-                      {active && (
-                        <p className="text-xs text-zinc-500 mt-0.5 leading-snug">{stepDescriptions[i]}</p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </aside>
+                  );
+                })}
+              </aside>
+            )}
 
             {/* ── Right: form card ── */}
-            <div className="flex-1 min-w-0">
-              {/* Mobile progress bar */}
-              <div className="flex gap-1 mb-6 lg:hidden">
-                {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(n => (
-                  <div key={n} className={`h-1.5 flex-1 rounded-full transition-colors ${n <= step ? "bg-primary" : "bg-zinc-800"}`} />
-                ))}
-              </div>
+            <div className="flex-1 min-w-0 w-full">
+              {/* Mobile: compact progress bar + step label */}
+              {isMobile && (
+                <div className="mb-5">
+                  <div className="flex justify-between text-xs text-zinc-500 mb-2">
+                    <span className="font-medium text-white">{stepTitles[step - 1]}</span>
+                    <span>Step {step} of {TOTAL_STEPS}</span>
+                  </div>
+                  <div className="flex gap-1">
+                    {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(n => (
+                      <div key={n} className={`h-1.5 flex-1 rounded-full transition-colors ${n <= step ? "bg-primary" : "bg-zinc-800"}`} />
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <Card className="bg-zinc-900 border-zinc-700 shadow-2xl">
                 <CardHeader className="pb-4 border-b border-zinc-800">
@@ -456,15 +468,17 @@ export default function CoachOnboarding() {
                       </CardDescription>
                     </div>
                     {/* Desktop progress dots */}
-                    <div className="hidden lg:flex gap-1.5">
-                      {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(n => (
-                        <div key={n} className={`rounded-full transition-all ${
-                          n < step  ? "w-2 h-2 bg-primary" :
-                          n === step? "w-5 h-2 bg-primary" :
-                                      "w-2 h-2 bg-zinc-700"
-                        }`} />
-                      ))}
-                    </div>
+                    {!isMobile && (
+                      <div className="flex gap-1.5 shrink-0">
+                        {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(n => (
+                          <div key={n} className={`rounded-full transition-all ${
+                            n < step  ? "w-2 h-2 bg-primary" :
+                            n === step? "w-5 h-2 bg-primary" :
+                                        "w-2 h-2 bg-zinc-700"
+                          }`} />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </CardHeader>
 
@@ -473,7 +487,7 @@ export default function CoachOnboarding() {
                   {/* ── Step 1 ── */}
                   {step === 1 && (
                     <>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-5`}>
                         <div className="space-y-2">
                           <Label className="text-zinc-300 text-sm font-medium">Full Name *</Label>
                           <Input id="fullName" value={fullName} onChange={e => setFullName(e.target.value)}
@@ -493,7 +507,7 @@ export default function CoachOnboarding() {
                           placeholder="Describe your coaching approach, background, and what makes you unique..."
                           className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 text-base focus-visible:ring-primary resize-none" />
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-5`}>
                         <div className="space-y-2">
                           <Label className="text-zinc-300 text-sm font-medium">LinkedIn URL</Label>
                           <Input id="linkedinUrl" type="url" value={linkedinUrl} onChange={e => setLinkedinUrl(e.target.value)}
@@ -527,7 +541,7 @@ export default function CoachOnboarding() {
                         </Label>
                         <TagPills family="audience" selected={audienceTags} onChange={setAudienceTags} />
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-6`}>
                         <div className="space-y-2">
                           <Label className="text-zinc-300 text-sm font-medium">Coaching Style</Label>
                           <TagPills family="style" selected={styleTags} onChange={setStyleTags} />
@@ -547,7 +561,7 @@ export default function CoachOnboarding() {
                         <Label className="text-zinc-300 text-sm font-medium">Availability</Label>
                         <TagPills family="availability" selected={availabilityTag} onChange={setAvailabilityTag} single />
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-6`}>
                         <div className="space-y-2">
                           <Label className="text-zinc-300 text-sm font-medium">Enterprise Capability</Label>
                           <TagPills family="enterprise" selected={enterpriseTags} onChange={setEnterpriseTags} />
@@ -563,7 +577,7 @@ export default function CoachOnboarding() {
                   {/* ── Step 4 ── */}
                   {step === 4 && (
                     <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-5`}>
                         <div className="space-y-2">
                           <Label className="text-zinc-300 text-sm font-medium">Product Type *</Label>
                           <Select value={pp.product_type} onValueChange={v => setPP({ product_type: v })}>
@@ -589,7 +603,7 @@ export default function CoachOnboarding() {
                           placeholder="What will the client achieve?"
                           className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 text-base focus-visible:ring-primary resize-none" />
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-3"} gap-5`}>
                         <div className="space-y-2">
                           <Label className="text-zinc-300 text-sm font-medium">
                             Outcome Tags <span className="text-zinc-500 font-normal">(min 1)</span>
@@ -656,7 +670,7 @@ export default function CoachOnboarding() {
                   {/* ── Step 5 — Review ── */}
                   {step === 5 && (
                     <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-4`}>
                         {[
                           { label: "Name", value: fullName },
                           { label: "Role", value: currentRole },
@@ -694,7 +708,7 @@ export default function CoachOnboarding() {
                           }}
                         />
                       )}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-3"} gap-4`}>
                         {TIER_OPTIONS.map(tier => (
                           <div key={tier.key}
                             className={`relative rounded-2xl border p-5 cursor-pointer transition-all ${
