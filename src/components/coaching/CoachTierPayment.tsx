@@ -2,7 +2,7 @@
  * CoachTierPayment — Stripe SetupIntent card form.
  * Authorises the card without charging. After success calls confirm-coach-registration.
  */
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Elements,
   PaymentElement,
@@ -16,7 +16,8 @@ import { CheckCircle2, Loader2, Lock, XCircle, Mail } from "lucide-react";
 import { LegalConsentCheckboxes } from "@/components/legal/LegalConsentCheckboxes";
 import { recordAgreements } from "@/lib/legal";
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? "");
+const STRIPE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+const stripePromise = STRIPE_KEY ? loadStripe(STRIPE_KEY) : null;
 
 const TIER_LABELS: Record<string, { name: string; price: string }> = {
   pro:    { name: "Pro",    price: "$49/month" },
@@ -192,7 +193,7 @@ export function CoachTierPayment({
 }) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [setupIntentId, setSetupIntentId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [registrationLink, setRegistrationLink] = useState<string | null>(null);
 
@@ -226,10 +227,9 @@ export function CoachTierPayment({
     }
   };
 
-  // Auto-init
-  if (!clientSecret && !loading && !error) {
+  useEffect(() => {
     initSetup();
-  }
+  }, [tier]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
