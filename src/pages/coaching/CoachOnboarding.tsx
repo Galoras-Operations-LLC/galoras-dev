@@ -382,268 +382,381 @@ export default function CoachOnboarding() {
     ? ["Coach Identity", "Positioning", "Commercial Readiness", "Your First Product", "Review & Submit"]
     : ["Coach Identity", "Positioning", "Commercial Readiness", "Your First Product", "Review & Save", "Choose Your Tier"];
 
+  const stepDescriptions = [
+    "Tell us who you are and how to find you.",
+    "Define your niche, audience, and coaching style.",
+    "Set your availability, credentials, and enterprise capability.",
+    "Add your first coaching product or programme.",
+    "Review your profile before saving.",
+    "Pick the tier that fits where you are right now.",
+  ];
+
   return (
     <Layout>
-      <section className="py-16">
-        <div className="container-wide max-w-2xl mx-auto">
-          {/* Header & progress */}
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold">Complete Your Coach Profile</h1>
-            <p className="text-muted-foreground mt-2">Step {step} of {TOTAL_STEPS} — {stepTitles[step - 1]}</p>
-          </div>
-          <div className="flex gap-1 mb-8">
-            {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(n => (
-              <div key={n} className={`h-1.5 flex-1 rounded-full transition-colors ${n <= step ? "bg-primary" : "bg-muted"}`} />
-            ))}
+      <section className="min-h-screen bg-zinc-950 py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+
+          {/* Page header */}
+          <div className="mb-10">
+            <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-2">Coach Onboarding</p>
+            <h1 className="text-4xl font-display font-black text-white uppercase tracking-tight">
+              Complete Your Coach Profile
+            </h1>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{stepTitles[step - 1]}</CardTitle>
-              {step === 4 && <CardDescription>Add your first coaching product. You can add more from your dashboard.</CardDescription>}
-            </CardHeader>
-            <CardContent className="space-y-5">
+          <div className="flex gap-8 items-start">
 
-              {/* ── Step 1 ── */}
-              {step === 1 && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name *</Label>
-                    <Input id="fullName" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" required />
+            {/* ── Left sidebar: vertical stepper ── */}
+            <aside className="hidden lg:flex flex-col gap-1 w-64 shrink-0 sticky top-24">
+              {stepTitles.map((title, i) => {
+                const n = i + 1;
+                const done = n < step;
+                const active = n === step;
+                return (
+                  <div key={n} className="flex items-start gap-3 px-3 py-3 rounded-xl transition-colors">
+                    <div className={`mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold transition-colors ${
+                      done    ? "bg-primary text-primary-foreground" :
+                      active  ? "bg-primary/20 border-2 border-primary text-primary" :
+                                "bg-zinc-800 text-zinc-500"
+                    }`}>
+                      {done ? <CheckCircle className="h-4 w-4" /> : n}
+                    </div>
+                    <div>
+                      <p className={`text-sm font-semibold leading-tight ${active ? "text-white" : done ? "text-zinc-400" : "text-zinc-600"}`}>
+                        {title}
+                      </p>
+                      {active && (
+                        <p className="text-xs text-zinc-500 mt-0.5 leading-snug">{stepDescriptions[i]}</p>
+                      )}
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="bio">Bio / Positioning Statement</Label>
-                    <Textarea id="bio" rows={4} value={bio} onChange={e => setBio(e.target.value)} placeholder="Describe your coaching approach..." />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="currentRole">Current Role</Label>
-                    <Input id="currentRole" value={currentRole} onChange={e => setCurrentRole(e.target.value)} placeholder="e.g. Executive Coach" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
-                    <Input id="linkedinUrl" type="url" value={linkedinUrl} onChange={e => setLinkedinUrl(e.target.value)} placeholder="https://linkedin.com/in/yourprofile" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="bookingUrl">Booking URL (optional)</Label>
-                    <Input id="bookingUrl" type="url" value={bookingUrl} onChange={e => setBookingUrl(e.target.value)} placeholder="https://calendly.com/yourname" />
-                  </div>
-                </>
-              )}
+                );
+              })}
+            </aside>
 
-              {/* ── Step 2 ── */}
-              {step === 2 && (
-                <>
-                  <div className="space-y-1">
-                    <Label>Specialty Tags <span className="text-muted-foreground text-xs">(min 2)</span></Label>
-                    <TagPills family="specialty" selected={specialtyTags} onChange={setSpecialtyTags} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Audience Tags <span className="text-muted-foreground text-xs">(min 1)</span></Label>
-                    <TagPills family="audience" selected={audienceTags} onChange={setAudienceTags} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Coaching Style</Label>
-                    <TagPills family="style" selected={styleTags} onChange={setStyleTags} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Industry Focus</Label>
-                    <TagPills family="industry" selected={industryTags} onChange={setIndustryTags} />
-                  </div>
-                </>
-              )}
+            {/* ── Right: form card ── */}
+            <div className="flex-1 min-w-0">
+              {/* Mobile progress bar */}
+              <div className="flex gap-1 mb-6 lg:hidden">
+                {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(n => (
+                  <div key={n} className={`h-1.5 flex-1 rounded-full transition-colors ${n <= step ? "bg-primary" : "bg-zinc-800"}`} />
+                ))}
+              </div>
 
-              {/* ── Step 3 ── */}
-              {step === 3 && (
-                <>
-                  <div className="space-y-1">
-                    <Label>Availability</Label>
-                    <TagPills family="availability" selected={availabilityTag} onChange={setAvailabilityTag} single />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Enterprise</Label>
-                    <TagPills family="enterprise" selected={enterpriseTags} onChange={setEnterpriseTags} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Credentials</Label>
-                    <TagPills family="credential" selected={credentialTags} onChange={setCredentialTags} />
-                  </div>
-                </>
-              )}
-
-              {/* ── Step 4 ── */}
-              {step === 4 && (
-                <>
-                  <div className="space-y-2">
-                    <Label>Product Type *</Label>
-                    <Select value={pp.product_type} onValueChange={v => setPP({ product_type: v })}>
-                      <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
-                      <SelectContent>
-                        {productTypes.map(t => <SelectItem key={t.slug} value={t.slug}>{t.label}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="prodTitle">Title *</Label>
-                    <Input id="prodTitle" value={pp.title} onChange={e => setPP({ title: e.target.value })} placeholder="e.g. 90-day Leadership Intensive" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="outcomeStatement">Outcome Statement</Label>
-                    <Textarea id="outcomeStatement" rows={3} value={pp.outcome_statement} onChange={e => setPP({ outcome_statement: e.target.value })} placeholder="What will the client achieve?" />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Outcome Tags <span className="text-muted-foreground text-xs">(min 1)</span></Label>
-                    <TagPills family="outcome" selected={pp.outcome_tags} onChange={v => setPP({ outcome_tags: v })} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Audience Tags <span className="text-muted-foreground text-xs">(min 1)</span></Label>
-                    <TagPills family="audience" selected={pp.audience_tags} onChange={v => setPP({ audience_tags: v })} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Format Tags <span className="text-muted-foreground text-xs">(min 1)</span></Label>
-                    <TagPills family="format" selected={pp.format_tags} onChange={v => setPP({ format_tags: v })} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Price Type</Label>
-                    <div className="flex gap-3">
-                      {(["enquiry", "fixed", "range"] as const).map(pt => (
-                        <button key={pt} type="button"
-                          onClick={() => setPP({ price_type: pt, price_cents: null, price_display: "" })}
-                          className={`px-4 py-2 rounded-full border text-sm capitalize transition-colors ${
-                            pp.price_type === pt
-                              ? "bg-primary text-primary-foreground border-primary"
-                              : "border-border text-muted-foreground hover:border-primary/50"
-                          }`}>
-                          {pt === "enquiry" ? "Enquiry" : pt === "fixed" ? "Fixed" : "Price Range"}
-                        </button>
+              <Card className="bg-zinc-900 border-zinc-700 shadow-2xl">
+                <CardHeader className="pb-4 border-b border-zinc-800">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">
+                        Step {step} of {TOTAL_STEPS}
+                      </p>
+                      <CardTitle className="text-2xl text-white">{stepTitles[step - 1]}</CardTitle>
+                      <CardDescription className="text-zinc-400 mt-1 text-sm">
+                        {stepDescriptions[step - 1]}
+                      </CardDescription>
+                    </div>
+                    {/* Desktop progress dots */}
+                    <div className="hidden lg:flex gap-1.5">
+                      {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(n => (
+                        <div key={n} className={`rounded-full transition-all ${
+                          n < step  ? "w-2 h-2 bg-primary" :
+                          n === step? "w-5 h-2 bg-primary" :
+                                      "w-2 h-2 bg-zinc-700"
+                        }`} />
                       ))}
                     </div>
                   </div>
-                  {pp.price_type === "fixed" && (
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="priceDollars">Price (USD)</Label>
-                        <Input id="priceDollars" type="number" min={0} placeholder="0"
-                          value={pp.price_cents !== null ? pp.price_cents / 100 : ""}
-                          onChange={e => setPP({ price_cents: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null })} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="priceDisplay">Display Text</Label>
-                        <Input id="priceDisplay" value={pp.price_display} onChange={e => setPP({ price_display: e.target.value })} placeholder="e.g. $2,500" />
-                      </div>
-                    </div>
-                  )}
-                  {pp.price_type === "range" && (
-                    <div className="space-y-2">
-                      <Label htmlFor="rangeDisplay">Price Range Display</Label>
-                      <Input id="rangeDisplay" value={pp.price_display} onChange={e => setPP({ price_display: e.target.value })} placeholder="e.g. $2,000 – $5,000" />
-                    </div>
-                  )}
-                </>
-              )}
+                </CardHeader>
 
-              {/* ── Step 5 — Review ── */}
-              {step === 5 && (
-                <div className="space-y-4">
-                  <div className="rounded-lg border border-border p-4 space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Name</span>
-                      <span className="font-medium">{fullName}</span>
-                    </div>
-                    {currentRole && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Role</span>
-                        <span className="font-medium">{currentRole}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Specialties</span>
-                      <span className="font-medium">{specialtyTags.length} selected</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Audience tags</span>
-                      <span className="font-medium">{audienceTags.length} selected</span>
-                    </div>
-                    {pp.title && (
-                      <>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Product</span>
-                          <span className="font-medium">{pp.title}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Product type</span>
-                          <span className="font-medium">{pp.product_type}</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">Review your details above. Click Submit to complete your profile.</p>
-                </div>
-              )}
+                <CardContent className="pt-6 space-y-6">
 
-              {/* ── Step 6 — Tier Selection ── */}
-              {step === 6 && (
-                <>
-                  {activeTier && (
-                    <CoachTierPayment
-                      tier={activeTier}
-                      onClose={() => setActiveTier(null)}
-                      onSuccess={() => {
-                        if (userId) localStorage.removeItem(storageKey(userId));
-                        setState("success");
-                      }}
-                    />
+                  {/* ── Step 1 ── */}
+                  {step === 1 && (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">Full Name *</Label>
+                          <Input id="fullName" value={fullName} onChange={e => setFullName(e.target.value)}
+                            placeholder="Your full name" required
+                            className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 h-11 text-base focus-visible:ring-primary" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">Current Role</Label>
+                          <Input id="currentRole" value={currentRole} onChange={e => setCurrentRole(e.target.value)}
+                            placeholder="e.g. Executive Coach"
+                            className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 h-11 text-base focus-visible:ring-primary" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-zinc-300 text-sm font-medium">Bio / Positioning Statement</Label>
+                        <Textarea id="bio" rows={5} value={bio} onChange={e => setBio(e.target.value)}
+                          placeholder="Describe your coaching approach, background, and what makes you unique..."
+                          className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 text-base focus-visible:ring-primary resize-none" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">LinkedIn URL</Label>
+                          <Input id="linkedinUrl" type="url" value={linkedinUrl} onChange={e => setLinkedinUrl(e.target.value)}
+                            placeholder="https://linkedin.com/in/yourprofile"
+                            className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 h-11 text-base focus-visible:ring-primary" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">
+                            Booking URL <span className="text-zinc-600 font-normal">(optional)</span>
+                          </Label>
+                          <Input id="bookingUrl" type="url" value={bookingUrl} onChange={e => setBookingUrl(e.target.value)}
+                            placeholder="https://calendly.com/yourname"
+                            className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 h-11 text-base focus-visible:ring-primary" />
+                        </div>
+                      </div>
+                    </>
                   )}
-                  <div className="space-y-3">
-                    {TIER_OPTIONS.map(tier => (
-                      <div key={tier.key}
-                        className={`relative rounded-xl border p-4 cursor-pointer transition-all ${
-                          activeTier === tier.key ? "border-primary bg-primary/5" : "border-zinc-200 dark:border-zinc-700 hover:border-primary/50"
-                        }`}
-                        onClick={() => setActiveTier(tier.key)}
-                      >
-                        {tier.badge && (
-                          <span className="absolute top-3 right-3 text-xs font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
-                            {tier.badge}
-                          </span>
-                        )}
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-semibold text-sm">{tier.name}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{tier.desc}</p>
+
+                  {/* ── Step 2 ── */}
+                  {step === 2 && (
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <Label className="text-zinc-300 text-sm font-medium">
+                          Specialty Tags <span className="text-zinc-500 font-normal">(select at least 2)</span>
+                        </Label>
+                        <TagPills family="specialty" selected={specialtyTags} onChange={setSpecialtyTags} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-zinc-300 text-sm font-medium">
+                          Audience Tags <span className="text-zinc-500 font-normal">(select at least 1)</span>
+                        </Label>
+                        <TagPills family="audience" selected={audienceTags} onChange={setAudienceTags} />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">Coaching Style</Label>
+                          <TagPills family="style" selected={styleTags} onChange={setStyleTags} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">Industry Focus</Label>
+                          <TagPills family="industry" selected={industryTags} onChange={setIndustryTags} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Step 3 ── */}
+                  {step === 3 && (
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <Label className="text-zinc-300 text-sm font-medium">Availability</Label>
+                        <TagPills family="availability" selected={availabilityTag} onChange={setAvailabilityTag} single />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">Enterprise Capability</Label>
+                          <TagPills family="enterprise" selected={enterpriseTags} onChange={setEnterpriseTags} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">Credentials & Certifications</Label>
+                          <TagPills family="credential" selected={credentialTags} onChange={setCredentialTags} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Step 4 ── */}
+                  {step === 4 && (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">Product Type *</Label>
+                          <Select value={pp.product_type} onValueChange={v => setPP({ product_type: v })}>
+                            <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white h-11 text-base focus:ring-primary">
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-zinc-800 border-zinc-700">
+                              {productTypes.map(t => <SelectItem key={t.slug} value={t.slug} className="text-white">{t.label}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">Title *</Label>
+                          <Input id="prodTitle" value={pp.title} onChange={e => setPP({ title: e.target.value })}
+                            placeholder="e.g. 90-day Leadership Intensive"
+                            className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 h-11 text-base focus-visible:ring-primary" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-zinc-300 text-sm font-medium">Outcome Statement</Label>
+                        <Textarea id="outcomeStatement" rows={3} value={pp.outcome_statement}
+                          onChange={e => setPP({ outcome_statement: e.target.value })}
+                          placeholder="What will the client achieve?"
+                          className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 text-base focus-visible:ring-primary resize-none" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">
+                            Outcome Tags <span className="text-zinc-500 font-normal">(min 1)</span>
+                          </Label>
+                          <TagPills family="outcome" selected={pp.outcome_tags} onChange={v => setPP({ outcome_tags: v })} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">
+                            Audience Tags <span className="text-zinc-500 font-normal">(min 1)</span>
+                          </Label>
+                          <TagPills family="audience" selected={pp.audience_tags} onChange={v => setPP({ audience_tags: v })} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-zinc-300 text-sm font-medium">
+                            Format Tags <span className="text-zinc-500 font-normal">(min 1)</span>
+                          </Label>
+                          <TagPills family="format" selected={pp.format_tags} onChange={v => setPP({ format_tags: v })} />
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <Label className="text-zinc-300 text-sm font-medium">Price Type</Label>
+                        <div className="flex gap-3">
+                          {(["enquiry", "fixed", "range"] as const).map(pt => (
+                            <button key={pt} type="button"
+                              onClick={() => setPP({ price_type: pt, price_cents: null, price_display: "" })}
+                              className={`px-5 py-2.5 rounded-full border text-sm font-medium transition-colors ${
+                                pp.price_type === pt
+                                  ? "bg-primary text-primary-foreground border-primary"
+                                  : "border-zinc-600 text-zinc-400 hover:border-primary/50 hover:text-white"
+                              }`}>
+                              {pt === "enquiry" ? "Enquiry" : pt === "fixed" ? "Fixed Price" : "Price Range"}
+                            </button>
+                          ))}
+                        </div>
+                        {pp.price_type === "fixed" && (
+                          <div className="grid grid-cols-2 gap-4 pt-1">
+                            <div className="space-y-2">
+                              <Label className="text-zinc-300 text-sm">Price (USD)</Label>
+                              <Input type="number" min={0} placeholder="0"
+                                value={pp.price_cents !== null ? pp.price_cents / 100 : ""}
+                                onChange={e => setPP({ price_cents: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null })}
+                                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 h-11 text-base focus-visible:ring-primary" />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-zinc-300 text-sm">Display Text</Label>
+                              <Input value={pp.price_display} onChange={e => setPP({ price_display: e.target.value })}
+                                placeholder="e.g. $2,500"
+                                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 h-11 text-base focus-visible:ring-primary" />
+                            </div>
                           </div>
-                          <p className="font-bold text-sm ml-4 shrink-0">{tier.price}</p>
-                        </div>
+                        )}
+                        {pp.price_type === "range" && (
+                          <div className="space-y-2 pt-1">
+                            <Label className="text-zinc-300 text-sm">Price Range Display</Label>
+                            <Input value={pp.price_display} onChange={e => setPP({ price_display: e.target.value })}
+                              placeholder="e.g. $2,000 – $5,000"
+                              className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 h-11 text-base focus-visible:ring-primary" />
+                          </div>
+                        )}
                       </div>
-                    ))}
+                    </div>
+                  )}
+
+                  {/* ── Step 5 — Review ── */}
+                  {step === 5 && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                          { label: "Name", value: fullName },
+                          { label: "Role", value: currentRole },
+                          { label: "Specialties", value: `${specialtyTags.length} selected` },
+                          { label: "Audience tags", value: `${audienceTags.length} selected` },
+                          { label: "Coaching styles", value: `${styleTags.length} selected` },
+                          { label: "Credentials", value: `${credentialTags.length} selected` },
+                          ...(pp.title ? [
+                            { label: "Product", value: pp.title },
+                            { label: "Product type", value: pp.product_type },
+                          ] : []),
+                        ].filter(r => r.value && r.value !== "0 selected").map(row => (
+                          <div key={row.label} className="flex justify-between items-center p-3 rounded-lg bg-zinc-800 border border-zinc-700">
+                            <span className="text-zinc-400 text-sm">{row.label}</span>
+                            <span className="font-semibold text-white text-sm">{row.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-sm text-zinc-500 pt-2">
+                        Everything look right? Click <strong className="text-zinc-300">Save & Choose Tier</strong> to continue.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* ── Step 6 — Tier Selection ── */}
+                  {step === 6 && (
+                    <>
+                      {activeTier && (
+                        <CoachTierPayment
+                          tier={activeTier}
+                          onClose={() => setActiveTier(null)}
+                          onSuccess={() => {
+                            if (userId) localStorage.removeItem(storageKey(userId));
+                            setState("success");
+                          }}
+                        />
+                      )}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {TIER_OPTIONS.map(tier => (
+                          <div key={tier.key}
+                            className={`relative rounded-2xl border p-5 cursor-pointer transition-all ${
+                              activeTier === tier.key
+                                ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
+                                : "border-zinc-700 bg-zinc-800/50 hover:border-primary/50 hover:bg-zinc-800"
+                            }`}
+                            onClick={() => setActiveTier(tier.key)}
+                          >
+                            {tier.badge && (
+                              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-xs font-bold bg-primary text-primary-foreground px-3 py-0.5 rounded-full whitespace-nowrap">
+                                {tier.badge}
+                              </span>
+                            )}
+                            <p className="font-bold text-white text-lg mt-1">{tier.name}</p>
+                            <p className="text-primary font-semibold text-base mt-0.5">{tier.price}</p>
+                            <p className="text-zinc-400 text-sm mt-2 leading-relaxed">{tier.desc}</p>
+                            <div className={`mt-4 w-full py-2 rounded-lg text-center text-sm font-semibold transition-colors ${
+                              activeTier === tier.key
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-zinc-700 text-zinc-300"
+                            }`}>
+                              {activeTier === tier.key ? "Selected" : "Select"}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-sm text-zinc-500 text-center pt-2">
+                        Your card is saved securely — you won't be charged until Galoras approves your application.
+                      </p>
+                    </>
+                  )}
+
+                  {/* ── Navigation ── */}
+                  <div className="flex gap-3 pt-4 border-t border-zinc-800">
+                    {step > 1 && step < 6 && (
+                      <Button type="button" variant="outline"
+                        onClick={() => setStep(s => s - 1)}
+                        className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white px-6">
+                        ← Back
+                      </Button>
+                    )}
+                    {step < 5 ? (
+                      <Button type="button" onClick={handleNext}
+                        className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-11 text-base">
+                        Continue →
+                      </Button>
+                    ) : step === 5 ? (
+                      <Button type="button" onClick={handleSubmit}
+                        className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-11 text-base"
+                        disabled={state === "submitting"}>
+                        {state === "submitting"
+                          ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving...</>
+                          : token ? "Submit Profile" : "Save & Choose Tier →"}
+                      </Button>
+                    ) : null}
                   </div>
-                  <p className="text-xs text-muted-foreground text-center pt-1">
-                    Your card is saved now — you won't be charged until Galoras approves your application.
-                  </p>
-                </>
-              )}
 
-              {/* ── Navigation ── */}
-              <div className="flex gap-3 pt-2">
-                {step > 1 && step < 6 && (
-                  <Button type="button" variant="outline" onClick={() => setStep(s => s - 1)} className="flex-1">
-                    Back
-                  </Button>
-                )}
-                {step < 5 ? (
-                  <Button type="button" onClick={handleNext} className="flex-1">
-                    Next
-                  </Button>
-                ) : step === 5 ? (
-                  <Button type="button" onClick={handleSubmit} className="flex-1" disabled={state === "submitting"}>
-                    {state === "submitting"
-                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving...</>
-                      : token ? "Submit" : "Save & Choose Tier →"}
-                  </Button>
-                ) : null}
-              </div>
-
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </section>
     </Layout>
