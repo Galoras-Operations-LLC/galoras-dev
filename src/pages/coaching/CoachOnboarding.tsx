@@ -20,6 +20,9 @@ import { useTags } from "@/hooks/useTags";
 import { useProductTypes } from "@/hooks/useProductTypes";
 import { CoachTierPayment } from "@/components/coaching/CoachTierPayment";
 
+const ONBOARDING_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const storageKey = (uid: string) => `galoras_coach_onboarding_${uid}`;
+
 const TIER_OPTIONS = [
   { key: "pro",    name: "Pro",    price: "$49/month",  desc: "Entry-level visibility. Get listed and start booking." },
   { key: "elite",  name: "Elite",  price: "$99/month",  desc: "Priority exposure, Leadership Labs, Sport of Business™ Foundations.", badge: "Most Popular" },
@@ -74,6 +77,7 @@ export default function CoachOnboarding() {
   const [state, setState] = useState<"loading" | "invalid" | "form" | "submitting" | "success">("loading");
   const [step, setStep] = useState(1);
   const [activeTier, setActiveTier] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const TOTAL_STEPS = token ? 5 : 6;
 
   // Step 1
@@ -114,6 +118,42 @@ export default function CoachOnboarding() {
     // No token — auth-based flow (new coach signup)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) { setState("invalid"); return; }
+      setUserId(session.user.id);
+
+      // Check for saved progress (< 7 days old)
+      const saved = (() => {
+        try {
+          const raw = localStorage.getItem(storageKey(session.user.id));
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (Date.now() - parsed.savedAt > ONBOARDING_TTL_MS) {
+            localStorage.removeItem(storageKey(session.user.id));
+            return null;
+          }
+          return parsed;
+        } catch { return null; }
+      })();
+
+      if (saved?.step > 1) {
+        const fd = saved.formData ?? {};
+        setFullName(fd.fullName ?? "");
+        setBio(fd.bio ?? "");
+        setCurrentRole(fd.currentRole ?? "");
+        setLinkedinUrl(fd.linkedinUrl ?? "");
+        setBookingUrl(fd.bookingUrl ?? "");
+        setSpecialtyTags(fd.specialtyTags ?? []);
+        setAudienceTags(fd.audienceTags ?? []);
+        setStyleTags(fd.styleTags ?? []);
+        setIndustryTags(fd.industryTags ?? []);
+        setAvailabilityTag(fd.availabilityTag ?? []);
+        setEnterpriseTags(fd.enterpriseTags ?? []);
+        setCredentialTags(fd.credentialTags ?? []);
+        if (fd.pendingProduct) setPendingProduct(fd.pendingProduct);
+        setStep(saved.step);
+        setState("form");
+        return;
+      }
+
       supabase.from("profiles")
         .select("full_name, user_role, linkedin_url")
         .eq("id", session.user.id)
@@ -179,9 +219,24 @@ export default function CoachOnboarding() {
     return true;
   };
 
+  const persistProgress = (nextStep: number) => {
+    if (!userId) return;
+    localStorage.setItem(storageKey(userId), JSON.stringify({
+      step: nextStep,
+      savedAt: Date.now(),
+      formData: {
+        fullName, bio, currentRole, linkedinUrl, bookingUrl,
+        specialtyTags, audienceTags, styleTags, industryTags,
+        availabilityTag, enterpriseTags, credentialTags, pendingProduct,
+      },
+    }));
+  };
+
   const handleNext = () => {
     if (!validateStep()) return;
-    setStep(s => s + 1);
+    const next = step + 1;
+    persistProgress(next);
+    setStep(next);
   };
 
   const handleSubmit = async () => {
@@ -243,6 +298,7 @@ export default function CoachOnboarding() {
           await supabase.from("coach_applications").insert(appData);
         }
 
+        persistProgress(6);
         toast({ title: "Profile saved!", description: "Now choose your coach tier." });
         setState("form");
         setStep(6);
@@ -531,7 +587,10 @@ export default function CoachOnboarding() {
                     <CoachTierPayment
                       tier={activeTier}
                       onClose={() => setActiveTier(null)}
-                      onSuccess={() => setState("success")}
+                      onSuccess={() => {
+                        if (userId) localStorage.removeItem(storageKey(userId));
+                        setState("success");
+                      }}
                     />
                   )}
                   <div className="space-y-3">

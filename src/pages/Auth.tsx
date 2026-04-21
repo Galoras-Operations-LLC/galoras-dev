@@ -117,6 +117,24 @@ export default function Auth() {
 
       const name = result.user?.user_metadata?.full_name || loginEmail.split("@")[0] || "there";
       toast({ title: `Welcome back, ${name}!` });
+
+      // Resume incomplete coach onboarding if < 7 days old
+      const uid = result.user?.id;
+      if (uid) {
+        try {
+          const raw = localStorage.getItem(`galoras_coach_onboarding_${uid}`);
+          if (raw) {
+            const saved = JSON.parse(raw);
+            const sevenDays = 7 * 24 * 60 * 60 * 1000;
+            if (Date.now() - saved.savedAt < sevenDays && saved.step > 1) {
+              navigate("/coaching/onboarding");
+              return;
+            }
+            localStorage.removeItem(`galoras_coach_onboarding_${uid}`);
+          }
+        } catch { /* ignore */ }
+      }
+
       navigate(redirectParam || "/");
     } catch (err: any) {
       toast({ title: "Invalid code", description: err.message, variant: "destructive" });
