@@ -21,7 +21,6 @@ import { useProductTypes } from "@/hooks/useProductTypes";
 import { CoachTierPayment } from "@/components/coaching/CoachTierPayment";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const ONBOARDING_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const storageKey = (uid: string) => `galoras_coach_onboarding_${uid}`;
 
 const TIER_OPTIONS = [
@@ -122,17 +121,11 @@ export default function CoachOnboarding() {
       if (!session) { setState("invalid"); return; }
       setUserId(session.user.id);
 
-      // Check for saved progress (< 7 days old)
+      // Restore progress saved in this browser session
       const saved = (() => {
         try {
-          const raw = localStorage.getItem(storageKey(session.user.id));
-          if (!raw) return null;
-          const parsed = JSON.parse(raw);
-          if (Date.now() - parsed.savedAt > ONBOARDING_TTL_MS) {
-            localStorage.removeItem(storageKey(session.user.id));
-            return null;
-          }
-          return parsed;
+          const raw = sessionStorage.getItem(storageKey(session.user.id));
+          return raw ? JSON.parse(raw) : null;
         } catch { return null; }
       })();
 
@@ -223,9 +216,8 @@ export default function CoachOnboarding() {
 
   const persistProgress = (nextStep: number) => {
     if (!userId) return;
-    localStorage.setItem(storageKey(userId), JSON.stringify({
+    sessionStorage.setItem(storageKey(userId), JSON.stringify({
       step: nextStep,
-      savedAt: Date.now(),
       formData: {
         fullName, bio, currentRole, linkedinUrl, bookingUrl,
         specialtyTags, audienceTags, styleTags, industryTags,
@@ -703,7 +695,7 @@ export default function CoachOnboarding() {
                           tier={activeTier}
                           onClose={() => setActiveTier(null)}
                           onSuccess={() => {
-                            if (userId) localStorage.removeItem(storageKey(userId));
+                            if (userId) sessionStorage.removeItem(storageKey(userId));
                             setState("success");
                           }}
                         />
