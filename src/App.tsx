@@ -59,6 +59,41 @@ import CookiePolicy from "./pages/legal/CookiePolicy";
 
 const queryClient = new QueryClient();
 
+const PAYMENT_GATE = import.meta.env.VITE_PAYMENT_GATE === "true";
+const GATE_PW = import.meta.env.VITE_GATE_PASSWORD ?? "";
+const GATE_KEY = "glrs_gate";
+
+function PaymentGate({ children }: { children: React.ReactNode }) {
+  const [val, setVal] = useState("");
+  const [err, setErr] = useState(false);
+  const [ok, setOk] = useState(() => GATE_PW !== "" && sessionStorage.getItem(GATE_KEY) === GATE_PW);
+
+  if (!PAYMENT_GATE || ok) return <>{children}</>;
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (val === GATE_PW) { sessionStorage.setItem(GATE_KEY, GATE_PW); setOk(true); }
+    else { setErr(true); setVal(""); }
+  };
+
+  return (
+    <div style={{ minHeight:"100vh", backgroundColor:"#0E0E0E", display:"flex", alignItems:"center", justifyContent:"center", padding:"2rem", fontFamily:"sans-serif" }}>
+      <div style={{ maxWidth:340, width:"100%", textAlign:"center" }}>
+        <p style={{ color:"#59A4E5", fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:10 }}>Restricted</p>
+        <h1 style={{ color:"#fff", fontSize:20, fontWeight:700, marginBottom:6 }}>Access Required</h1>
+        <p style={{ color:"#666", fontSize:13, marginBottom:24 }}>Enter your passcode to continue.</p>
+        <form onSubmit={submit}>
+          <input type="password" value={val} autoFocus placeholder="Passcode"
+            onChange={e => { setVal(e.target.value); setErr(false); }}
+            style={{ width:"100%", padding:"10px 14px", backgroundColor:"#1a1a1a", border:`1px solid ${err?"#e05555":"#2a2a2a"}`, color:"#fff", fontSize:14, outline:"none", marginBottom:6, boxSizing:"border-box" }} />
+          {err && <p style={{ color:"#e05555", fontSize:12, marginBottom:6 }}>Incorrect passcode.</p>}
+          <button type="submit" style={{ width:"100%", padding:"10px 0", backgroundColor:"#59A4E5", color:"#fff", fontWeight:700, fontSize:13, border:"none", cursor:"pointer" }}>CONTINUE</button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function ProtectedRoute({ children, requireAdmin = false }: { children: React.ReactNode; requireAdmin?: boolean }) {
   const [state, setState] = useState<"loading" | "allowed" | "denied">("loading");
 
@@ -111,9 +146,9 @@ function AppRoutes() {
           <Route path="/" element={<Index />} />
 
           {/* B2C Routes — static routes MUST come before dynamic :coachId */}
-          <Route path="/coaching" element={<CoachingDirectory />} />
-          <Route path="/coaching/matching" element={<CoachMatching />} />
-          <Route path="/coaching/compare" element={<CoachCompare />} />
+          <Route path="/coaching" element={<PaymentGate><CoachingDirectory /></PaymentGate>} />
+          <Route path="/coaching/matching" element={<PaymentGate><CoachMatching /></PaymentGate>} />
+          <Route path="/coaching/compare" element={<PaymentGate><CoachCompare /></PaymentGate>} />
           <Route path="/coaching/why" element={<WhyCoaching />} />
           <Route path="/coaching/onboarding" element={<CoachOnboarding />} />
           <Route path="/coaching/:coachId" element={<CoachProfile />} />
@@ -154,17 +189,21 @@ function AppRoutes() {
           <Route
             path="/coach-dashboard"
             element={
-              <ProtectedRoute>
-                <CoachDashboard />
-              </ProtectedRoute>
+              <PaymentGate>
+                <ProtectedRoute>
+                  <CoachDashboard />
+                </ProtectedRoute>
+              </PaymentGate>
             }
           />
           <Route
             path="/coach-dashboard/edit"
             element={
-              <ProtectedRoute>
-                <CoachProfileEdit />
-              </ProtectedRoute>
+              <PaymentGate>
+                <ProtectedRoute>
+                  <CoachProfileEdit />
+                </ProtectedRoute>
+              </PaymentGate>
             }
           />
 
@@ -172,9 +211,11 @@ function AppRoutes() {
           <Route
             path="/admin/portal"
             element={
-              <ProtectedRoute requireAdmin>
-                <Portal />
-              </ProtectedRoute>
+              <PaymentGate>
+                <ProtectedRoute requireAdmin>
+                  <Portal />
+                </ProtectedRoute>
+              </PaymentGate>
             }
           />
 
@@ -182,73 +223,91 @@ function AppRoutes() {
           <Route
             path="/admin/images"
             element={
-              <ProtectedRoute requireAdmin>
-                <ImageGenerator />
-              </ProtectedRoute>
+              <PaymentGate>
+                <ProtectedRoute requireAdmin>
+                  <ImageGenerator />
+                </ProtectedRoute>
+              </PaymentGate>
             }
           />
           <Route
             path="/admin/coach-cutouts"
             element={
-              <ProtectedRoute requireAdmin>
-                <CoachCutoutManager />
-              </ProtectedRoute>
+              <PaymentGate>
+                <ProtectedRoute requireAdmin>
+                  <CoachCutoutManager />
+                </ProtectedRoute>
+              </PaymentGate>
             }
           />
           <Route
             path="/admin/applicants"
             element={
-              <ProtectedRoute requireAdmin>
-                <Applicants />
-              </ProtectedRoute>
+              <PaymentGate>
+                <ProtectedRoute requireAdmin>
+                  <Applicants />
+                </ProtectedRoute>
+              </PaymentGate>
             }
           />
           <Route
             path="/admin/coaches"
             element={
-              <ProtectedRoute requireAdmin>
-                <CoachesList />
-              </ProtectedRoute>
+              <PaymentGate>
+                <ProtectedRoute requireAdmin>
+                  <CoachesList />
+                </ProtectedRoute>
+              </PaymentGate>
             }
           />
           <Route
             path="/admin/coaches/:id"
             element={
-              <ProtectedRoute requireAdmin>
-                <CoachEditorDetail />
-              </ProtectedRoute>
+              <PaymentGate>
+                <ProtectedRoute requireAdmin>
+                  <CoachEditorDetail />
+                </ProtectedRoute>
+              </PaymentGate>
             }
           />
           <Route
             path="/admin/bookings"
             element={
-              <ProtectedRoute requireAdmin>
-                <Bookings />
-              </ProtectedRoute>
+              <PaymentGate>
+                <ProtectedRoute requireAdmin>
+                  <Bookings />
+                </ProtectedRoute>
+              </PaymentGate>
             }
           />
           <Route
             path="/admin/products"
             element={
-              <ProtectedRoute requireAdmin>
-                <ProductManager />
-              </ProtectedRoute>
+              <PaymentGate>
+                <ProtectedRoute requireAdmin>
+                  <ProductManager />
+                </ProtectedRoute>
+              </PaymentGate>
             }
           />
           <Route
             path="/admin/leads"
             element={
-              <ProtectedRoute requireAdmin>
-                <Leads />
-              </ProtectedRoute>
+              <PaymentGate>
+                <ProtectedRoute requireAdmin>
+                  <Leads />
+                </ProtectedRoute>
+              </PaymentGate>
             }
           />
           <Route
             path="/admin/agent-evaluation"
             element={
-              <ProtectedRoute requireAdmin>
-                <AgentEvaluation />
-              </ProtectedRoute>
+              <PaymentGate>
+                <ProtectedRoute requireAdmin>
+                  <AgentEvaluation />
+                </ProtectedRoute>
+              </PaymentGate>
             }
           />
 
