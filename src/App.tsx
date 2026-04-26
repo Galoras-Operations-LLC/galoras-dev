@@ -60,38 +60,10 @@ import CookiePolicy from "./pages/legal/CookiePolicy";
 const queryClient = new QueryClient();
 
 const PAYMENT_GATE = import.meta.env.VITE_PAYMENT_GATE === "true";
-const GATE_PW = import.meta.env.VITE_GATE_PASSWORD ?? "";
-const GATE_KEY = "glrs_gate";
 
 function PaymentGate({ children }: { children: React.ReactNode }) {
-  const [val, setVal] = useState("");
-  const [err, setErr] = useState(false);
-  const [ok, setOk] = useState(() => GATE_PW !== "" && sessionStorage.getItem(GATE_KEY) === GATE_PW);
-
-  if (!PAYMENT_GATE || ok) return <>{children}</>;
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (val === GATE_PW) { sessionStorage.setItem(GATE_KEY, GATE_PW); setOk(true); }
-    else { setErr(true); setVal(""); }
-  };
-
-  return (
-    <div style={{ minHeight:"100vh", backgroundColor:"#0E0E0E", display:"flex", alignItems:"center", justifyContent:"center", padding:"2rem", fontFamily:"sans-serif" }}>
-      <div style={{ maxWidth:340, width:"100%", textAlign:"center" }}>
-        <p style={{ color:"#59A4E5", fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:10 }}>Restricted</p>
-        <h1 style={{ color:"#fff", fontSize:20, fontWeight:700, marginBottom:6 }}>Access Required</h1>
-        <p style={{ color:"#666", fontSize:13, marginBottom:24 }}>Enter your passcode to continue.</p>
-        <form onSubmit={submit}>
-          <input type="password" value={val} autoFocus placeholder="Passcode"
-            onChange={e => { setVal(e.target.value); setErr(false); }}
-            style={{ width:"100%", padding:"10px 14px", backgroundColor:"#1a1a1a", border:`1px solid ${err?"#e05555":"#2a2a2a"}`, color:"#fff", fontSize:14, outline:"none", marginBottom:6, boxSizing:"border-box" }} />
-          {err && <p style={{ color:"#e05555", fontSize:12, marginBottom:6 }}>Incorrect passcode.</p>}
-          <button type="submit" style={{ width:"100%", padding:"10px 0", backgroundColor:"#59A4E5", color:"#fff", fontWeight:700, fontSize:13, border:"none", cursor:"pointer" }}>CONTINUE</button>
-        </form>
-      </div>
-    </div>
-  );
+  if (!PAYMENT_GATE) return <>{children}</>;
+  return <NotFound />;
 }
 
 function ProtectedRoute({ children, requireAdmin = false }: { children: React.ReactNode; requireAdmin?: boolean }) {
